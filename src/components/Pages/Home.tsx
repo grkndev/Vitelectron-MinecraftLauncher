@@ -157,14 +157,14 @@ export default function Home() {
       <div className="relative z-10 w-full gap-4 flex flex-col transition-all duration-300">
         {/* Hero */}
         <div className=" w-full flex justify-between items-center ">
-          <div className="flex items-center gap-2 text-white border-l-4 border-orange-500">
+          <div className="flex items-center gap-2 text-white border-l-4 border-green-700">
             <UserRound className="w-16 h-16" />
             <div>
               <h6 className="text-sm text-slate-400">Hoşgeldiniz</h6>
               <h1 className="text-6xl font-bold">{user?.username || 'Kullanıcı'}</h1>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-white border-r-4 border-orange-500">
+          <div className="flex items-center gap-2 text-white border-r-4 border-green-700">
             <button
               onClick={handleProgress}
               disabled={isSimulating}

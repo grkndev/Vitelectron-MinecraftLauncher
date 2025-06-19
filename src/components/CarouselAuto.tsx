@@ -51,8 +51,8 @@ export default function CarouselAuto() {
                 // }}
                 className="max-w-sm"
                 plugins={[plugin.current]}
-                // onMouseEnter={plugin.current.stop}
-                // onMouseLeave={plugin.current.reset}
+                onMouseEnter={plugin.current.stop}
+                onMouseLeave={plugin.current.reset}
             >
                 <CarouselContent className="h-full ">
 
