@@ -95,3 +95,44 @@
   }
 }
 
+/* Performance optimizations for backdrop blur */
+@layer utilities {
+  .backdrop-blur-optimized {
+    will-change: backdrop-filter;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  
+  .backdrop-blur-xl-optimized {
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    will-change: backdrop-filter;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  
+  .backdrop-blur-2xl-optimized {
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    will-change: backdrop-filter;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  
+  .backdrop-blur-sm-optimized {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    will-change: backdrop-filter;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+}
+

@@ -42,7 +42,7 @@ export default function CarouselAuto() {
     }, [api])
 
     return (
-        <div className="relative max-w-sm ">
+        <div className="relative max-w-sm bg-transparent backdrop-blur-xl-optimized">
             <Carousel
                 setApi={setApi}
                 // opts={{
@@ -57,7 +57,7 @@ export default function CarouselAuto() {
                 <CarouselContent className="h-full ">
 
                     <CarouselItem key={1} className="w-full max-w-sm">
-                        <Card className=" max-w-sm">
+                        <Card className=" max-w-sm bg-transparent backdrop-blur-xl-optimized">
                             <CardHeader className="items-center flex justify-center">
                                 <CardTitle>
                                     <Badge className="text-sm bg-green-700 text-white font-medium">Yeni Ürünler</Badge>
@@ -79,7 +79,7 @@ export default function CarouselAuto() {
                     </CarouselItem>
 
                     <CarouselItem key={2} className="w-full max-w-sm">
-                        <Card className=" max-w-sm">
+                        <Card className=" max-w-sm bg-transparent backdrop-blur-xl-optimized">
                             <CardHeader className="items-center flex justify-center">
                                 <CardTitle>
                                     <Badge className="text-sm bg-green-700 text-white font-medium">Yeni Ürünler</Badge>
@@ -101,7 +101,7 @@ export default function CarouselAuto() {
                     </CarouselItem>
 
                     <CarouselItem key={3} className="w-full max-w-sm">
-                        <Card className=" max-w-sm">
+                        <Card className=" max-w-sm bg-transparent backdrop-blur-xl-optimized">
                             <CardHeader className="items-center flex justify-center">
                                 <CardTitle>
                                     <Badge className="text-sm bg-green-700 text-white font-medium">Yeni Ürünler</Badge>

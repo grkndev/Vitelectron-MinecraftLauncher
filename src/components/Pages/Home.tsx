@@ -83,7 +83,7 @@ export default function Home() {
               <Settings className="w-8 h-8" />
             </Button>
           </DialogTrigger>
-          <DialogContent className="focus:outline-none" onOpenAutoFocus={(e) => e.preventDefault()}>
+          <DialogContent className="focus:outline-none " onOpenAutoFocus={(e) => e.preventDefault()}>
             <DialogHeader>
               <DialogTitle>Ayarlar</DialogTitle>
               <DialogDescription>
@@ -100,13 +100,13 @@ export default function Home() {
                   value={selectedRam}
                   onValueChange={setSelectedRam}
                 >
-                  <ToggleGroupItem value="1024" className="focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <ToggleGroupItem value="1024" className="focus:outline-none focus:ring-0 ">
                     1024 MB
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="2048" className="focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <ToggleGroupItem value="2048" className="focus:outline-none focus:ring-0 ">
                     2048 MB
                   </ToggleGroupItem>
-                  <ToggleGroupItem value="4096" className="focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <ToggleGroupItem value="4096" className="focus:outline-none focus:ring-0 ">
                     4096 MB
                   </ToggleGroupItem>
                 </ToggleGroup>
@@ -168,7 +168,7 @@ export default function Home() {
             <button
               onClick={handleProgress}
               disabled={isSimulating}
-              className={`py-8 px-4 min-w-64 gap-4 transition-all duration-300 items-center justify-center flex hover:bg-black/50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/50`}
+              className={`bg-transparent hover:bg-black/25  py-8 px-4 min-w-64 gap-4 transition-all duration-300 items-center justify-center flex  cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/50`}
               tabIndex={0}
             >
               {

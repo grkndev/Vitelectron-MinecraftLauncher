@@ -15,8 +15,8 @@ import CarouselAuto from "../CarouselAuto"
 export default function Announcements() {
     
     return (
-        <div className="animate-in slide-in-from-top-4 fade-in duration-500 ease-out w-full flex flex-row justify-center items-center gap-4 h-full">
-            <Card className="w-full max-w-sm h-full">
+        <div className=" animate-in slide-in-from-top-4 fade-in duration-500 ease-out w-full flex flex-row justify-center items-center gap-4 h-full">
+            <Card className="w-full max-w-sm h-full bg-transparent backdrop-blur-xl-optimized">
                 <CardHeader className="items-center flex justify-center">
                     <CardTitle>
                         <Badge className="text-sm bg-green-700 text-white font-medium">Yeni Ürünler</Badge>
@@ -26,7 +26,16 @@ export default function Announcements() {
                     <p>Yeni kozmetiklerimizi denedin mi?</p>
 
                     <div>
-                        <div className="sketchfab-embed-wrapper"> <iframe title="Baby Moth - Minecraft Creature" frameBorder="0" allowFullScreen mozAllowFullScreen="true" webkitAllowFullScreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/2479e6dc5013498dbe9bc0df481ead15/embed?autostart=1&transparent=1&ui_theme=dark"> </iframe> </div>
+                        <div className="sketchfab-embed-wrapper"> 
+                            <iframe 
+                                title="Baby Moth - Minecraft Creature" 
+                                frameBorder="0" 
+                                allowFullScreen={false} 
+                                allow="autoplay; xr-spatial-tracking" 
+                                
+                                src="https://sketchfab.com/models/2479e6dc5013498dbe9bc0df481ead15/embed?autostart=1&transparent=1&ui_theme=dark"
+                            /> 
+                        </div>
                     </div>
                 </CardContent>
                 <CardFooter>
