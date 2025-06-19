@@ -20,6 +20,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { useAuth } from "../../contexts/AuthContext"
+import Announcements from "./Announcements"
 
 export default function Home() {
   const [progress, setProgress] = useState(0)
@@ -66,12 +67,12 @@ export default function Home() {
   }
 
   return (
-    <div className="relative flex justify-center items-end h-screen bg-gradient-to-tl from-slate-950 to-black p-4">
+    <div className="relative flex flex-col justify-between items-start h-screen bg-gradient-to-tl from-slate-950 to-black p-4">
       {/* Background image with 25% opacity */}
       <div className="absolute inset-0 bg-[url('/bg.png')] bg-cover bg-center opacity-25"></div>
 
       {/* Settings */}
-      <div className="absolute top-0 left-0 m-6 flex items-center gap-2">
+      <div className="m-6 flex items-center gap-2 z-10">
         <Dialog>
           <DialogTrigger asChild>
             <Button
@@ -148,18 +149,22 @@ export default function Home() {
         </Tooltip>
       </div>
 
+      {/* Announcements */}
+      <div className="w-full z-10">
+        <Announcements />
+      </div>
       {/* Content */}
       <div className="relative z-10 w-full gap-4 flex flex-col transition-all duration-300">
         {/* Hero */}
         <div className=" w-full flex justify-between items-center ">
-          <div className="flex items-center gap-2 text-white">
+          <div className="flex items-center gap-2 text-white border-l-4 border-orange-500">
             <UserRound className="w-16 h-16" />
             <div>
               <h6 className="text-sm text-slate-400">Hoşgeldiniz</h6>
               <h1 className="text-6xl font-bold">{user?.username || 'Kullanıcı'}</h1>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-white">
+          <div className="flex items-center gap-2 text-white border-r-4 border-orange-500">
             <button
               onClick={handleProgress}
               disabled={isSimulating}
