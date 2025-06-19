@@ -22,5 +22,6 @@ electron.contextBridge.exposeInMainWorld("ipcRenderer", {
 });
 electron.contextBridge.exposeInMainWorld("electronAPI", {
   minimizeWindow: () => electron.ipcRenderer.invoke("minimize-window"),
-  closeWindow: () => electron.ipcRenderer.invoke("close-window")
+  closeWindow: () => electron.ipcRenderer.invoke("close-window"),
+  launchMinecraft: () => electron.ipcRenderer.invoke("launch-minecraft")
 });

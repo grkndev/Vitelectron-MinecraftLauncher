@@ -36,7 +36,6 @@ export default function CarouselAuto() {
        
         api.on("select", () => {
             setCurrent(api.selectedScrollSnap())
-            console.log(api.selectedScrollSnap())
 
         })
     }, [api])

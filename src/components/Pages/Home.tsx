@@ -55,6 +55,8 @@ export default function Home() {
   }, [isSimulating, progress])
 
   function handleProgress() {
+    window.electronAPI.launchMinecraft()
+    return;
     if (!isSimulating) {
       setProgress(0) // Reset progress
       setIsSimulating(true) // Start simulation
