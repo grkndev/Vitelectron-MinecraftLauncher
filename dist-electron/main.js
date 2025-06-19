@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -13,9 +13,21 @@ let win;
 function createWindow() {
   win = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
+    // frame: false, // Remove the window frame (title bar)
     webPreferences: {
       preload: path.join(__dirname, "preload.mjs")
-    }
+    },
+    height: 768,
+    width: 1366,
+    minWidth: 1366,
+    minHeight: 768,
+    maxWidth: 1366,
+    maxHeight: 768,
+    resizable: false,
+    maximizable: false,
+    movable: true,
+    title: "GrknDev Minecraft Launcher",
+    titleBarStyle: "hidden"
   });
   win.webContents.on("did-finish-load", () => {
     win == null ? void 0 : win.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
@@ -38,6 +50,16 @@ app.on("activate", () => {
   }
 });
 app.whenReady().then(createWindow);
+ipcMain.handle("minimize-window", () => {
+  if (win) {
+    win.minimize();
+  }
+});
+ipcMain.handle("close-window", () => {
+  if (win) {
+    win.close();
+  }
+});
 export {
   MAIN_DIST,
   RENDERER_DIST,
