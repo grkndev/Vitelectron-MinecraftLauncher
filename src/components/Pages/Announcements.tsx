@@ -15,7 +15,7 @@ import CarouselAuto from "../CarouselAuto"
 export default function Announcements() {
     
     return (
-        <div className="w-full flex flex-row justify-center items-center gap-4 h-full">
+        <div className="animate-in slide-in-from-top-4 fade-in duration-500 ease-out w-full flex flex-row justify-center items-center gap-4 h-full">
             <Card className="w-full max-w-sm h-full">
                 <CardHeader className="items-center flex justify-center">
                     <CardTitle>

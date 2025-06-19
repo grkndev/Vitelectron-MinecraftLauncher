@@ -72,7 +72,7 @@ export default function Home() {
       <div className="absolute inset-0 bg-[url('/bg.png')] bg-cover bg-center opacity-25"></div>
 
       {/* Settings */}
-      <div className="m-6 flex items-center gap-2 z-10">
+      <div className="animate-in slide-in-from-top-4 fade-in duration-500 ease-out m-6 flex items-center gap-2 z-10">
         <Dialog>
           <DialogTrigger asChild>
             <Button
@@ -156,7 +156,7 @@ export default function Home() {
       {/* Content */}
       <div className="relative z-10 w-full gap-4 flex flex-col transition-all duration-300">
         {/* Hero */}
-        <div className=" w-full flex justify-between items-center ">
+        <div className="animate-in slide-in-from-bottom-4 fade-in duration-500 ease-out w-full flex justify-between items-center ">
           <div className="flex items-center gap-2 text-white border-l-4 border-green-700">
             <UserRound className="w-16 h-16" />
             <div>
