@@ -20,47 +20,45 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { useAuth } from "../../contexts/AuthContext"
+import { useGameProgress } from "../../contexts/GameProgressContext"
 import Announcements from "./Announcements"
 
 export default function Home() {
-  const [progress, setProgress] = useState(0)
-  const [isSimulating, setIsSimulating] = useState(false)
   const [selectedRam, setSelectedRam] = useState<string>("1024")
 
   const { user, logout } = useAuth()
+  const {
+    isLaunching,
+    progress,
+    progressText,
+    downloadSpeed,
+    eta,
+    currentType,
+    isCompleted,
+    startLaunch,
+    resetProgress
+  } = useGameProgress()
   const navigate = useNavigate()
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout
-
-    if (isSimulating && progress < 100) {
-      interval = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 100) {
-            setIsSimulating(false)
-
-            return 0
-          }
-          return prev + 10
-        })
-      }, 200) // 200ms delay for better visual effect
-    }
-
-
-    return () => {
-      if (interval) {
-        clearInterval(interval)
-      }
-    }
-  }, [isSimulating, progress])
-
   function handleProgress() {
-    window.electronAPI.launchMinecraft()
-    return;
-    if (!isSimulating) {
-      setProgress(0) // Reset progress
-      setIsSimulating(true) // Start simulation
-    }
+    // console.log("launching minecraft")
+    startLaunch()
+  }
+
+  // Format download speed for display
+  const formatSpeed = (speed: number): string => {
+    if (speed === 0) return ''
+    const mbps = speed / (1024 * 1024)
+    return `${mbps.toFixed(1)} MB/s`
+  }
+
+  // Format ETA for display
+  const formatETA = (eta: number): string => {
+    if (eta === 0) return ''
+    if (eta < 60) return `${Math.round(eta)}s kaldı`
+    const minutes = Math.floor(eta / 60)
+    const seconds = Math.round(eta % 60)
+    return `${minutes}m ${seconds}s kaldı`
   }
 
   const handleLogout = () => {
@@ -169,20 +167,24 @@ export default function Home() {
           <div className="flex items-center gap-2 text-white border-r-4 border-green-700">
             <button
               onClick={handleProgress}
-              disabled={isSimulating}
-              className={`bg-transparent hover:bg-black/25  py-8 px-4 min-w-64 gap-4 transition-all duration-300 items-center justify-center flex  cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/50`}
+              disabled={isLaunching}
+              className={`bg-transparent hover:bg-black/25  py-8 px-4 min-w-64 gap-4 transition-all duration-300 items-center justify-center flex  cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/50 ${isCompleted ? 'border-green-400' : ''}`}
               tabIndex={0}
             >
               {
-                isSimulating ? (
+                isLaunching ? (
+                  <Loader2 className="w-9 h-9 animate-spin" />
+                ) : isCompleted ? (
                   <Loader2 className="w-9 h-9 animate-spin" />
                 ) : (
                   <Play className="w-9 h-9 fill-white" />
                 )
               }
               <span className="text-4xl font-bold">
-                {isSimulating ? (
+                {isLaunching ? (
                   'Yükleniyor'
+                ) : isCompleted ? (
+                  'Başlatılıyor'
                 ) : (
                   'Oyna'
                 )}
@@ -192,14 +194,33 @@ export default function Home() {
         </div>
 
         {/* Animated Progress Bar */}
-        {isSimulating && (
+        {isLaunching && (
           <div className="w-full animate-in slide-in-from-bottom-4 fade-in duration-500 ease-out">
-            <div className="mb-2 flex justify-between text-white text-sm ">
-              <span>İlerleme</span>
-              <span>{progress}%</span>
+            <div className="mb-2 flex justify-between text-white text-sm">
+              <div className="flex flex-col">
+                <span>{progressText || 'İlerleme'}</span>
+                {currentType && (
+                  <span className="text-xs text-slate-400">
+                    {currentType === 'LIBRARY' ? 'Kütüphaneler' : 'Paketler'}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-row items-center gap-4">
+                <span>{progress}%</span>
+                {downloadSpeed > 0 && (
+                  <span className="text-xs text-slate-400">
+                    {formatSpeed(downloadSpeed)}
+                  </span>
+                )}
+                {eta > 0 && (
+                  <span className="text-xs text-slate-400">
+                    {formatETA(eta)}
+                  </span>
+                )}
+              </div>
             </div>
             <div className="">
-              <Progress value={progress} />
+              <Progress value={progress} className={`transition-all duration-200 ${progress === 100 ? 'bg-green-600' : ''}`} />
             </div>
           </div>
         )}

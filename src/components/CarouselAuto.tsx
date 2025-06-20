@@ -41,21 +41,21 @@ export default function CarouselAuto() {
     }, [api])
 
     return (
-        <div className="relative max-w-sm bg-transparent backdrop-blur-xl-optimized">
+        <div className="relative max-w-sm ">
             <Carousel
                 setApi={setApi}
                 // opts={{
                 //     align: "start",
                 //     loop: true,
                 // }}
-                className="max-w-sm"
+                className="w-full"
                 plugins={[plugin.current]}
                 onMouseEnter={plugin.current.stop}
                 onMouseLeave={plugin.current.reset}
             >
                 <CarouselContent className="h-full ">
 
-                    <CarouselItem key={1} className="w-full max-w-sm">
+                    <CarouselItem key={1} className="w-full ">
                         <Card className=" max-w-sm bg-transparent backdrop-blur-xl-optimized">
                             <CardHeader className="items-center flex justify-center">
                                 <CardTitle>
@@ -77,7 +77,7 @@ export default function CarouselAuto() {
                         </Card>
                     </CarouselItem>
 
-                    <CarouselItem key={2} className="w-full max-w-sm">
+                    <CarouselItem key={2} className="w-full ">
                         <Card className=" max-w-sm bg-transparent backdrop-blur-xl-optimized">
                             <CardHeader className="items-center flex justify-center">
                                 <CardTitle>
@@ -99,7 +99,7 @@ export default function CarouselAuto() {
                         </Card>
                     </CarouselItem>
 
-                    <CarouselItem key={3} className="w-full max-w-sm">
+                    <CarouselItem key={3} className="w-full ">
                         <Card className=" max-w-sm bg-transparent backdrop-blur-xl-optimized">
                             <CardHeader className="items-center flex justify-center">
                                 <CardTitle>

@@ -94,5 +94,5 @@ ipcMain.handle('close-window', () => {
   }
 })
 ipcMain.handle('launch-minecraft', () => {
-  launchMinecraft()
+  launchMinecraft(win)
 })
