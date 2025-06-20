@@ -1,5 +1,4 @@
 import EML from "eml-lib"
-import MCCore from "minecraft-launcher-core"
 
 async function launchMinecraft(mainWindow?: any) {
     const launcher = new EML.Launcher({
@@ -71,27 +70,5 @@ async function launchMinecraft(mainWindow?: any) {
             mainWindow.webContents.send('launch-error', e)
         }
     }
-}
-
-async function test() {
-    console.log("launching minecraft async")
-    const launcher = new MCCore.Client()
-    let opts: MCCore.ILauncherOptions = {
-        authorization: MCCore.Authenticator.getAuth("grkndev"),
-        root: "./minecraft",
-        version: {
-            number: "1.21.6",
-            type: "release",
-        },
-        memory: {
-            max: "2G",
-            min: "1G",
-        },
-    }
-
-    launcher.launch(opts)
-    launcher.on("data", (e) => console.log("data: ", e))
-    // launcher.on("download", (e) => console.log("download: ", e))
-    // launcher.on("progress", (e) => console.log("progress: ", e))
 }
 export default launchMinecraft

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react'
 
 interface ProgressData {
   total: { amount: number; size: number }
@@ -83,7 +83,7 @@ export function GameProgressProvider({ children }: GameProgressProviderProps) {
   useEffect(() => {
     if (typeof window !== 'undefined' && window.ipcRenderer) {
       // Listen for launch download start
-      window.ipcRenderer.on('launch-download', (event: any, data: LaunchData) => {
+      window.ipcRenderer.on('launch-download', (_: any, data: LaunchData) => {
         // //console.log('Launch download event:', data)
         
         if (data.total.size > 0) {
@@ -104,19 +104,19 @@ export function GameProgressProvider({ children }: GameProgressProviderProps) {
       })
 
       // Listen for download progress
-      window.ipcRenderer.on('download-progress', (event: any, data: ProgressData) => {
+      window.ipcRenderer.on('download-progress', (_: any, data: ProgressData) => {
         updateProgress(data)
       })
 
       // Listen for download end
-      window.ipcRenderer.on('download-end', (event: any, data: any) => {
+      window.ipcRenderer.on('download-end', () => {
         //console.log('Download end:', data)
         setProgress(100)
         setProgressText('İndirme tamamlandı')
       })
 
       // Listen for launch success
-      window.ipcRenderer.on('launch-success', (event: any) => {
+      window.ipcRenderer.on('launch-success', (_: any) => {
         //console.log('Launch success')
         setProgress(100)
         setProgressText('Oyun başlatıldı!')
@@ -133,7 +133,7 @@ export function GameProgressProvider({ children }: GameProgressProviderProps) {
       })
 
       // Listen for launch error
-      window.ipcRenderer.on('launch-error', (event: any, error: any) => {
+      window.ipcRenderer.on('launch-error', (_: any, error: any) => {
         console.error('Launch error:', error)
         setProgressText('Hata oluştu!')
         setIsLaunching(false)

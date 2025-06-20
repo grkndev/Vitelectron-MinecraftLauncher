@@ -1,8 +1,8 @@
-import { Loader2, LogOut, Play, Plus, Settings, UserRound, Verified } from "lucide-react"
+import { Loader2, LogOut, Play, Settings, UserRound, Verified } from "lucide-react"
 import { Button } from "../ui/button"
-import { Link, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { Progress } from "../ui/progress"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Input } from "../ui/input"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Badge } from "../ui/badge"
 import {
@@ -36,7 +35,6 @@ export default function Home() {
     currentType,
     isCompleted,
     startLaunch,
-    resetProgress
   } = useGameProgress()
   const navigate = useNavigate()
 
