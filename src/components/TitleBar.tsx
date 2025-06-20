@@ -12,12 +12,21 @@ declare global {
 
 export default function TitleBar() {
   const handleMinimize = () => {
-    window.electronAPI.minimizeWindow();
+    if (window.electronAPI) {
+      window.electronAPI.minimizeWindow();
+    }
   };
 
   const handleClose = () => {
-    window.electronAPI.closeWindow();
+    if (window.electronAPI) {
+      window.electronAPI.closeWindow();
+    }
   };
+
+  // Only show TitleBar in Electron environment
+  if (!window.electronAPI) {
+    return null;
+  }
 
   return (
     <div 

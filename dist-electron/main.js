@@ -1,81 +1,101 @@
-import i2, { app as Ae, BrowserWindow as lp, ipcMain as ia } from "electron";
-import { fileURLToPath as l2 } from "node:url";
-import U1 from "node:path";
-import Ce from "node:crypto";
-import H1 from "fs";
-import n1 from "path";
-import v1 from "stream";
-import rp from "http";
-import Re from "url";
-import mp from "punycode";
-import r2 from "https";
-import b1 from "zlib";
-import m2 from "events";
-import sp from "crypto";
-import s2 from "os";
-import xe from "child_process";
-import o2 from "net";
-var I = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {};
-function op(a) {
-  if (a.__esModule) return a;
-  var e = a.default;
-  if (typeof e == "function") {
-    var p = function t() {
-      return this instanceof t ? Reflect.construct(e, arguments, this.constructor) : e.apply(this, arguments);
+import require$$0, { app, BrowserWindow, ipcMain } from "electron";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
+import crypto from "node:crypto";
+import require$$2$1 from "fs";
+import require$$1$2 from "path";
+import Stream from "stream";
+import http from "http";
+import Url from "url";
+import require$$0$1 from "punycode";
+import https from "https";
+import zlib from "zlib";
+import require$$0$2 from "events";
+import require$$3 from "crypto";
+import require$$4 from "os";
+import require$$4$1 from "child_process";
+import require$$0$3 from "net";
+var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
+function getAugmentedNamespace(n) {
+  if (n.__esModule) return n;
+  var f = n.default;
+  if (typeof f == "function") {
+    var a = function a2() {
+      if (this instanceof a2) {
+        return Reflect.construct(f, arguments, this.constructor);
+      }
+      return f.apply(this, arguments);
     };
-    p.prototype = e.prototype;
-  } else p = {};
-  return Object.defineProperty(p, "__esModule", { value: !0 }), Object.keys(a).forEach(function(t) {
-    var d = Object.getOwnPropertyDescriptor(a, t);
-    Object.defineProperty(p, t, d.get ? d : {
-      enumerable: !0,
+    a.prototype = f.prototype;
+  } else a = {};
+  Object.defineProperty(a, "__esModule", { value: true });
+  Object.keys(n).forEach(function(k) {
+    var d = Object.getOwnPropertyDescriptor(n, k);
+    Object.defineProperty(a, k, d.get ? d : {
+      enumerable: true,
       get: function() {
-        return a[t];
+        return n[k];
       }
     });
-  }), p;
+  });
+  return a;
 }
-var Z = {}, la = {}, ra = {};
+var emlLib = {};
+var microsoft = {};
+var microsoftgui = {};
 /**
  * @license MIT
  * @copyright Copyright (c) 2024, GoldFrite
  */
-Object.defineProperty(ra, "__esModule", { value: !0 });
-const te = i2;
-class n2 {
-  constructor(e, p) {
-    this.window = new te.BrowserWindow({
-      parent: e,
-      modal: !0,
+Object.defineProperty(microsoftgui, "__esModule", { value: true });
+const electron_1 = require$$0;
+class MicrosoftAuthGui {
+  constructor(mainWindow, clientId) {
+    this.window = new electron_1.BrowserWindow({
+      parent: mainWindow,
+      modal: true,
       width: 630,
       height: 650,
-      resizable: !1,
-      minimizable: !1,
-      center: !0,
+      resizable: false,
+      minimizable: false,
+      center: true,
       webPreferences: {
-        devTools: !0
+        devTools: true
       }
-    }), this.clientId = p;
+    });
+    this.clientId = clientId;
   }
   async openWindow() {
-    return await new Promise((e) => {
-      te.app.whenReady().then(() => (te.session.defaultSession.cookies.get({ domain: "live.com" }).then((p) => {
-        for (let t of p) {
-          let d = `http${t.secure ? "s" : ""}://${t.domain.replace(/$\./, "") + t.path}`;
-          te.session.defaultSession.cookies.remove(d, t.name);
-        }
-      }), e()));
-    }), new Promise((e) => {
-      te.app.whenReady().then(() => {
-        this.window.setMenu(null), this.window.loadURL(`https://login.live.com/oauth20_authorize.srf?client_id=${this.clientId}&response_type=code&redirect_uri=https://login.live.com/oauth20_desktop.srf&scope=XboxLive.signin%20offline_access&cobrandid=8058f65d-ce06-4c30-9559-473c9275a65d&prompt=select_account`);
-        var p = !1;
+    await new Promise((resolve) => {
+      electron_1.app.whenReady().then(() => {
+        electron_1.session.defaultSession.cookies.get({ domain: "live.com" }).then((cookies) => {
+          for (let cookie of cookies) {
+            let cookieUrl = `http${cookie.secure ? "s" : ""}://${cookie.domain.replace(/$\./, "") + cookie.path}`;
+            electron_1.session.defaultSession.cookies.remove(cookieUrl, cookie.name);
+          }
+        });
+        return resolve();
+      });
+    });
+    return new Promise((resolve) => {
+      electron_1.app.whenReady().then(() => {
+        this.window.setMenu(null);
+        this.window.loadURL(`https://login.live.com/oauth20_authorize.srf?client_id=${this.clientId}&response_type=code&redirect_uri=https://login.live.com/oauth20_desktop.srf&scope=XboxLive.signin%20offline_access&cobrandid=8058f65d-ce06-4c30-9559-473c9275a65d&prompt=select_account`);
+        var loading = false;
         this.window.on("close", () => {
-          p || e("cancel");
-        }), this.window.webContents.on("did-finish-load", () => {
-          const t = this.window.webContents.getURL();
-          if (t.startsWith("https://login.live.com/oauth20_desktop.srf")) {
-            const d = new URLSearchParams(t.substr(t.indexOf("?") + 1)).get("code");
-            d ? (e(d), p = !0) : e("cancel");
+          if (!loading)
+            resolve("cancel");
+        });
+        this.window.webContents.on("did-finish-load", () => {
+          const location = this.window.webContents.getURL();
+          if (location.startsWith("https://login.live.com/oauth20_desktop.srf")) {
+            const urlParams = new URLSearchParams(location.substr(location.indexOf("?") + 1)).get("code");
+            if (urlParams) {
+              resolve(urlParams);
+              loading = true;
+            } else {
+              resolve("cancel");
+            }
             try {
               this.window.close();
             } catch {
@@ -87,62 +107,77 @@ class n2 {
     });
   }
 }
-ra.default = n2;
-var l1 = {};
+microsoftgui.default = MicrosoftAuthGui;
+var errors$1 = {};
 /**
  * @license MIT
  * @copyright Copyright (c) 2024, GoldFrite
  */
-Object.defineProperty(l1, "__esModule", { value: !0 });
-l1.ErrorType = l1.EMLLibError = void 0;
-class u2 extends Error {
-  constructor(e, p) {
-    super(p), this.code = e;
+Object.defineProperty(errors$1, "__esModule", { value: true });
+errors$1.ErrorType = errors$1.EMLLibError = void 0;
+class EMLLibError extends Error {
+  constructor(code, message) {
+    super(message);
+    this.code = code;
   }
 }
-l1.EMLLibError = u2;
-var xa;
-(function(a) {
-  a[a.UNKNOWN_ERROR = 0] = "UNKNOWN_ERROR", a[a.TWOFA_CODE_REQUIRED = 1] = "TWOFA_CODE_REQUIRED", a[a.AUTH_ERROR = 2] = "AUTH_ERROR", a[a.AUTH_CANCELLED = 3] = "AUTH_CANCELLED", a[a.HASH_ERROR = 4] = "HASH_ERROR", a[a.DOWNLOAD_ERROR = 5] = "DOWNLOAD_ERROR", a[a.UNKNOWN_OS = 6] = "UNKNOWN_OS", a[a.FETCH_ERROR = 7] = "FETCH_ERROR", a[a.NET_ERROR = 8] = "NET_ERROR", a[a.FILE_ERROR = 9] = "FILE_ERROR", a[a.EXEC_ERROR = 10] = "EXEC_ERROR", a[a.JAVA_ERROR = 11] = "JAVA_ERROR", a[a.MINECRAFT_ERROR = 12] = "MINECRAFT_ERROR";
-})(xa || (l1.ErrorType = xa = {}));
+errors$1.EMLLibError = EMLLibError;
+var ErrorType;
+(function(ErrorType2) {
+  ErrorType2[ErrorType2["UNKNOWN_ERROR"] = 0] = "UNKNOWN_ERROR";
+  ErrorType2[ErrorType2["TWOFA_CODE_REQUIRED"] = 1] = "TWOFA_CODE_REQUIRED";
+  ErrorType2[ErrorType2["AUTH_ERROR"] = 2] = "AUTH_ERROR";
+  ErrorType2[ErrorType2["AUTH_CANCELLED"] = 3] = "AUTH_CANCELLED";
+  ErrorType2[ErrorType2["HASH_ERROR"] = 4] = "HASH_ERROR";
+  ErrorType2[ErrorType2["DOWNLOAD_ERROR"] = 5] = "DOWNLOAD_ERROR";
+  ErrorType2[ErrorType2["UNKNOWN_OS"] = 6] = "UNKNOWN_OS";
+  ErrorType2[ErrorType2["FETCH_ERROR"] = 7] = "FETCH_ERROR";
+  ErrorType2[ErrorType2["NET_ERROR"] = 8] = "NET_ERROR";
+  ErrorType2[ErrorType2["FILE_ERROR"] = 9] = "FILE_ERROR";
+  ErrorType2[ErrorType2["EXEC_ERROR"] = 10] = "EXEC_ERROR";
+  ErrorType2[ErrorType2["JAVA_ERROR"] = 11] = "JAVA_ERROR";
+  ErrorType2[ErrorType2["MINECRAFT_ERROR"] = 12] = "MINECRAFT_ERROR";
+})(ErrorType || (errors$1.ErrorType = ErrorType = {}));
 /**
  * @license MIT
  * @copyright Copyright (c) 2024, GoldFrite
  */
-var f2 = I && I.__importDefault || function(a) {
-  return a && a.__esModule ? a : { default: a };
+var __importDefault$d = commonjsGlobal && commonjsGlobal.__importDefault || function(mod) {
+  return mod && mod.__esModule ? mod : { "default": mod };
 };
-Object.defineProperty(la, "__esModule", { value: !0 });
-const c2 = f2(ra), Q = l1;
-class h2 {
+Object.defineProperty(microsoft, "__esModule", { value: true });
+const microsoftgui_1 = __importDefault$d(microsoftgui);
+const errors_1$b = errors$1;
+class MicrosoftAuth {
   /**
    * @param mainWindow Your electron application's main window (to create a child window for the Microsoft login).
    * @param clientId [Optional] Your Microsoft application's client ID.
    */
-  constructor(e, p) {
-    this.mainWindow = e, this.clientId = p || "00000000402b5328";
+  constructor(mainWindow, clientId) {
+    this.mainWindow = mainWindow;
+    this.clientId = clientId || "00000000402b5328";
   }
   /**
    * Authenticate a user with Microsoft. This method will open a child window to login.
    * @returns The account information.
    */
   async auth() {
-    let e = await new c2.default(this.mainWindow, this.clientId).openWindow();
-    if (e == "cancel")
-      throw new Q.EMLLibError(Q.ErrorType.AUTH_CANCELLED, "User cancelled the login");
-    let p = await fetch("https://login.live.com/oauth20_token.srf", {
+    let userCode = await new microsoftgui_1.default(this.mainWindow, this.clientId).openWindow();
+    if (userCode == "cancel")
+      throw new errors_1$b.EMLLibError(errors_1$b.ErrorType.AUTH_CANCELLED, "User cancelled the login");
+    let res = await fetch("https://login.live.com/oauth20_token.srf", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded"
       },
-      body: `client_id=${this.clientId}&code=${e}&grant_type=authorization_code&redirect_uri=https://login.live.com/oauth20_desktop.srf`
-    }).then((t) => t.json()).catch((t) => {
-      throw new Q.EMLLibError(Q.ErrorType.AUTH_ERROR, "Error while getting the OAuth2 token");
+      body: `client_id=${this.clientId}&code=${userCode}&grant_type=authorization_code&redirect_uri=https://login.live.com/oauth20_desktop.srf`
+    }).then((res2) => res2.json()).catch((err) => {
+      throw new errors_1$b.EMLLibError(errors_1$b.ErrorType.AUTH_ERROR, "Error while getting the OAuth2 token");
     });
     try {
-      return await this.getAccount(p);
-    } catch (t) {
-      throw t;
+      return await this.getAccount(res);
+    } catch (err) {
+      throw err;
     }
   }
   /**
@@ -150,38 +185,39 @@ class h2 {
    * @param user The user account to verify.
    * @returns The renewed account information.
    */
-  async verify(e) {
-    let p = await fetch("https://login.live.com/oauth20_token.srf", {
+  async verify(user) {
+    let res = await fetch("https://login.live.com/oauth20_token.srf", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded"
       },
-      body: `client_id=${this.clientId}&grant_type=refresh_token&refresh_token=${e.refreshToken}`
-    }).then((t) => t.json()).catch((t) => {
-      throw new Q.EMLLibError(Q.ErrorType.AUTH_ERROR, "Error while getting the OAuth2 token");
+      body: `client_id=${this.clientId}&grant_type=refresh_token&refresh_token=${user.refreshToken}`
+    }).then((res2) => res2.json()).catch((err) => {
+      throw new errors_1$b.EMLLibError(errors_1$b.ErrorType.AUTH_ERROR, "Error while getting the OAuth2 token");
     });
     try {
-      return await this.getAccount(p);
-    } catch (t) {
-      throw t;
+      return await this.getAccount(res);
+    } catch (err) {
+      throw err;
     }
   }
-  async getAccount(e) {
-    let p = await fetch("https://user.auth.xboxlive.com/user/authenticate", {
+  async getAccount(authInfo) {
+    let xboxLive = await fetch("https://user.auth.xboxlive.com/user/authenticate", {
       method: "POSt",
       body: JSON.stringify({
         Properties: {
           AuthMethod: "RPS",
           SiteName: "user.auth.xboxlive.com",
-          RpsTicket: "d=" + e.access_token
+          RpsTicket: "d=" + authInfo.access_token
         },
         RelyingParty: "http://auth.xboxlive.com",
         TokenType: "JWT"
       }),
       headers: { "Content-Type": "application/json", Accept: "application/json" }
-    }).then((m) => m.json()).catch((m) => {
-      throw new Q.EMLLibError(Q.ErrorType.AUTH_ERROR, "Error while getting the Xbox Live token");
-    }), t = await fetch("https://xsts.auth.xboxlive.com/xsts/authorize", {
+    }).then((res) => res.json()).catch((err) => {
+      throw new errors_1$b.EMLLibError(errors_1$b.ErrorType.AUTH_ERROR, "Error while getting the Xbox Live token");
+    });
+    let xsts = await fetch("https://xsts.auth.xboxlive.com/xsts/authorize", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -190,92 +226,100 @@ class h2 {
       body: JSON.stringify({
         Properties: {
           SandboxId: "RETAIL",
-          UserTokens: [p.Token]
+          UserTokens: [xboxLive.Token]
         },
         RelyingParty: "rp://api.minecraftservices.com/",
         TokenType: "JWT"
       })
-    }).then((m) => m.json()).catch((m) => {
-      throw new Q.EMLLibError(Q.ErrorType.AUTH_ERROR, "Error while getting the XSTS token");
+    }).then((res) => res.json()).catch((err) => {
+      throw new errors_1$b.EMLLibError(errors_1$b.ErrorType.AUTH_ERROR, "Error while getting the XSTS token");
     });
     await fetch("https://api.minecraftservices.com/launcher/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ xtoken: `XBL3.0 x=${p.DisplayClaims.xui[0].uhs};${t.Token}`, platform: "PC_LAUNCHER" })
-    }).then((m) => m.json()).catch((m) => {
-      throw new Q.EMLLibError(Q.ErrorType.AUTH_ERROR, "Error while launching the game");
+      body: JSON.stringify({ xtoken: `XBL3.0 x=${xboxLive.DisplayClaims.xui[0].uhs};${xsts.Token}`, platform: "PC_LAUNCHER" })
+    }).then((res) => res.json()).catch((err) => {
+      throw new errors_1$b.EMLLibError(errors_1$b.ErrorType.AUTH_ERROR, "Error while launching the game");
     });
-    let d = await fetch("https://api.minecraftservices.com/authentication/login_with_xbox", {
+    let mcLogin = await fetch("https://api.minecraftservices.com/authentication/login_with_xbox", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ identityToken: `XBL3.0 x=${p.DisplayClaims.xui[0].uhs};${t.Token}` })
-    }).then((m) => m.json()).catch((m) => {
-      throw new Q.EMLLibError(Q.ErrorType.AUTH_ERROR, "Error while logging into Minecraft");
+      body: JSON.stringify({ identityToken: `XBL3.0 x=${xboxLive.DisplayClaims.xui[0].uhs};${xsts.Token}` })
+    }).then((res) => res.json()).catch((err) => {
+      throw new errors_1$b.EMLLibError(errors_1$b.ErrorType.AUTH_ERROR, "Error while logging into Minecraft");
     });
-    if (!(await fetch("https://api.minecraftservices.com/entitlements/mcstore", {
+    let hasGame = await fetch("https://api.minecraftservices.com/entitlements/mcstore", {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${d.access_token}`
+        Authorization: `Bearer ${mcLogin.access_token}`
       }
-    }).then((m) => m.json())).items.find((m) => m.name == "product_minecraft" || m.name == "game_minecraft"))
-      throw new Q.EMLLibError(Q.ErrorType.AUTH_ERROR, "Minecraft not owned");
-    let l;
+    }).then((res) => res.json());
+    if (!hasGame.items.find((i) => i.name == "product_minecraft" || i.name == "game_minecraft")) {
+      throw new errors_1$b.EMLLibError(errors_1$b.ErrorType.AUTH_ERROR, "Minecraft not owned");
+    }
+    let profile;
     try {
-      l = await this.getProfile(d);
-    } catch (m) {
-      throw m;
+      profile = await this.getProfile(mcLogin);
+    } catch (err) {
+      throw err;
     }
     return {
-      name: l.name,
-      uuid: l.uuid,
-      accessToken: d.access_token,
+      name: profile.name,
+      uuid: profile.uuid,
+      accessToken: mcLogin.access_token,
       clientToken: this.getUuid(),
-      refreshToken: e.refresh_token,
+      refreshToken: authInfo.refresh_token,
       userProperties: {},
       meta: {
-        online: !0,
+        online: true,
         type: "msa"
       }
     };
   }
-  async getProfile(e) {
-    let p = await fetch("https://api.minecraftservices.com/minecraft/profile", {
+  async getProfile(mcLogin) {
+    let profile = await fetch("https://api.minecraftservices.com/minecraft/profile", {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${e.access_token}`
+        Authorization: `Bearer ${mcLogin.access_token}`
       }
-    }).then((t) => t.json());
-    if (p.error)
-      throw new Q.EMLLibError(Q.ErrorType.AUTH_ERROR, "Error while getting the Minecraft profile");
+    }).then((res) => res.json());
+    if (profile.error)
+      throw new errors_1$b.EMLLibError(errors_1$b.ErrorType.AUTH_ERROR, "Error while getting the Minecraft profile");
     return {
-      uuid: p.id,
-      name: p.name
+      uuid: profile.id,
+      name: profile.name
     };
   }
   getUuid() {
-    for (var e = "", p = 0; p <= 4; p++)
-      e += (Math.floor(Math.random() * 16777216) + 1048576).toString(16), p < 4 && (e += "-");
-    return e;
+    var result = "";
+    for (var i = 0; i <= 4; i++) {
+      result += (Math.floor(Math.random() * 16777216) + 1048576).toString(16);
+      if (i < 4)
+        result += "-";
+    }
+    return result;
   }
 }
-la.default = h2;
-var ma = {};
+microsoft.default = MicrosoftAuth;
+var azuriom = {};
 /**
  * @license MIT
  * @copyright Copyright (c) 2024, GoldFrite
  */
-Object.defineProperty(ma, "__esModule", { value: !0 });
-const k1 = l1;
-class v2 {
+Object.defineProperty(azuriom, "__esModule", { value: true });
+const errors_1$a = errors$1;
+class AzAuth {
   /**
    * @param url The URL of your Azuriom website.
    */
-  constructor(e) {
-    e.endsWith("/") && (e = e.slice(0, -1)), this.url = `${e}/api/auth`;
+  constructor(url) {
+    if (url.endsWith("/"))
+      url = url.slice(0, -1);
+    this.url = `${url}/api/auth`;
   }
   /**
    * Authenticate a user with Azuriom.
@@ -284,30 +328,32 @@ class v2 {
    * @param twoFACode [Optional] The 2FA code if the user has 2FA enabled.
    * @returns The account information.
    */
-  async auth(e, p, t) {
-    const d = await fetch(`${this.url}/authenticate`, {
+  async auth(username, password, twoFACode) {
+    const res = await fetch(`${this.url}/authenticate`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        email: e,
-        password: p,
-        code: t
+        email: username,
+        password,
+        code: twoFACode
       })
-    }).then((i) => i.json());
-    if (d.status == "pending" && d.reason == "2fa")
-      throw new k1.EMLLibError(k1.ErrorType.TWOFA_CODE_REQUIRED, "2FA code required");
-    if (d.status == "error")
-      throw new k1.EMLLibError(k1.ErrorType.AUTH_ERROR, `AzAuth authentication failed: ${d.reason}`);
+    }).then((res2) => res2.json());
+    if (res.status == "pending" && res.reason == "2fa") {
+      throw new errors_1$a.EMLLibError(errors_1$a.ErrorType.TWOFA_CODE_REQUIRED, "2FA code required");
+    }
+    if (res.status == "error") {
+      throw new errors_1$a.EMLLibError(errors_1$a.ErrorType.AUTH_ERROR, `AzAuth authentication failed: ${res.reason}`);
+    }
     return {
-      name: d.username,
-      uuid: d.uuid,
-      accessToken: d.accessToken,
-      clientToken: d.clientToken,
+      name: res.username,
+      uuid: res.uuid,
+      accessToken: res.accessToken,
+      clientToken: res.clientToken,
       userProperties: {},
       meta: {
-        online: !1,
+        online: false,
         type: "azuriom"
       }
     };
@@ -317,26 +363,27 @@ class v2 {
    * @param user The user account to verify.
    * @returns The renewed account information.
    */
-  async verify(e) {
-    const p = await fetch(`${this.url}/verify`, {
+  async verify(user) {
+    const res = await fetch(`${this.url}/verify`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        access_token: e.accessToken
+        access_token: user.accessToken
       })
-    }).then((t) => t.json());
-    if (p.status == "error")
-      throw new k1.EMLLibError(k1.ErrorType.AUTH_ERROR, `AzAuth verify failed: ${p.reason}`);
+    }).then((res2) => res2.json());
+    if (res.status == "error") {
+      throw new errors_1$a.EMLLibError(errors_1$a.ErrorType.AUTH_ERROR, `AzAuth verify failed: ${res.reason}`);
+    }
     return {
-      name: p.username,
-      uuid: p.uuid,
-      accessToken: p.accessToken,
-      clientToken: p.clientToken,
+      name: res.username,
+      uuid: res.uuid,
+      accessToken: res.accessToken,
+      clientToken: res.clientToken,
       userProperties: {},
       meta: {
-        online: !1,
+        online: false,
         type: "azuriom"
       }
     };
@@ -345,324 +392,544 @@ class v2 {
    * Logout a user from Azuriom.
    * @param user The account of the user.
    */
-  async logout(e) {
+  async logout(user) {
     await fetch(`${this.url}/logout`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        access_token: e.accessToken
+        access_token: user.accessToken
       })
     });
   }
 }
-ma.default = v2;
-var sa = {};
-const w2 = "ffffffff-ffff-ffff-ffff-ffffffffffff", _2 = "00000000-0000-0000-0000-000000000000", g2 = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/i;
-function Oe(a) {
-  return typeof a == "string" && g2.test(a);
+azuriom.default = AzAuth;
+var crack = {};
+const max = "ffffffff-ffff-ffff-ffff-ffffffffffff";
+const nil = "00000000-0000-0000-0000-000000000000";
+const REGEX = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/i;
+function validate(uuid) {
+  return typeof uuid === "string" && REGEX.test(uuid);
 }
-function Ie(a) {
-  if (!Oe(a))
+function parse(uuid) {
+  if (!validate(uuid)) {
     throw TypeError("Invalid UUID");
-  let e;
-  const p = new Uint8Array(16);
-  return p[0] = (e = parseInt(a.slice(0, 8), 16)) >>> 24, p[1] = e >>> 16 & 255, p[2] = e >>> 8 & 255, p[3] = e & 255, p[4] = (e = parseInt(a.slice(9, 13), 16)) >>> 8, p[5] = e & 255, p[6] = (e = parseInt(a.slice(14, 18), 16)) >>> 8, p[7] = e & 255, p[8] = (e = parseInt(a.slice(19, 23), 16)) >>> 8, p[9] = e & 255, p[10] = (e = parseInt(a.slice(24, 36), 16)) / 1099511627776 & 255, p[11] = e / 4294967296 & 255, p[12] = e >>> 24 & 255, p[13] = e >>> 16 & 255, p[14] = e >>> 8 & 255, p[15] = e & 255, p;
-}
-const t1 = [];
-for (let a = 0; a < 256; ++a)
-  t1.push((a + 256).toString(16).slice(1));
-function B1(a, e = 0) {
-  return (t1[a[e + 0]] + t1[a[e + 1]] + t1[a[e + 2]] + t1[a[e + 3]] + "-" + t1[a[e + 4]] + t1[a[e + 5]] + "-" + t1[a[e + 6]] + t1[a[e + 7]] + "-" + t1[a[e + 8]] + t1[a[e + 9]] + "-" + t1[a[e + 10]] + t1[a[e + 11]] + t1[a[e + 12]] + t1[a[e + 13]] + t1[a[e + 14]] + t1[a[e + 15]]).toLowerCase();
-}
-function E2(a, e = 0) {
-  const p = B1(a, e);
-  if (!Oe(p))
-    throw TypeError("Stringified UUID is invalid");
-  return p;
-}
-const be = new Uint8Array(256);
-let _e = be.length;
-function oa() {
-  return _e > be.length - 16 && (Ce.randomFillSync(be), _e = 0), be.slice(_e, _e += 16);
-}
-let Ze, ge, Ge = 0, qe = 0;
-function np(a, e, p) {
-  let t = e && p || 0;
-  const d = e || new Array(16);
-  a = a || {};
-  let i = a.node, l = a.clockseq;
-  if (a._v6 || (i || (i = Ze), l == null && (l = ge)), i == null || l == null) {
-    const T = a.random || (a.rng || oa)();
-    i == null && (i = [T[0], T[1], T[2], T[3], T[4], T[5]], !Ze && !a._v6 && (i[0] |= 1, Ze = i)), l == null && (l = (T[6] << 8 | T[7]) & 16383, ge === void 0 && !a._v6 && (ge = l));
   }
-  let m = a.msecs !== void 0 ? a.msecs : Date.now(), r = a.nsecs !== void 0 ? a.nsecs : qe + 1;
-  const v = m - Ge + (r - qe) / 1e4;
-  if (v < 0 && a.clockseq === void 0 && (l = l + 1 & 16383), (v < 0 || m > Ge) && a.nsecs === void 0 && (r = 0), r >= 1e4)
-    throw new Error("uuid.v1(): Can't create more than 10M uuids/sec");
-  Ge = m, qe = r, ge = l, m += 122192928e5;
-  const N = ((m & 268435455) * 1e4 + r) % 4294967296;
-  d[t++] = N >>> 24 & 255, d[t++] = N >>> 16 & 255, d[t++] = N >>> 8 & 255, d[t++] = N & 255;
-  const D = m / 4294967296 * 1e4 & 268435455;
-  d[t++] = D >>> 8 & 255, d[t++] = D & 255, d[t++] = D >>> 24 & 15 | 16, d[t++] = D >>> 16 & 255, d[t++] = l >>> 8 | 128, d[t++] = l & 255;
-  for (let T = 0; T < 6; ++T)
-    d[t + T] = i[T];
-  return e || B1(d);
+  let v;
+  const arr = new Uint8Array(16);
+  arr[0] = (v = parseInt(uuid.slice(0, 8), 16)) >>> 24;
+  arr[1] = v >>> 16 & 255;
+  arr[2] = v >>> 8 & 255;
+  arr[3] = v & 255;
+  arr[4] = (v = parseInt(uuid.slice(9, 13), 16)) >>> 8;
+  arr[5] = v & 255;
+  arr[6] = (v = parseInt(uuid.slice(14, 18), 16)) >>> 8;
+  arr[7] = v & 255;
+  arr[8] = (v = parseInt(uuid.slice(19, 23), 16)) >>> 8;
+  arr[9] = v & 255;
+  arr[10] = (v = parseInt(uuid.slice(24, 36), 16)) / 1099511627776 & 255;
+  arr[11] = v / 4294967296 & 255;
+  arr[12] = v >>> 24 & 255;
+  arr[13] = v >>> 16 & 255;
+  arr[14] = v >>> 8 & 255;
+  arr[15] = v & 255;
+  return arr;
 }
-function up(a) {
-  const e = typeof a == "string" ? Ie(a) : a, p = N2(e);
-  return typeof a == "string" ? B1(p) : p;
+const byteToHex = [];
+for (let i = 0; i < 256; ++i) {
+  byteToHex.push((i + 256).toString(16).slice(1));
 }
-function N2(a, e = !1) {
-  return Uint8Array.of((a[6] & 15) << 4 | a[7] >> 4 & 15, (a[7] & 15) << 4 | (a[4] & 240) >> 4, (a[4] & 15) << 4 | (a[5] & 240) >> 4, (a[5] & 15) << 4 | (a[0] & 240) >> 4, (a[0] & 15) << 4 | (a[1] & 240) >> 4, (a[1] & 15) << 4 | (a[2] & 240) >> 4, 96 | a[2] & 15, a[3], a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15]);
+function unsafeStringify(arr, offset = 0) {
+  return (byteToHex[arr[offset + 0]] + byteToHex[arr[offset + 1]] + byteToHex[arr[offset + 2]] + byteToHex[arr[offset + 3]] + "-" + byteToHex[arr[offset + 4]] + byteToHex[arr[offset + 5]] + "-" + byteToHex[arr[offset + 6]] + byteToHex[arr[offset + 7]] + "-" + byteToHex[arr[offset + 8]] + byteToHex[arr[offset + 9]] + "-" + byteToHex[arr[offset + 10]] + byteToHex[arr[offset + 11]] + byteToHex[arr[offset + 12]] + byteToHex[arr[offset + 13]] + byteToHex[arr[offset + 14]] + byteToHex[arr[offset + 15]]).toLowerCase();
 }
-function y2(a) {
-  a = unescape(encodeURIComponent(a));
-  const e = [];
-  for (let p = 0; p < a.length; ++p)
-    e.push(a.charCodeAt(p));
-  return e;
+function stringify(arr, offset = 0) {
+  const uuid = unsafeStringify(arr, offset);
+  if (!validate(uuid)) {
+    throw TypeError("Stringified UUID is invalid");
+  }
+  return uuid;
 }
-const D2 = "6ba7b810-9dad-11d1-80b4-00c04fd430c8", S2 = "6ba7b811-9dad-11d1-80b4-00c04fd430c8";
-function fp(a, e, p) {
-  function t(d, i, l, m) {
-    var r;
-    if (typeof d == "string" && (d = y2(d)), typeof i == "string" && (i = Ie(i)), ((r = i) === null || r === void 0 ? void 0 : r.length) !== 16)
-      throw TypeError("Namespace must be array-like (16 iterable integer values, 0-255)");
-    let v = new Uint8Array(16 + d.length);
-    if (v.set(i), v.set(d, i.length), v = p(v), v[6] = v[6] & 15 | e, v[8] = v[8] & 63 | 128, l) {
-      m = m || 0;
-      for (let N = 0; N < 16; ++N)
-        l[m + N] = v[N];
-      return l;
+const rnds8Pool = new Uint8Array(256);
+let poolPtr = rnds8Pool.length;
+function rng() {
+  if (poolPtr > rnds8Pool.length - 16) {
+    crypto.randomFillSync(rnds8Pool);
+    poolPtr = 0;
+  }
+  return rnds8Pool.slice(poolPtr, poolPtr += 16);
+}
+let _nodeId;
+let _clockseq;
+let _lastMSecs = 0;
+let _lastNSecs = 0;
+function v1(options, buf, offset) {
+  let i = buf && offset || 0;
+  const b = buf || new Array(16);
+  options = options || {};
+  let node = options.node;
+  let clockseq = options.clockseq;
+  if (!options._v6) {
+    if (!node) {
+      node = _nodeId;
     }
-    return B1(v);
+    if (clockseq == null) {
+      clockseq = _clockseq;
+    }
+  }
+  if (node == null || clockseq == null) {
+    const seedBytes = options.random || (options.rng || rng)();
+    if (node == null) {
+      node = [seedBytes[0], seedBytes[1], seedBytes[2], seedBytes[3], seedBytes[4], seedBytes[5]];
+      if (!_nodeId && !options._v6) {
+        node[0] |= 1;
+        _nodeId = node;
+      }
+    }
+    if (clockseq == null) {
+      clockseq = (seedBytes[6] << 8 | seedBytes[7]) & 16383;
+      if (_clockseq === void 0 && !options._v6) {
+        _clockseq = clockseq;
+      }
+    }
+  }
+  let msecs = options.msecs !== void 0 ? options.msecs : Date.now();
+  let nsecs = options.nsecs !== void 0 ? options.nsecs : _lastNSecs + 1;
+  const dt = msecs - _lastMSecs + (nsecs - _lastNSecs) / 1e4;
+  if (dt < 0 && options.clockseq === void 0) {
+    clockseq = clockseq + 1 & 16383;
+  }
+  if ((dt < 0 || msecs > _lastMSecs) && options.nsecs === void 0) {
+    nsecs = 0;
+  }
+  if (nsecs >= 1e4) {
+    throw new Error("uuid.v1(): Can't create more than 10M uuids/sec");
+  }
+  _lastMSecs = msecs;
+  _lastNSecs = nsecs;
+  _clockseq = clockseq;
+  msecs += 122192928e5;
+  const tl = ((msecs & 268435455) * 1e4 + nsecs) % 4294967296;
+  b[i++] = tl >>> 24 & 255;
+  b[i++] = tl >>> 16 & 255;
+  b[i++] = tl >>> 8 & 255;
+  b[i++] = tl & 255;
+  const tmh = msecs / 4294967296 * 1e4 & 268435455;
+  b[i++] = tmh >>> 8 & 255;
+  b[i++] = tmh & 255;
+  b[i++] = tmh >>> 24 & 15 | 16;
+  b[i++] = tmh >>> 16 & 255;
+  b[i++] = clockseq >>> 8 | 128;
+  b[i++] = clockseq & 255;
+  for (let n = 0; n < 6; ++n) {
+    b[i + n] = node[n];
+  }
+  return buf || unsafeStringify(b);
+}
+function v1ToV6(uuid) {
+  const v1Bytes = typeof uuid === "string" ? parse(uuid) : uuid;
+  const v6Bytes = _v1ToV6(v1Bytes);
+  return typeof uuid === "string" ? unsafeStringify(v6Bytes) : v6Bytes;
+}
+function _v1ToV6(v1Bytes, randomize = false) {
+  return Uint8Array.of((v1Bytes[6] & 15) << 4 | v1Bytes[7] >> 4 & 15, (v1Bytes[7] & 15) << 4 | (v1Bytes[4] & 240) >> 4, (v1Bytes[4] & 15) << 4 | (v1Bytes[5] & 240) >> 4, (v1Bytes[5] & 15) << 4 | (v1Bytes[0] & 240) >> 4, (v1Bytes[0] & 15) << 4 | (v1Bytes[1] & 240) >> 4, (v1Bytes[1] & 15) << 4 | (v1Bytes[2] & 240) >> 4, 96 | v1Bytes[2] & 15, v1Bytes[3], v1Bytes[8], v1Bytes[9], v1Bytes[10], v1Bytes[11], v1Bytes[12], v1Bytes[13], v1Bytes[14], v1Bytes[15]);
+}
+function stringToBytes(str) {
+  str = unescape(encodeURIComponent(str));
+  const bytes = [];
+  for (let i = 0; i < str.length; ++i) {
+    bytes.push(str.charCodeAt(i));
+  }
+  return bytes;
+}
+const DNS = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
+const URL$3 = "6ba7b811-9dad-11d1-80b4-00c04fd430c8";
+function v35(name, version2, hashfunc) {
+  function generateUUID(value, namespace, buf, offset) {
+    var _namespace;
+    if (typeof value === "string") {
+      value = stringToBytes(value);
+    }
+    if (typeof namespace === "string") {
+      namespace = parse(namespace);
+    }
+    if (((_namespace = namespace) === null || _namespace === void 0 ? void 0 : _namespace.length) !== 16) {
+      throw TypeError("Namespace must be array-like (16 iterable integer values, 0-255)");
+    }
+    let bytes = new Uint8Array(16 + value.length);
+    bytes.set(namespace);
+    bytes.set(value, namespace.length);
+    bytes = hashfunc(bytes);
+    bytes[6] = bytes[6] & 15 | version2;
+    bytes[8] = bytes[8] & 63 | 128;
+    if (buf) {
+      offset = offset || 0;
+      for (let i = 0; i < 16; ++i) {
+        buf[offset + i] = bytes[i];
+      }
+      return buf;
+    }
+    return unsafeStringify(bytes);
   }
   try {
-    t.name = a;
-  } catch {
+    generateUUID.name = name;
+  } catch (err) {
   }
-  return t.DNS = D2, t.URL = S2, t;
+  generateUUID.DNS = DNS;
+  generateUUID.URL = URL$3;
+  return generateUUID;
 }
-function T2(a) {
-  return Array.isArray(a) ? a = Buffer.from(a) : typeof a == "string" && (a = Buffer.from(a, "utf8")), Ce.createHash("md5").update(a).digest();
+function md5(bytes) {
+  if (Array.isArray(bytes)) {
+    bytes = Buffer.from(bytes);
+  } else if (typeof bytes === "string") {
+    bytes = Buffer.from(bytes, "utf8");
+  }
+  return crypto.createHash("md5").update(bytes).digest();
 }
-const b2 = fp("v3", 48, T2), Oa = {
-  randomUUID: Ce.randomUUID
+const v3 = v35("v3", 48, md5);
+const native = {
+  randomUUID: crypto.randomUUID
 };
-function L2(a, e, p) {
-  if (Oa.randomUUID && !e && !a)
-    return Oa.randomUUID();
-  a = a || {};
-  const t = a.random || (a.rng || oa)();
-  if (t[6] = t[6] & 15 | 64, t[8] = t[8] & 63 | 128, e) {
-    p = p || 0;
-    for (let d = 0; d < 16; ++d)
-      e[p + d] = t[d];
-    return e;
+function v4(options, buf, offset) {
+  if (native.randomUUID && !buf && !options) {
+    return native.randomUUID();
   }
-  return B1(t);
+  options = options || {};
+  const rnds = options.random || (options.rng || rng)();
+  rnds[6] = rnds[6] & 15 | 64;
+  rnds[8] = rnds[8] & 63 | 128;
+  if (buf) {
+    offset = offset || 0;
+    for (let i = 0; i < 16; ++i) {
+      buf[offset + i] = rnds[i];
+    }
+    return buf;
+  }
+  return unsafeStringify(rnds);
 }
-function A2(a) {
-  return Array.isArray(a) ? a = Buffer.from(a) : typeof a == "string" && (a = Buffer.from(a, "utf8")), Ce.createHash("sha1").update(a).digest();
+function sha1(bytes) {
+  if (Array.isArray(bytes)) {
+    bytes = Buffer.from(bytes);
+  } else if (typeof bytes === "string") {
+    bytes = Buffer.from(bytes, "utf8");
+  }
+  return crypto.createHash("sha1").update(bytes).digest();
 }
-const V2 = fp("v5", 80, A2);
-function C2(a = {}, e, p = 0) {
-  let t = np({
-    ...a,
-    _v6: !0
+const v5 = v35("v5", 80, sha1);
+function v6(options = {}, buf, offset = 0) {
+  let bytes = v1({
+    ...options,
+    _v6: true
   }, new Uint8Array(16));
-  if (t = up(t), e) {
-    for (let d = 0; d < 16; d++)
-      e[p + d] = t[d];
-    return e;
+  bytes = v1ToV6(bytes);
+  if (buf) {
+    for (let i = 0; i < 16; i++) {
+      buf[offset + i] = bytes[i];
+    }
+    return buf;
   }
-  return B1(t);
+  return unsafeStringify(bytes);
 }
-function R2(a) {
-  const e = typeof a == "string" ? Ie(a) : a, p = x2(e);
-  return typeof a == "string" ? B1(p) : p;
+function v6ToV1(uuid) {
+  const v6Bytes = typeof uuid === "string" ? parse(uuid) : uuid;
+  const v1Bytes = _v6ToV1(v6Bytes);
+  return typeof uuid === "string" ? unsafeStringify(v1Bytes) : v1Bytes;
 }
-function x2(a) {
-  return Uint8Array.of((a[3] & 15) << 4 | a[4] >> 4 & 15, (a[4] & 15) << 4 | (a[5] & 240) >> 4, (a[5] & 15) << 4 | a[6] & 15, a[7], (a[1] & 15) << 4 | (a[2] & 240) >> 4, (a[2] & 15) << 4 | (a[3] & 240) >> 4, 16 | (a[0] & 240) >> 4, (a[0] & 15) << 4 | (a[1] & 240) >> 4, a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15]);
+function _v6ToV1(v6Bytes) {
+  return Uint8Array.of((v6Bytes[3] & 15) << 4 | v6Bytes[4] >> 4 & 15, (v6Bytes[4] & 15) << 4 | (v6Bytes[5] & 240) >> 4, (v6Bytes[5] & 15) << 4 | v6Bytes[6] & 15, v6Bytes[7], (v6Bytes[1] & 15) << 4 | (v6Bytes[2] & 240) >> 4, (v6Bytes[2] & 15) << 4 | (v6Bytes[3] & 240) >> 4, 16 | (v6Bytes[0] & 240) >> 4, (v6Bytes[0] & 15) << 4 | (v6Bytes[1] & 240) >> 4, v6Bytes[8], v6Bytes[9], v6Bytes[10], v6Bytes[11], v6Bytes[12], v6Bytes[13], v6Bytes[14], v6Bytes[15]);
 }
-let Ia = null, Fa = null, c1 = 0;
-function O2(a, e, p) {
-  a = a || {};
-  let t = e && p || 0;
-  const d = e || new Uint8Array(16), i = a.random || (a.rng || oa)(), l = a.msecs !== void 0 ? a.msecs : Date.now();
-  let m = a.seq !== void 0 ? a.seq : null, r = Fa, v = Ia;
-  return l > c1 && a.msecs === void 0 && (c1 = l, m !== null && (r = null, v = null)), m !== null && (m > 2147483647 && (m = 2147483647), r = m >>> 19 & 4095, v = m & 524287), (r === null || v === null) && (r = i[6] & 127, r = r << 8 | i[7], v = i[8] & 63, v = v << 8 | i[9], v = v << 5 | i[10] >>> 3), l + 1e4 > c1 && m === null ? ++v > 524287 && (v = 0, ++r > 4095 && (r = 0, c1++)) : c1 = l, Fa = r, Ia = v, d[t++] = c1 / 1099511627776 & 255, d[t++] = c1 / 4294967296 & 255, d[t++] = c1 / 16777216 & 255, d[t++] = c1 / 65536 & 255, d[t++] = c1 / 256 & 255, d[t++] = c1 & 255, d[t++] = r >>> 4 & 15 | 112, d[t++] = r & 255, d[t++] = v >>> 13 & 63 | 128, d[t++] = v >>> 5 & 255, d[t++] = v << 3 & 255 | i[10] & 7, d[t++] = i[11], d[t++] = i[12], d[t++] = i[13], d[t++] = i[14], d[t++] = i[15], e || B1(d);
+let _seqLow = null;
+let _seqHigh = null;
+let _msecs = 0;
+function v7(options, buf, offset) {
+  options = options || {};
+  let i = buf && offset || 0;
+  const b = buf || new Uint8Array(16);
+  const rnds = options.random || (options.rng || rng)();
+  const msecs = options.msecs !== void 0 ? options.msecs : Date.now();
+  let seq = options.seq !== void 0 ? options.seq : null;
+  let seqHigh = _seqHigh;
+  let seqLow = _seqLow;
+  if (msecs > _msecs && options.msecs === void 0) {
+    _msecs = msecs;
+    if (seq !== null) {
+      seqHigh = null;
+      seqLow = null;
+    }
+  }
+  if (seq !== null) {
+    if (seq > 2147483647) {
+      seq = 2147483647;
+    }
+    seqHigh = seq >>> 19 & 4095;
+    seqLow = seq & 524287;
+  }
+  if (seqHigh === null || seqLow === null) {
+    seqHigh = rnds[6] & 127;
+    seqHigh = seqHigh << 8 | rnds[7];
+    seqLow = rnds[8] & 63;
+    seqLow = seqLow << 8 | rnds[9];
+    seqLow = seqLow << 5 | rnds[10] >>> 3;
+  }
+  if (msecs + 1e4 > _msecs && seq === null) {
+    if (++seqLow > 524287) {
+      seqLow = 0;
+      if (++seqHigh > 4095) {
+        seqHigh = 0;
+        _msecs++;
+      }
+    }
+  } else {
+    _msecs = msecs;
+  }
+  _seqHigh = seqHigh;
+  _seqLow = seqLow;
+  b[i++] = _msecs / 1099511627776 & 255;
+  b[i++] = _msecs / 4294967296 & 255;
+  b[i++] = _msecs / 16777216 & 255;
+  b[i++] = _msecs / 65536 & 255;
+  b[i++] = _msecs / 256 & 255;
+  b[i++] = _msecs & 255;
+  b[i++] = seqHigh >>> 4 & 15 | 112;
+  b[i++] = seqHigh & 255;
+  b[i++] = seqLow >>> 13 & 63 | 128;
+  b[i++] = seqLow >>> 5 & 255;
+  b[i++] = seqLow << 3 & 255 | rnds[10] & 7;
+  b[i++] = rnds[11];
+  b[i++] = rnds[12];
+  b[i++] = rnds[13];
+  b[i++] = rnds[14];
+  b[i++] = rnds[15];
+  return buf || unsafeStringify(b);
 }
-function I2(a) {
-  if (!Oe(a))
+function version$1(uuid) {
+  if (!validate(uuid)) {
     throw TypeError("Invalid UUID");
-  return parseInt(a.slice(14, 15), 16);
+  }
+  return parseInt(uuid.slice(14, 15), 16);
 }
-const F2 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const esmNode = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  MAX: w2,
-  NIL: _2,
-  parse: Ie,
-  stringify: E2,
-  v1: np,
-  v1ToV6: up,
-  v3: b2,
-  v4: L2,
-  v5: V2,
-  v6: C2,
-  v6ToV1: R2,
-  v7: O2,
-  validate: Oe,
-  version: I2
-}, Symbol.toStringTag, { value: "Module" })), P2 = /* @__PURE__ */ op(F2);
+  MAX: max,
+  NIL: nil,
+  parse,
+  stringify,
+  v1,
+  v1ToV6,
+  v3,
+  v4,
+  v5,
+  v6,
+  v6ToV1,
+  v7,
+  validate,
+  version: version$1
+}, Symbol.toStringTag, { value: "Module" }));
+const require$$1$1 = /* @__PURE__ */ getAugmentedNamespace(esmNode);
 /**
  * @license MIT
  * @copyright Copyright (c) 2024, GoldFrite
  */
-Object.defineProperty(sa, "__esModule", { value: !0 });
-const Pa = l1, U2 = P2;
-class j2 {
+Object.defineProperty(crack, "__esModule", { value: true });
+const errors_1$9 = errors$1;
+const uuid_1 = require$$1$1;
+class CrackAuth {
   /**
    *
    * @deprecated This auth method is not secure, use it only for testing purposes or for local servers!
    */
-  auth(e) {
-    if (/^[a-zA-Z0-9_]+$/gm.test(e) && e.length > 2) {
-      const p = (0, U2.v4)();
+  auth(username) {
+    if (/^[a-zA-Z0-9_]+$/gm.test(username) && username.length > 2) {
+      const uuid = (0, uuid_1.v4)();
       return {
-        name: e,
-        uuid: p,
-        accessToken: p,
-        clientToken: p,
+        name: username,
+        uuid,
+        accessToken: uuid,
+        clientToken: uuid,
         meta: {
-          online: !1,
+          online: false,
           type: "crack"
         }
       };
-    } else
-      throw new Pa.EMLLibError(Pa.ErrorType.AUTH_ERROR, "Invalid username");
+    } else {
+      throw new errors_1$9.EMLLibError(errors_1$9.ErrorType.AUTH_ERROR, "Invalid username");
+    }
   }
 }
-sa.default = j2;
-var na = {}, oe = {}, w1 = {}, cp = { exports: {} }, G = {}, B2 = G;
-function Ua(a) {
-  return a < 0 ? -1 : 1;
+crack.default = CrackAuth;
+var bootstraps = {};
+var downloader = {};
+var publicApi = {};
+var URL$2 = { exports: {} };
+var conversions = {};
+var lib$1 = conversions;
+function sign(x) {
+  return x < 0 ? -1 : 1;
 }
-function M2(a) {
-  return a % 1 === 0.5 && !(a & 1) ? Math.floor(a) : Math.round(a);
+function evenRound(x) {
+  if (x % 1 === 0.5 && (x & 1) === 0) {
+    return Math.floor(x);
+  } else {
+    return Math.round(x);
+  }
 }
-function M1(a, e) {
-  e.unsigned || --a;
-  const p = e.unsigned ? 0 : -Math.pow(2, a), t = Math.pow(2, a) - 1, d = e.moduloBitLength ? Math.pow(2, e.moduloBitLength) : Math.pow(2, a), i = e.moduloBitLength ? Math.pow(2, e.moduloBitLength - 1) : Math.pow(2, a - 1);
-  return function(l, m) {
-    m || (m = {});
-    let r = +l;
-    if (m.enforceRange) {
-      if (!Number.isFinite(r))
+function createNumberConversion(bitLength, typeOpts) {
+  if (!typeOpts.unsigned) {
+    --bitLength;
+  }
+  const lowerBound = typeOpts.unsigned ? 0 : -Math.pow(2, bitLength);
+  const upperBound = Math.pow(2, bitLength) - 1;
+  const moduloVal = typeOpts.moduloBitLength ? Math.pow(2, typeOpts.moduloBitLength) : Math.pow(2, bitLength);
+  const moduloBound = typeOpts.moduloBitLength ? Math.pow(2, typeOpts.moduloBitLength - 1) : Math.pow(2, bitLength - 1);
+  return function(V, opts) {
+    if (!opts) opts = {};
+    let x = +V;
+    if (opts.enforceRange) {
+      if (!Number.isFinite(x)) {
         throw new TypeError("Argument is not a finite number");
-      if (r = Ua(r) * Math.floor(Math.abs(r)), r < p || r > t)
+      }
+      x = sign(x) * Math.floor(Math.abs(x));
+      if (x < lowerBound || x > upperBound) {
         throw new TypeError("Argument is not in byte range");
-      return r;
+      }
+      return x;
     }
-    if (!isNaN(r) && m.clamp)
-      return r = M2(r), r < p && (r = p), r > t && (r = t), r;
-    if (!Number.isFinite(r) || r === 0)
+    if (!isNaN(x) && opts.clamp) {
+      x = evenRound(x);
+      if (x < lowerBound) x = lowerBound;
+      if (x > upperBound) x = upperBound;
+      return x;
+    }
+    if (!Number.isFinite(x) || x === 0) {
       return 0;
-    if (r = Ua(r) * Math.floor(Math.abs(r)), r = r % d, !e.unsigned && r >= i)
-      return r - d;
-    if (e.unsigned) {
-      if (r < 0)
-        r += d;
-      else if (r === -0)
-        return 0;
     }
-    return r;
+    x = sign(x) * Math.floor(Math.abs(x));
+    x = x % moduloVal;
+    if (!typeOpts.unsigned && x >= moduloBound) {
+      return x - moduloVal;
+    } else if (typeOpts.unsigned) {
+      if (x < 0) {
+        x += moduloVal;
+      } else if (x === -0) {
+        return 0;
+      }
+    }
+    return x;
   };
 }
-G.void = function() {
+conversions["void"] = function() {
+  return void 0;
 };
-G.boolean = function(a) {
-  return !!a;
+conversions["boolean"] = function(val) {
+  return !!val;
 };
-G.byte = M1(8, { unsigned: !1 });
-G.octet = M1(8, { unsigned: !0 });
-G.short = M1(16, { unsigned: !1 });
-G["unsigned short"] = M1(16, { unsigned: !0 });
-G.long = M1(32, { unsigned: !1 });
-G["unsigned long"] = M1(32, { unsigned: !0 });
-G["long long"] = M1(32, { unsigned: !1, moduloBitLength: 64 });
-G["unsigned long long"] = M1(32, { unsigned: !0, moduloBitLength: 64 });
-G.double = function(a) {
-  const e = +a;
-  if (!Number.isFinite(e))
+conversions["byte"] = createNumberConversion(8, { unsigned: false });
+conversions["octet"] = createNumberConversion(8, { unsigned: true });
+conversions["short"] = createNumberConversion(16, { unsigned: false });
+conversions["unsigned short"] = createNumberConversion(16, { unsigned: true });
+conversions["long"] = createNumberConversion(32, { unsigned: false });
+conversions["unsigned long"] = createNumberConversion(32, { unsigned: true });
+conversions["long long"] = createNumberConversion(32, { unsigned: false, moduloBitLength: 64 });
+conversions["unsigned long long"] = createNumberConversion(32, { unsigned: true, moduloBitLength: 64 });
+conversions["double"] = function(V) {
+  const x = +V;
+  if (!Number.isFinite(x)) {
     throw new TypeError("Argument is not a finite floating-point value");
-  return e;
+  }
+  return x;
 };
-G["unrestricted double"] = function(a) {
-  const e = +a;
-  if (isNaN(e))
+conversions["unrestricted double"] = function(V) {
+  const x = +V;
+  if (isNaN(x)) {
     throw new TypeError("Argument is NaN");
-  return e;
+  }
+  return x;
 };
-G.float = G.double;
-G["unrestricted float"] = G["unrestricted double"];
-G.DOMString = function(a, e) {
-  return e || (e = {}), e.treatNullAsEmptyString && a === null ? "" : String(a);
+conversions["float"] = conversions["double"];
+conversions["unrestricted float"] = conversions["unrestricted double"];
+conversions["DOMString"] = function(V, opts) {
+  if (!opts) opts = {};
+  if (opts.treatNullAsEmptyString && V === null) {
+    return "";
+  }
+  return String(V);
 };
-G.ByteString = function(a, e) {
-  const p = String(a);
-  let t;
-  for (let d = 0; (t = p.codePointAt(d)) !== void 0; ++d)
-    if (t > 255)
+conversions["ByteString"] = function(V, opts) {
+  const x = String(V);
+  let c = void 0;
+  for (let i = 0; (c = x.codePointAt(i)) !== void 0; ++i) {
+    if (c > 255) {
       throw new TypeError("Argument is not a valid bytestring");
-  return p;
-};
-G.USVString = function(a) {
-  const e = String(a), p = e.length, t = [];
-  for (let d = 0; d < p; ++d) {
-    const i = e.charCodeAt(d);
-    if (i < 55296 || i > 57343)
-      t.push(String.fromCodePoint(i));
-    else if (56320 <= i && i <= 57343)
-      t.push(String.fromCodePoint(65533));
-    else if (d === p - 1)
-      t.push(String.fromCodePoint(65533));
-    else {
-      const l = e.charCodeAt(d + 1);
-      if (56320 <= l && l <= 57343) {
-        const m = i & 1023, r = l & 1023;
-        t.push(String.fromCodePoint(65536 + 1024 * m + r)), ++d;
-      } else
-        t.push(String.fromCodePoint(65533));
     }
   }
-  return t.join("");
+  return x;
 };
-G.Date = function(a, e) {
-  if (!(a instanceof Date))
+conversions["USVString"] = function(V) {
+  const S = String(V);
+  const n = S.length;
+  const U = [];
+  for (let i = 0; i < n; ++i) {
+    const c = S.charCodeAt(i);
+    if (c < 55296 || c > 57343) {
+      U.push(String.fromCodePoint(c));
+    } else if (56320 <= c && c <= 57343) {
+      U.push(String.fromCodePoint(65533));
+    } else {
+      if (i === n - 1) {
+        U.push(String.fromCodePoint(65533));
+      } else {
+        const d = S.charCodeAt(i + 1);
+        if (56320 <= d && d <= 57343) {
+          const a = c & 1023;
+          const b = d & 1023;
+          U.push(String.fromCodePoint((2 << 15) + (2 << 9) * a + b));
+          ++i;
+        } else {
+          U.push(String.fromCodePoint(65533));
+        }
+      }
+    }
+  }
+  return U.join("");
+};
+conversions["Date"] = function(V, opts) {
+  if (!(V instanceof Date)) {
     throw new TypeError("Argument is not a Date object");
-  if (!isNaN(a))
-    return a;
+  }
+  if (isNaN(V)) {
+    return void 0;
+  }
+  return V;
 };
-G.RegExp = function(a, e) {
-  return a instanceof RegExp || (a = new RegExp(a)), a;
+conversions["RegExp"] = function(V, opts) {
+  if (!(V instanceof RegExp)) {
+    V = new RegExp(V);
+  }
+  return V;
 };
-var hp = { exports: {} };
-(function(a) {
-  a.exports.mixin = function(p, t) {
-    const d = Object.getOwnPropertyNames(t);
-    for (let i = 0; i < d.length; ++i)
-      Object.defineProperty(p, d[i], Object.getOwnPropertyDescriptor(t, d[i]));
-  }, a.exports.wrapperSymbol = Symbol("wrapper"), a.exports.implSymbol = Symbol("impl"), a.exports.wrapperForImpl = function(e) {
-    return e[a.exports.wrapperSymbol];
-  }, a.exports.implForWrapper = function(e) {
-    return e[a.exports.implSymbol];
+var utils$2 = { exports: {} };
+(function(module) {
+  module.exports.mixin = function mixin(target, source) {
+    const keys = Object.getOwnPropertyNames(source);
+    for (let i = 0; i < keys.length; ++i) {
+      Object.defineProperty(target, keys[i], Object.getOwnPropertyDescriptor(source, keys[i]));
+    }
   };
-})(hp);
-var $2 = hp.exports, vp = {}, wp = { exports: {} }, Fe = {};
-const z2 = [
+  module.exports.wrapperSymbol = Symbol("wrapper");
+  module.exports.implSymbol = Symbol("impl");
+  module.exports.wrapperForImpl = function(impl) {
+    return impl[module.exports.wrapperSymbol];
+  };
+  module.exports.implForWrapper = function(wrapper) {
+    return wrapper[module.exports.implSymbol];
+  };
+})(utils$2);
+var utilsExports = utils$2.exports;
+var URLImpl = {};
+var urlStateMachine = { exports: {} };
+var tr46 = {};
+const require$$1 = [
   [
     [
       0,
@@ -77766,120 +78033,164 @@ const z2 = [
     "disallowed"
   ]
 ];
-var _p = mp, ja = z2, K1 = {
+var punycode = require$$0$1;
+var mappingTable = require$$1;
+var PROCESSING_OPTIONS = {
   TRANSITIONAL: 0,
   NONTRANSITIONAL: 1
 };
-function gp(a) {
-  return a.split("\0").map(function(e) {
-    return e.normalize("NFC");
+function normalize(str) {
+  return str.split("\0").map(function(s) {
+    return s.normalize("NFC");
   }).join("\0");
 }
-function Ep(a) {
-  for (var e = 0, p = ja.length - 1; e <= p; ) {
-    var t = Math.floor((e + p) / 2), d = ja[t];
-    if (d[0][0] <= a && d[0][1] >= a)
-      return d;
-    d[0][0] > a ? p = t - 1 : e = t + 1;
+function findStatus(val) {
+  var start = 0;
+  var end = mappingTable.length - 1;
+  while (start <= end) {
+    var mid = Math.floor((start + end) / 2);
+    var target = mappingTable[mid];
+    if (target[0][0] <= val && target[0][1] >= val) {
+      return target;
+    } else if (target[0][0] > val) {
+      end = mid - 1;
+    } else {
+      start = mid + 1;
+    }
   }
   return null;
 }
-var H2 = /[\uD800-\uDBFF][\uDC00-\uDFFF]/g;
-function Np(a) {
-  return a.replace(H2, "_").length;
+var regexAstralSymbols = /[\uD800-\uDBFF][\uDC00-\uDFFF]/g;
+function countSymbols(string) {
+  return string.replace(regexAstralSymbols, "_").length;
 }
-function k2(a, e, p) {
-  for (var t = !1, d = "", i = Np(a), l = 0; l < i; ++l) {
-    var m = a.codePointAt(l), r = Ep(m);
-    switch (r[1]) {
+function mapChars(domain_name, useSTD3, processing_option) {
+  var hasError = false;
+  var processed = "";
+  var len = countSymbols(domain_name);
+  for (var i = 0; i < len; ++i) {
+    var codePoint = domain_name.codePointAt(i);
+    var status = findStatus(codePoint);
+    switch (status[1]) {
       case "disallowed":
-        t = !0, d += String.fromCodePoint(m);
+        hasError = true;
+        processed += String.fromCodePoint(codePoint);
         break;
       case "ignored":
         break;
       case "mapped":
-        d += String.fromCodePoint.apply(String, r[2]);
+        processed += String.fromCodePoint.apply(String, status[2]);
         break;
       case "deviation":
-        p === K1.TRANSITIONAL ? d += String.fromCodePoint.apply(String, r[2]) : d += String.fromCodePoint(m);
+        if (processing_option === PROCESSING_OPTIONS.TRANSITIONAL) {
+          processed += String.fromCodePoint.apply(String, status[2]);
+        } else {
+          processed += String.fromCodePoint(codePoint);
+        }
         break;
       case "valid":
-        d += String.fromCodePoint(m);
+        processed += String.fromCodePoint(codePoint);
         break;
       case "disallowed_STD3_mapped":
-        e ? (t = !0, d += String.fromCodePoint(m)) : d += String.fromCodePoint.apply(String, r[2]);
+        if (useSTD3) {
+          hasError = true;
+          processed += String.fromCodePoint(codePoint);
+        } else {
+          processed += String.fromCodePoint.apply(String, status[2]);
+        }
         break;
       case "disallowed_STD3_valid":
-        e && (t = !0), d += String.fromCodePoint(m);
+        if (useSTD3) {
+          hasError = true;
+        }
+        processed += String.fromCodePoint(codePoint);
         break;
     }
   }
   return {
-    string: d,
-    error: t
+    string: processed,
+    error: hasError
   };
 }
-var Z2 = /[\u0300-\u036F\u0483-\u0489\u0591-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7\u06E8\u06EA-\u06ED\u0711\u0730-\u074A\u07A6-\u07B0\u07EB-\u07F3\u0816-\u0819\u081B-\u0823\u0825-\u0827\u0829-\u082D\u0859-\u085B\u08E4-\u0903\u093A-\u093C\u093E-\u094F\u0951-\u0957\u0962\u0963\u0981-\u0983\u09BC\u09BE-\u09C4\u09C7\u09C8\u09CB-\u09CD\u09D7\u09E2\u09E3\u0A01-\u0A03\u0A3C\u0A3E-\u0A42\u0A47\u0A48\u0A4B-\u0A4D\u0A51\u0A70\u0A71\u0A75\u0A81-\u0A83\u0ABC\u0ABE-\u0AC5\u0AC7-\u0AC9\u0ACB-\u0ACD\u0AE2\u0AE3\u0B01-\u0B03\u0B3C\u0B3E-\u0B44\u0B47\u0B48\u0B4B-\u0B4D\u0B56\u0B57\u0B62\u0B63\u0B82\u0BBE-\u0BC2\u0BC6-\u0BC8\u0BCA-\u0BCD\u0BD7\u0C00-\u0C03\u0C3E-\u0C44\u0C46-\u0C48\u0C4A-\u0C4D\u0C55\u0C56\u0C62\u0C63\u0C81-\u0C83\u0CBC\u0CBE-\u0CC4\u0CC6-\u0CC8\u0CCA-\u0CCD\u0CD5\u0CD6\u0CE2\u0CE3\u0D01-\u0D03\u0D3E-\u0D44\u0D46-\u0D48\u0D4A-\u0D4D\u0D57\u0D62\u0D63\u0D82\u0D83\u0DCA\u0DCF-\u0DD4\u0DD6\u0DD8-\u0DDF\u0DF2\u0DF3\u0E31\u0E34-\u0E3A\u0E47-\u0E4E\u0EB1\u0EB4-\u0EB9\u0EBB\u0EBC\u0EC8-\u0ECD\u0F18\u0F19\u0F35\u0F37\u0F39\u0F3E\u0F3F\u0F71-\u0F84\u0F86\u0F87\u0F8D-\u0F97\u0F99-\u0FBC\u0FC6\u102B-\u103E\u1056-\u1059\u105E-\u1060\u1062-\u1064\u1067-\u106D\u1071-\u1074\u1082-\u108D\u108F\u109A-\u109D\u135D-\u135F\u1712-\u1714\u1732-\u1734\u1752\u1753\u1772\u1773\u17B4-\u17D3\u17DD\u180B-\u180D\u18A9\u1920-\u192B\u1930-\u193B\u19B0-\u19C0\u19C8\u19C9\u1A17-\u1A1B\u1A55-\u1A5E\u1A60-\u1A7C\u1A7F\u1AB0-\u1ABE\u1B00-\u1B04\u1B34-\u1B44\u1B6B-\u1B73\u1B80-\u1B82\u1BA1-\u1BAD\u1BE6-\u1BF3\u1C24-\u1C37\u1CD0-\u1CD2\u1CD4-\u1CE8\u1CED\u1CF2-\u1CF4\u1CF8\u1CF9\u1DC0-\u1DF5\u1DFC-\u1DFF\u20D0-\u20F0\u2CEF-\u2CF1\u2D7F\u2DE0-\u2DFF\u302A-\u302F\u3099\u309A\uA66F-\uA672\uA674-\uA67D\uA69F\uA6F0\uA6F1\uA802\uA806\uA80B\uA823-\uA827\uA880\uA881\uA8B4-\uA8C4\uA8E0-\uA8F1\uA926-\uA92D\uA947-\uA953\uA980-\uA983\uA9B3-\uA9C0\uA9E5\uAA29-\uAA36\uAA43\uAA4C\uAA4D\uAA7B-\uAA7D\uAAB0\uAAB2-\uAAB4\uAAB7\uAAB8\uAABE\uAABF\uAAC1\uAAEB-\uAAEF\uAAF5\uAAF6\uABE3-\uABEA\uABEC\uABED\uFB1E\uFE00-\uFE0F\uFE20-\uFE2D]|\uD800[\uDDFD\uDEE0\uDF76-\uDF7A]|\uD802[\uDE01-\uDE03\uDE05\uDE06\uDE0C-\uDE0F\uDE38-\uDE3A\uDE3F\uDEE5\uDEE6]|\uD804[\uDC00-\uDC02\uDC38-\uDC46\uDC7F-\uDC82\uDCB0-\uDCBA\uDD00-\uDD02\uDD27-\uDD34\uDD73\uDD80-\uDD82\uDDB3-\uDDC0\uDE2C-\uDE37\uDEDF-\uDEEA\uDF01-\uDF03\uDF3C\uDF3E-\uDF44\uDF47\uDF48\uDF4B-\uDF4D\uDF57\uDF62\uDF63\uDF66-\uDF6C\uDF70-\uDF74]|\uD805[\uDCB0-\uDCC3\uDDAF-\uDDB5\uDDB8-\uDDC0\uDE30-\uDE40\uDEAB-\uDEB7]|\uD81A[\uDEF0-\uDEF4\uDF30-\uDF36]|\uD81B[\uDF51-\uDF7E\uDF8F-\uDF92]|\uD82F[\uDC9D\uDC9E]|\uD834[\uDD65-\uDD69\uDD6D-\uDD72\uDD7B-\uDD82\uDD85-\uDD8B\uDDAA-\uDDAD\uDE42-\uDE44]|\uD83A[\uDCD0-\uDCD6]|\uDB40[\uDD00-\uDDEF]/;
-function G2(a, e) {
-  a.substr(0, 4) === "xn--" && (a = _p.toUnicode(a), K1.NONTRANSITIONAL);
-  var p = !1;
-  (gp(a) !== a || a[3] === "-" && a[4] === "-" || a[0] === "-" || a[a.length - 1] === "-" || a.indexOf(".") !== -1 || a.search(Z2) === 0) && (p = !0);
-  for (var t = Np(a), d = 0; d < t; ++d) {
-    var i = Ep(a.codePointAt(d));
-    if (Ve === K1.TRANSITIONAL && i[1] !== "valid" || Ve === K1.NONTRANSITIONAL && i[1] !== "valid" && i[1] !== "deviation") {
-      p = !0;
+var combiningMarksRegex = /[\u0300-\u036F\u0483-\u0489\u0591-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7\u06E8\u06EA-\u06ED\u0711\u0730-\u074A\u07A6-\u07B0\u07EB-\u07F3\u0816-\u0819\u081B-\u0823\u0825-\u0827\u0829-\u082D\u0859-\u085B\u08E4-\u0903\u093A-\u093C\u093E-\u094F\u0951-\u0957\u0962\u0963\u0981-\u0983\u09BC\u09BE-\u09C4\u09C7\u09C8\u09CB-\u09CD\u09D7\u09E2\u09E3\u0A01-\u0A03\u0A3C\u0A3E-\u0A42\u0A47\u0A48\u0A4B-\u0A4D\u0A51\u0A70\u0A71\u0A75\u0A81-\u0A83\u0ABC\u0ABE-\u0AC5\u0AC7-\u0AC9\u0ACB-\u0ACD\u0AE2\u0AE3\u0B01-\u0B03\u0B3C\u0B3E-\u0B44\u0B47\u0B48\u0B4B-\u0B4D\u0B56\u0B57\u0B62\u0B63\u0B82\u0BBE-\u0BC2\u0BC6-\u0BC8\u0BCA-\u0BCD\u0BD7\u0C00-\u0C03\u0C3E-\u0C44\u0C46-\u0C48\u0C4A-\u0C4D\u0C55\u0C56\u0C62\u0C63\u0C81-\u0C83\u0CBC\u0CBE-\u0CC4\u0CC6-\u0CC8\u0CCA-\u0CCD\u0CD5\u0CD6\u0CE2\u0CE3\u0D01-\u0D03\u0D3E-\u0D44\u0D46-\u0D48\u0D4A-\u0D4D\u0D57\u0D62\u0D63\u0D82\u0D83\u0DCA\u0DCF-\u0DD4\u0DD6\u0DD8-\u0DDF\u0DF2\u0DF3\u0E31\u0E34-\u0E3A\u0E47-\u0E4E\u0EB1\u0EB4-\u0EB9\u0EBB\u0EBC\u0EC8-\u0ECD\u0F18\u0F19\u0F35\u0F37\u0F39\u0F3E\u0F3F\u0F71-\u0F84\u0F86\u0F87\u0F8D-\u0F97\u0F99-\u0FBC\u0FC6\u102B-\u103E\u1056-\u1059\u105E-\u1060\u1062-\u1064\u1067-\u106D\u1071-\u1074\u1082-\u108D\u108F\u109A-\u109D\u135D-\u135F\u1712-\u1714\u1732-\u1734\u1752\u1753\u1772\u1773\u17B4-\u17D3\u17DD\u180B-\u180D\u18A9\u1920-\u192B\u1930-\u193B\u19B0-\u19C0\u19C8\u19C9\u1A17-\u1A1B\u1A55-\u1A5E\u1A60-\u1A7C\u1A7F\u1AB0-\u1ABE\u1B00-\u1B04\u1B34-\u1B44\u1B6B-\u1B73\u1B80-\u1B82\u1BA1-\u1BAD\u1BE6-\u1BF3\u1C24-\u1C37\u1CD0-\u1CD2\u1CD4-\u1CE8\u1CED\u1CF2-\u1CF4\u1CF8\u1CF9\u1DC0-\u1DF5\u1DFC-\u1DFF\u20D0-\u20F0\u2CEF-\u2CF1\u2D7F\u2DE0-\u2DFF\u302A-\u302F\u3099\u309A\uA66F-\uA672\uA674-\uA67D\uA69F\uA6F0\uA6F1\uA802\uA806\uA80B\uA823-\uA827\uA880\uA881\uA8B4-\uA8C4\uA8E0-\uA8F1\uA926-\uA92D\uA947-\uA953\uA980-\uA983\uA9B3-\uA9C0\uA9E5\uAA29-\uAA36\uAA43\uAA4C\uAA4D\uAA7B-\uAA7D\uAAB0\uAAB2-\uAAB4\uAAB7\uAAB8\uAABE\uAABF\uAAC1\uAAEB-\uAAEF\uAAF5\uAAF6\uABE3-\uABEA\uABEC\uABED\uFB1E\uFE00-\uFE0F\uFE20-\uFE2D]|\uD800[\uDDFD\uDEE0\uDF76-\uDF7A]|\uD802[\uDE01-\uDE03\uDE05\uDE06\uDE0C-\uDE0F\uDE38-\uDE3A\uDE3F\uDEE5\uDEE6]|\uD804[\uDC00-\uDC02\uDC38-\uDC46\uDC7F-\uDC82\uDCB0-\uDCBA\uDD00-\uDD02\uDD27-\uDD34\uDD73\uDD80-\uDD82\uDDB3-\uDDC0\uDE2C-\uDE37\uDEDF-\uDEEA\uDF01-\uDF03\uDF3C\uDF3E-\uDF44\uDF47\uDF48\uDF4B-\uDF4D\uDF57\uDF62\uDF63\uDF66-\uDF6C\uDF70-\uDF74]|\uD805[\uDCB0-\uDCC3\uDDAF-\uDDB5\uDDB8-\uDDC0\uDE30-\uDE40\uDEAB-\uDEB7]|\uD81A[\uDEF0-\uDEF4\uDF30-\uDF36]|\uD81B[\uDF51-\uDF7E\uDF8F-\uDF92]|\uD82F[\uDC9D\uDC9E]|\uD834[\uDD65-\uDD69\uDD6D-\uDD72\uDD7B-\uDD82\uDD85-\uDD8B\uDDAA-\uDDAD\uDE42-\uDE44]|\uD83A[\uDCD0-\uDCD6]|\uDB40[\uDD00-\uDDEF]/;
+function validateLabel(label, processing_option) {
+  if (label.substr(0, 4) === "xn--") {
+    label = punycode.toUnicode(label);
+    PROCESSING_OPTIONS.NONTRANSITIONAL;
+  }
+  var error = false;
+  if (normalize(label) !== label || label[3] === "-" && label[4] === "-" || label[0] === "-" || label[label.length - 1] === "-" || label.indexOf(".") !== -1 || label.search(combiningMarksRegex) === 0) {
+    error = true;
+  }
+  var len = countSymbols(label);
+  for (var i = 0; i < len; ++i) {
+    var status = findStatus(label.codePointAt(i));
+    if (processing === PROCESSING_OPTIONS.TRANSITIONAL && status[1] !== "valid" || processing === PROCESSING_OPTIONS.NONTRANSITIONAL && status[1] !== "valid" && status[1] !== "deviation") {
+      error = true;
       break;
     }
   }
   return {
-    label: a,
-    error: p
+    label,
+    error
   };
 }
-function Ve(a, e, p) {
-  var t = k2(a, e, p);
-  t.string = gp(t.string);
-  for (var d = t.string.split("."), i = 0; i < d.length; ++i)
+function processing(domain_name, useSTD3, processing_option) {
+  var result = mapChars(domain_name, useSTD3, processing_option);
+  result.string = normalize(result.string);
+  var labels = result.string.split(".");
+  for (var i = 0; i < labels.length; ++i) {
     try {
-      var l = G2(d[i]);
-      d[i] = l.label, t.error = t.error || l.error;
-    } catch {
-      t.error = !0;
+      var validation = validateLabel(labels[i]);
+      labels[i] = validation.label;
+      result.error = result.error || validation.error;
+    } catch (e) {
+      result.error = true;
     }
+  }
   return {
-    string: d.join("."),
-    error: t.error
+    string: labels.join("."),
+    error: result.error
   };
 }
-Fe.toASCII = function(a, e, p, t) {
-  var d = Ve(a, e, p), i = d.string.split(".");
-  if (i = i.map(function(r) {
+tr46.toASCII = function(domain_name, useSTD3, processing_option, verifyDnsLength) {
+  var result = processing(domain_name, useSTD3, processing_option);
+  var labels = result.string.split(".");
+  labels = labels.map(function(l) {
     try {
-      return _p.toASCII(r);
-    } catch {
-      return d.error = !0, r;
+      return punycode.toASCII(l);
+    } catch (e) {
+      result.error = true;
+      return l;
     }
-  }), t) {
-    var l = i.slice(0, i.length - 1).join(".").length;
-    (l.length > 253 || l.length === 0) && (d.error = !0);
-    for (var m = 0; m < i.length; ++m)
-      if (i.length > 63 || i.length === 0) {
-        d.error = !0;
+  });
+  if (verifyDnsLength) {
+    var total = labels.slice(0, labels.length - 1).join(".").length;
+    if (total.length > 253 || total.length === 0) {
+      result.error = true;
+    }
+    for (var i = 0; i < labels.length; ++i) {
+      if (labels.length > 63 || labels.length === 0) {
+        result.error = true;
         break;
       }
+    }
   }
-  return d.error ? null : i.join(".");
+  if (result.error) return null;
+  return labels.join(".");
 };
-Fe.toUnicode = function(a, e) {
-  var p = Ve(a, e, K1.NONTRANSITIONAL);
+tr46.toUnicode = function(domain_name, useSTD3) {
+  var result = processing(domain_name, useSTD3, PROCESSING_OPTIONS.NONTRANSITIONAL);
   return {
-    domain: p.string,
-    error: p.error
+    domain: result.string,
+    error: result.error
   };
 };
-Fe.PROCESSING_OPTIONS = K1;
-(function(a) {
-  const e = mp, p = Fe, t = {
+tr46.PROCESSING_OPTIONS = PROCESSING_OPTIONS;
+(function(module) {
+  const punycode2 = require$$0$1;
+  const tr46$1 = tr46;
+  const specialSchemes = {
     ftp: 21,
     file: null,
     gopher: 70,
@@ -77887,256 +78198,410 @@ Fe.PROCESSING_OPTIONS = K1;
     https: 443,
     ws: 80,
     wss: 443
-  }, d = Symbol("failure");
-  function i(s) {
-    return e.ucs2.decode(s).length;
+  };
+  const failure = Symbol("failure");
+  function countSymbols2(str) {
+    return punycode2.ucs2.decode(str).length;
   }
-  function l(s, o) {
-    const y = s[o];
-    return isNaN(y) ? void 0 : String.fromCodePoint(y);
+  function at(input, idx) {
+    const c = input[idx];
+    return isNaN(c) ? void 0 : String.fromCodePoint(c);
   }
-  function m(s) {
-    return s >= 48 && s <= 57;
+  function isASCIIDigit(c) {
+    return c >= 48 && c <= 57;
   }
-  function r(s) {
-    return s >= 65 && s <= 90 || s >= 97 && s <= 122;
+  function isASCIIAlpha(c) {
+    return c >= 65 && c <= 90 || c >= 97 && c <= 122;
   }
-  function v(s) {
-    return r(s) || m(s);
+  function isASCIIAlphanumeric(c) {
+    return isASCIIAlpha(c) || isASCIIDigit(c);
   }
-  function N(s) {
-    return m(s) || s >= 65 && s <= 70 || s >= 97 && s <= 102;
+  function isASCIIHex(c) {
+    return isASCIIDigit(c) || c >= 65 && c <= 70 || c >= 97 && c <= 102;
   }
-  function D(s) {
-    return s === "." || s.toLowerCase() === "%2e";
+  function isSingleDot(buffer) {
+    return buffer === "." || buffer.toLowerCase() === "%2e";
   }
-  function T(s) {
-    return s = s.toLowerCase(), s === ".." || s === "%2e." || s === ".%2e" || s === "%2e%2e";
+  function isDoubleDot(buffer) {
+    buffer = buffer.toLowerCase();
+    return buffer === ".." || buffer === "%2e." || buffer === ".%2e" || buffer === "%2e%2e";
   }
-  function c(s, o) {
-    return r(s) && (o === 58 || o === 124);
+  function isWindowsDriveLetterCodePoints(cp1, cp2) {
+    return isASCIIAlpha(cp1) && (cp2 === 58 || cp2 === 124);
   }
-  function h(s) {
-    return s.length === 2 && r(s.codePointAt(0)) && (s[1] === ":" || s[1] === "|");
+  function isWindowsDriveLetterString(string) {
+    return string.length === 2 && isASCIIAlpha(string.codePointAt(0)) && (string[1] === ":" || string[1] === "|");
   }
-  function f(s) {
-    return s.length === 2 && r(s.codePointAt(0)) && s[1] === ":";
+  function isNormalizedWindowsDriveLetterString(string) {
+    return string.length === 2 && isASCIIAlpha(string.codePointAt(0)) && string[1] === ":";
   }
-  function w(s) {
-    return s.search(/\u0000|\u0009|\u000A|\u000D|\u0020|#|%|\/|:|\?|@|\[|\\|\]/) !== -1;
+  function containsForbiddenHostCodePoint(string) {
+    return string.search(/\u0000|\u0009|\u000A|\u000D|\u0020|#|%|\/|:|\?|@|\[|\\|\]/) !== -1;
   }
-  function E(s) {
-    return s.search(/\u0000|\u0009|\u000A|\u000D|\u0020|#|\/|:|\?|@|\[|\\|\]/) !== -1;
+  function containsForbiddenHostCodePointExcludingPercent(string) {
+    return string.search(/\u0000|\u0009|\u000A|\u000D|\u0020|#|\/|:|\?|@|\[|\\|\]/) !== -1;
   }
-  function n(s) {
-    return t[s] !== void 0;
+  function isSpecialScheme(scheme) {
+    return specialSchemes[scheme] !== void 0;
   }
-  function u(s) {
-    return n(s.scheme);
+  function isSpecial(url) {
+    return isSpecialScheme(url.scheme);
   }
-  function _(s) {
-    return t[s];
+  function defaultPort(scheme) {
+    return specialSchemes[scheme];
   }
-  function g(s) {
-    let o = s.toString(16).toUpperCase();
-    return o.length === 1 && (o = "0" + o), "%" + o;
-  }
-  function b(s) {
-    const o = new Buffer(s);
-    let y = "";
-    for (let S = 0; S < o.length; ++S)
-      y += g(o[S]);
-    return y;
-  }
-  function V(s) {
-    const o = new Buffer(s), y = [];
-    for (let S = 0; S < o.length; ++S)
-      o[S] !== 37 ? y.push(o[S]) : o[S] === 37 && N(o[S + 1]) && N(o[S + 2]) ? (y.push(parseInt(o.slice(S + 1, S + 3).toString(), 16)), S += 2) : y.push(o[S]);
-    return new Buffer(y).toString();
-  }
-  function x(s) {
-    return s <= 31 || s > 126;
-  }
-  const C = /* @__PURE__ */ new Set([32, 34, 35, 60, 62, 63, 96, 123, 125]);
-  function O(s) {
-    return x(s) || C.has(s);
-  }
-  const W = /* @__PURE__ */ new Set([47, 58, 59, 61, 64, 91, 92, 93, 94, 124]);
-  function M(s) {
-    return O(s) || W.has(s);
-  }
-  function Y(s, o) {
-    const y = String.fromCodePoint(s);
-    return o(s) ? b(y) : y;
-  }
-  function C1(s) {
-    let o = 10;
-    return s.length >= 2 && s.charAt(0) === "0" && s.charAt(1).toLowerCase() === "x" ? (s = s.substring(2), o = 16) : s.length >= 2 && s.charAt(0) === "0" && (s = s.substring(1), o = 8), s === "" ? 0 : (o === 10 ? /[^0-9]/ : o === 16 ? /[^0-9A-Fa-f]/ : /[^0-7]/).test(s) ? d : parseInt(s, o);
-  }
-  function de(s) {
-    const o = s.split(".");
-    if (o[o.length - 1] === "" && o.length > 1 && o.pop(), o.length > 4)
-      return s;
-    const y = [];
-    for (const R of o) {
-      if (R === "")
-        return s;
-      const X = C1(R);
-      if (X === d)
-        return s;
-      y.push(X);
+  function percentEncode(c) {
+    let hex = c.toString(16).toUpperCase();
+    if (hex.length === 1) {
+      hex = "0" + hex;
     }
-    for (let R = 0; R < y.length - 1; ++R)
-      if (y[R] > 255)
-        return d;
-    if (y[y.length - 1] >= Math.pow(256, 5 - y.length))
-      return d;
-    let S = y.pop(), A = 0;
-    for (const R of y)
-      S += R * Math.pow(256, 3 - A), ++A;
-    return S;
+    return "%" + hex;
   }
-  function qp(s) {
-    let o = "", y = s;
-    for (let S = 1; S <= 4; ++S)
-      o = String(y % 256) + o, S !== 4 && (o = "." + o), y = Math.floor(y / 256);
-    return o;
-  }
-  function Jp(s) {
-    const o = [0, 0, 0, 0, 0, 0, 0, 0];
-    let y = 0, S = null, A = 0;
-    if (s = e.ucs2.decode(s), s[A] === 58) {
-      if (s[A + 1] !== 58)
-        return d;
-      A += 2, ++y, S = y;
+  function utf8PercentEncode(c) {
+    const buf = new Buffer(c);
+    let str = "";
+    for (let i = 0; i < buf.length; ++i) {
+      str += percentEncode(buf[i]);
     }
-    for (; A < s.length; ) {
-      if (y === 8)
-        return d;
-      if (s[A] === 58) {
-        if (S !== null)
-          return d;
-        ++A, ++y, S = y;
+    return str;
+  }
+  function utf8PercentDecode(str) {
+    const input = new Buffer(str);
+    const output = [];
+    for (let i = 0; i < input.length; ++i) {
+      if (input[i] !== 37) {
+        output.push(input[i]);
+      } else if (input[i] === 37 && isASCIIHex(input[i + 1]) && isASCIIHex(input[i + 2])) {
+        output.push(parseInt(input.slice(i + 1, i + 3).toString(), 16));
+        i += 2;
+      } else {
+        output.push(input[i]);
+      }
+    }
+    return new Buffer(output).toString();
+  }
+  function isC0ControlPercentEncode(c) {
+    return c <= 31 || c > 126;
+  }
+  const extraPathPercentEncodeSet = /* @__PURE__ */ new Set([32, 34, 35, 60, 62, 63, 96, 123, 125]);
+  function isPathPercentEncode(c) {
+    return isC0ControlPercentEncode(c) || extraPathPercentEncodeSet.has(c);
+  }
+  const extraUserinfoPercentEncodeSet = /* @__PURE__ */ new Set([47, 58, 59, 61, 64, 91, 92, 93, 94, 124]);
+  function isUserinfoPercentEncode(c) {
+    return isPathPercentEncode(c) || extraUserinfoPercentEncodeSet.has(c);
+  }
+  function percentEncodeChar(c, encodeSetPredicate) {
+    const cStr = String.fromCodePoint(c);
+    if (encodeSetPredicate(c)) {
+      return utf8PercentEncode(cStr);
+    }
+    return cStr;
+  }
+  function parseIPv4Number(input) {
+    let R = 10;
+    if (input.length >= 2 && input.charAt(0) === "0" && input.charAt(1).toLowerCase() === "x") {
+      input = input.substring(2);
+      R = 16;
+    } else if (input.length >= 2 && input.charAt(0) === "0") {
+      input = input.substring(1);
+      R = 8;
+    }
+    if (input === "") {
+      return 0;
+    }
+    const regex = R === 10 ? /[^0-9]/ : R === 16 ? /[^0-9A-Fa-f]/ : /[^0-7]/;
+    if (regex.test(input)) {
+      return failure;
+    }
+    return parseInt(input, R);
+  }
+  function parseIPv4(input) {
+    const parts = input.split(".");
+    if (parts[parts.length - 1] === "") {
+      if (parts.length > 1) {
+        parts.pop();
+      }
+    }
+    if (parts.length > 4) {
+      return input;
+    }
+    const numbers = [];
+    for (const part of parts) {
+      if (part === "") {
+        return input;
+      }
+      const n = parseIPv4Number(part);
+      if (n === failure) {
+        return input;
+      }
+      numbers.push(n);
+    }
+    for (let i = 0; i < numbers.length - 1; ++i) {
+      if (numbers[i] > 255) {
+        return failure;
+      }
+    }
+    if (numbers[numbers.length - 1] >= Math.pow(256, 5 - numbers.length)) {
+      return failure;
+    }
+    let ipv4 = numbers.pop();
+    let counter = 0;
+    for (const n of numbers) {
+      ipv4 += n * Math.pow(256, 3 - counter);
+      ++counter;
+    }
+    return ipv4;
+  }
+  function serializeIPv4(address) {
+    let output = "";
+    let n = address;
+    for (let i = 1; i <= 4; ++i) {
+      output = String(n % 256) + output;
+      if (i !== 4) {
+        output = "." + output;
+      }
+      n = Math.floor(n / 256);
+    }
+    return output;
+  }
+  function parseIPv6(input) {
+    const address = [0, 0, 0, 0, 0, 0, 0, 0];
+    let pieceIndex = 0;
+    let compress = null;
+    let pointer = 0;
+    input = punycode2.ucs2.decode(input);
+    if (input[pointer] === 58) {
+      if (input[pointer + 1] !== 58) {
+        return failure;
+      }
+      pointer += 2;
+      ++pieceIndex;
+      compress = pieceIndex;
+    }
+    while (pointer < input.length) {
+      if (pieceIndex === 8) {
+        return failure;
+      }
+      if (input[pointer] === 58) {
+        if (compress !== null) {
+          return failure;
+        }
+        ++pointer;
+        ++pieceIndex;
+        compress = pieceIndex;
         continue;
       }
-      let R = 0, X = 0;
-      for (; X < 4 && N(s[A]); )
-        R = R * 16 + parseInt(l(s, A), 16), ++A, ++X;
-      if (s[A] === 46) {
-        if (X === 0 || (A -= X, y > 6))
-          return d;
-        let R1 = 0;
-        for (; s[A] !== void 0; ) {
-          let g1 = null;
-          if (R1 > 0)
-            if (s[A] === 46 && R1 < 4)
-              ++A;
-            else
-              return d;
-          if (!m(s[A]))
-            return d;
-          for (; m(s[A]); ) {
-            const Ra = parseInt(l(s, A));
-            if (g1 === null)
-              g1 = Ra;
-            else {
-              if (g1 === 0)
-                return d;
-              g1 = g1 * 10 + Ra;
+      let value = 0;
+      let length = 0;
+      while (length < 4 && isASCIIHex(input[pointer])) {
+        value = value * 16 + parseInt(at(input, pointer), 16);
+        ++pointer;
+        ++length;
+      }
+      if (input[pointer] === 46) {
+        if (length === 0) {
+          return failure;
+        }
+        pointer -= length;
+        if (pieceIndex > 6) {
+          return failure;
+        }
+        let numbersSeen = 0;
+        while (input[pointer] !== void 0) {
+          let ipv4Piece = null;
+          if (numbersSeen > 0) {
+            if (input[pointer] === 46 && numbersSeen < 4) {
+              ++pointer;
+            } else {
+              return failure;
             }
-            if (g1 > 255)
-              return d;
-            ++A;
           }
-          o[y] = o[y] * 256 + g1, ++R1, (R1 === 2 || R1 === 4) && ++y;
+          if (!isASCIIDigit(input[pointer])) {
+            return failure;
+          }
+          while (isASCIIDigit(input[pointer])) {
+            const number = parseInt(at(input, pointer));
+            if (ipv4Piece === null) {
+              ipv4Piece = number;
+            } else if (ipv4Piece === 0) {
+              return failure;
+            } else {
+              ipv4Piece = ipv4Piece * 10 + number;
+            }
+            if (ipv4Piece > 255) {
+              return failure;
+            }
+            ++pointer;
+          }
+          address[pieceIndex] = address[pieceIndex] * 256 + ipv4Piece;
+          ++numbersSeen;
+          if (numbersSeen === 2 || numbersSeen === 4) {
+            ++pieceIndex;
+          }
         }
-        if (R1 !== 4)
-          return d;
+        if (numbersSeen !== 4) {
+          return failure;
+        }
         break;
-      } else if (s[A] === 58) {
-        if (++A, s[A] === void 0)
-          return d;
-      } else if (s[A] !== void 0)
-        return d;
-      o[y] = R, ++y;
-    }
-    if (S !== null) {
-      let R = y - S;
-      for (y = 7; y !== 0 && R > 0; ) {
-        const X = o[S + R - 1];
-        o[S + R - 1] = o[y], o[y] = X, --y, --R;
-      }
-    } else if (S === null && y !== 8)
-      return d;
-    return o;
-  }
-  function Wp(s) {
-    let o = "";
-    const S = Kp(s).idx;
-    let A = !1;
-    for (let R = 0; R <= 7; ++R)
-      if (!(A && s[R] === 0)) {
-        if (A && (A = !1), S === R) {
-          o += R === 0 ? "::" : ":", A = !0;
-          continue;
+      } else if (input[pointer] === 58) {
+        ++pointer;
+        if (input[pointer] === void 0) {
+          return failure;
         }
-        o += s[R].toString(16), R !== 7 && (o += ":");
+      } else if (input[pointer] !== void 0) {
+        return failure;
       }
-    return o;
+      address[pieceIndex] = value;
+      ++pieceIndex;
+    }
+    if (compress !== null) {
+      let swaps = pieceIndex - compress;
+      pieceIndex = 7;
+      while (pieceIndex !== 0 && swaps > 0) {
+        const temp = address[compress + swaps - 1];
+        address[compress + swaps - 1] = address[pieceIndex];
+        address[pieceIndex] = temp;
+        --pieceIndex;
+        --swaps;
+      }
+    } else if (compress === null && pieceIndex !== 8) {
+      return failure;
+    }
+    return address;
   }
-  function He(s, o) {
-    if (s[0] === "[")
-      return s[s.length - 1] !== "]" ? d : Jp(s.substring(1, s.length - 1));
-    if (!o)
-      return Xp(s);
-    const y = V(s), S = p.toASCII(y, !1, p.PROCESSING_OPTIONS.NONTRANSITIONAL, !1);
-    if (S === null || w(S))
-      return d;
-    const A = de(S);
-    return typeof A == "number" || A === d ? A : S;
+  function serializeIPv6(address) {
+    let output = "";
+    const seqResult = findLongestZeroSequence(address);
+    const compress = seqResult.idx;
+    let ignore0 = false;
+    for (let pieceIndex = 0; pieceIndex <= 7; ++pieceIndex) {
+      if (ignore0 && address[pieceIndex] === 0) {
+        continue;
+      } else if (ignore0) {
+        ignore0 = false;
+      }
+      if (compress === pieceIndex) {
+        const separator = pieceIndex === 0 ? "::" : ":";
+        output += separator;
+        ignore0 = true;
+        continue;
+      }
+      output += address[pieceIndex].toString(16);
+      if (pieceIndex !== 7) {
+        output += ":";
+      }
+    }
+    return output;
   }
-  function Xp(s) {
-    if (E(s))
-      return d;
-    let o = "";
-    const y = e.ucs2.decode(s);
-    for (let S = 0; S < y.length; ++S)
-      o += Y(y[S], x);
-    return o;
+  function parseHost(input, isSpecialArg) {
+    if (input[0] === "[") {
+      if (input[input.length - 1] !== "]") {
+        return failure;
+      }
+      return parseIPv6(input.substring(1, input.length - 1));
+    }
+    if (!isSpecialArg) {
+      return parseOpaqueHost(input);
+    }
+    const domain = utf8PercentDecode(input);
+    const asciiDomain = tr46$1.toASCII(domain, false, tr46$1.PROCESSING_OPTIONS.NONTRANSITIONAL, false);
+    if (asciiDomain === null) {
+      return failure;
+    }
+    if (containsForbiddenHostCodePoint(asciiDomain)) {
+      return failure;
+    }
+    const ipv4Host = parseIPv4(asciiDomain);
+    if (typeof ipv4Host === "number" || ipv4Host === failure) {
+      return ipv4Host;
+    }
+    return asciiDomain;
   }
-  function Kp(s) {
-    let o = null, y = 1, S = null, A = 0;
-    for (let R = 0; R < s.length; ++R)
-      s[R] !== 0 ? (A > y && (o = S, y = A), S = null, A = 0) : (S === null && (S = R), ++A);
-    return A > y && (o = S, y = A), {
-      idx: o,
-      len: y
+  function parseOpaqueHost(input) {
+    if (containsForbiddenHostCodePointExcludingPercent(input)) {
+      return failure;
+    }
+    let output = "";
+    const decoded = punycode2.ucs2.decode(input);
+    for (let i = 0; i < decoded.length; ++i) {
+      output += percentEncodeChar(decoded[i], isC0ControlPercentEncode);
+    }
+    return output;
+  }
+  function findLongestZeroSequence(arr) {
+    let maxIdx = null;
+    let maxLen = 1;
+    let currStart = null;
+    let currLen = 0;
+    for (let i = 0; i < arr.length; ++i) {
+      if (arr[i] !== 0) {
+        if (currLen > maxLen) {
+          maxIdx = currStart;
+          maxLen = currLen;
+        }
+        currStart = null;
+        currLen = 0;
+      } else {
+        if (currStart === null) {
+          currStart = i;
+        }
+        ++currLen;
+      }
+    }
+    if (currLen > maxLen) {
+      maxIdx = currStart;
+      maxLen = currLen;
+    }
+    return {
+      idx: maxIdx,
+      len: maxLen
     };
   }
-  function ke(s) {
-    return typeof s == "number" ? qp(s) : s instanceof Array ? "[" + Wp(s) + "]" : s;
+  function serializeHost(host) {
+    if (typeof host === "number") {
+      return serializeIPv4(host);
+    }
+    if (host instanceof Array) {
+      return "[" + serializeIPv6(host) + "]";
+    }
+    return host;
   }
-  function Yp(s) {
-    return s.replace(/^[\u0000-\u001F\u0020]+|[\u0000-\u001F\u0020]+$/g, "");
+  function trimControlChars(url) {
+    return url.replace(/^[\u0000-\u001F\u0020]+|[\u0000-\u001F\u0020]+$/g, "");
   }
-  function Qp(s) {
-    return s.replace(/\u0009|\u000A|\u000D/g, "");
+  function trimTabAndNewline(url) {
+    return url.replace(/\u0009|\u000A|\u000D/g, "");
   }
-  function Va(s) {
-    const o = s.path;
-    o.length !== 0 && (s.scheme === "file" && o.length === 1 && a2(o[0]) || o.pop());
+  function shortenPath(url) {
+    const path2 = url.path;
+    if (path2.length === 0) {
+      return;
+    }
+    if (url.scheme === "file" && path2.length === 1 && isNormalizedWindowsDriveLetter(path2[0])) {
+      return;
+    }
+    path2.pop();
   }
-  function Ca(s) {
-    return s.username !== "" || s.password !== "";
+  function includesCredentials(url) {
+    return url.username !== "" || url.password !== "";
   }
-  function e2(s) {
-    return s.host === null || s.host === "" || s.cannotBeABaseURL || s.scheme === "file";
+  function cannotHaveAUsernamePasswordPort(url) {
+    return url.host === null || url.host === "" || url.cannotBeABaseURL || url.scheme === "file";
   }
-  function a2(s) {
-    return /^[A-Za-z]:$/.test(s);
+  function isNormalizedWindowsDriveLetter(string) {
+    return /^[A-Za-z]:$/.test(string);
   }
-  function $(s, o, y, S, A) {
-    if (this.pointer = 0, this.input = s, this.base = o || null, this.encodingOverride = y || "utf-8", this.stateOverride = A, this.url = S, this.failure = !1, this.parseError = !1, !this.url) {
+  function URLStateMachine(input, base, encodingOverride, url, stateOverride) {
+    this.pointer = 0;
+    this.input = input;
+    this.base = base || null;
+    this.encodingOverride = encodingOverride || "utf-8";
+    this.stateOverride = stateOverride;
+    this.url = url;
+    this.failure = false;
+    this.parseError = false;
+    if (!this.url) {
       this.url = {
         scheme: "",
         username: "",
@@ -78146,189 +78611,594 @@ Fe.PROCESSING_OPTIONS = K1;
         path: [],
         query: null,
         fragment: null,
-        cannotBeABaseURL: !1
+        cannotBeABaseURL: false
       };
-      const X = Yp(this.input);
-      X !== this.input && (this.parseError = !0), this.input = X;
+      const res2 = trimControlChars(this.input);
+      if (res2 !== this.input) {
+        this.parseError = true;
+      }
+      this.input = res2;
     }
-    const R = Qp(this.input);
-    for (R !== this.input && (this.parseError = !0), this.input = R, this.state = A || "scheme start", this.buffer = "", this.atFlag = !1, this.arrFlag = !1, this.passwordTokenSeenFlag = !1, this.input = e.ucs2.decode(this.input); this.pointer <= this.input.length; ++this.pointer) {
-      const X = this.input[this.pointer], R1 = isNaN(X) ? void 0 : String.fromCodePoint(X), g1 = this["parse " + this.state](X, R1);
-      if (g1) {
-        if (g1 === d) {
-          this.failure = !0;
-          break;
-        }
-      } else break;
+    const res = trimTabAndNewline(this.input);
+    if (res !== this.input) {
+      this.parseError = true;
+    }
+    this.input = res;
+    this.state = stateOverride || "scheme start";
+    this.buffer = "";
+    this.atFlag = false;
+    this.arrFlag = false;
+    this.passwordTokenSeenFlag = false;
+    this.input = punycode2.ucs2.decode(this.input);
+    for (; this.pointer <= this.input.length; ++this.pointer) {
+      const c = this.input[this.pointer];
+      const cStr = isNaN(c) ? void 0 : String.fromCodePoint(c);
+      const ret = this["parse " + this.state](c, cStr);
+      if (!ret) {
+        break;
+      } else if (ret === failure) {
+        this.failure = true;
+        break;
+      }
     }
   }
-  $.prototype["parse scheme start"] = function(o, y) {
-    if (r(o))
-      this.buffer += y.toLowerCase(), this.state = "scheme";
-    else if (!this.stateOverride)
-      this.state = "no scheme", --this.pointer;
-    else
-      return this.parseError = !0, d;
-    return !0;
-  }, $.prototype["parse scheme"] = function(o, y) {
-    if (v(o) || o === 43 || o === 45 || o === 46)
-      this.buffer += y.toLowerCase();
-    else if (o === 58) {
-      if (this.stateOverride && (u(this.url) && !n(this.buffer) || !u(this.url) && n(this.buffer) || (Ca(this.url) || this.url.port !== null) && this.buffer === "file" || this.url.scheme === "file" && (this.url.host === "" || this.url.host === null)) || (this.url.scheme = this.buffer, this.buffer = "", this.stateOverride))
-        return !1;
-      this.url.scheme === "file" ? ((this.input[this.pointer + 1] !== 47 || this.input[this.pointer + 2] !== 47) && (this.parseError = !0), this.state = "file") : u(this.url) && this.base !== null && this.base.scheme === this.url.scheme ? this.state = "special relative or authority" : u(this.url) ? this.state = "special authority slashes" : this.input[this.pointer + 1] === 47 ? (this.state = "path or authority", ++this.pointer) : (this.url.cannotBeABaseURL = !0, this.url.path.push(""), this.state = "cannot-be-a-base-URL path");
-    } else if (!this.stateOverride)
-      this.buffer = "", this.state = "no scheme", this.pointer = -1;
-    else
-      return this.parseError = !0, d;
-    return !0;
-  }, $.prototype["parse no scheme"] = function(o) {
-    return this.base === null || this.base.cannotBeABaseURL && o !== 35 ? d : (this.base.cannotBeABaseURL && o === 35 ? (this.url.scheme = this.base.scheme, this.url.path = this.base.path.slice(), this.url.query = this.base.query, this.url.fragment = "", this.url.cannotBeABaseURL = !0, this.state = "fragment") : this.base.scheme === "file" ? (this.state = "file", --this.pointer) : (this.state = "relative", --this.pointer), !0);
-  }, $.prototype["parse special relative or authority"] = function(o) {
-    return o === 47 && this.input[this.pointer + 1] === 47 ? (this.state = "special authority ignore slashes", ++this.pointer) : (this.parseError = !0, this.state = "relative", --this.pointer), !0;
-  }, $.prototype["parse path or authority"] = function(o) {
-    return o === 47 ? this.state = "authority" : (this.state = "path", --this.pointer), !0;
-  }, $.prototype["parse relative"] = function(o) {
-    return this.url.scheme = this.base.scheme, isNaN(o) ? (this.url.username = this.base.username, this.url.password = this.base.password, this.url.host = this.base.host, this.url.port = this.base.port, this.url.path = this.base.path.slice(), this.url.query = this.base.query) : o === 47 ? this.state = "relative slash" : o === 63 ? (this.url.username = this.base.username, this.url.password = this.base.password, this.url.host = this.base.host, this.url.port = this.base.port, this.url.path = this.base.path.slice(), this.url.query = "", this.state = "query") : o === 35 ? (this.url.username = this.base.username, this.url.password = this.base.password, this.url.host = this.base.host, this.url.port = this.base.port, this.url.path = this.base.path.slice(), this.url.query = this.base.query, this.url.fragment = "", this.state = "fragment") : u(this.url) && o === 92 ? (this.parseError = !0, this.state = "relative slash") : (this.url.username = this.base.username, this.url.password = this.base.password, this.url.host = this.base.host, this.url.port = this.base.port, this.url.path = this.base.path.slice(0, this.base.path.length - 1), this.state = "path", --this.pointer), !0;
-  }, $.prototype["parse relative slash"] = function(o) {
-    return u(this.url) && (o === 47 || o === 92) ? (o === 92 && (this.parseError = !0), this.state = "special authority ignore slashes") : o === 47 ? this.state = "authority" : (this.url.username = this.base.username, this.url.password = this.base.password, this.url.host = this.base.host, this.url.port = this.base.port, this.state = "path", --this.pointer), !0;
-  }, $.prototype["parse special authority slashes"] = function(o) {
-    return o === 47 && this.input[this.pointer + 1] === 47 ? (this.state = "special authority ignore slashes", ++this.pointer) : (this.parseError = !0, this.state = "special authority ignore slashes", --this.pointer), !0;
-  }, $.prototype["parse special authority ignore slashes"] = function(o) {
-    return o !== 47 && o !== 92 ? (this.state = "authority", --this.pointer) : this.parseError = !0, !0;
-  }, $.prototype["parse authority"] = function(o, y) {
-    if (o === 64) {
-      this.parseError = !0, this.atFlag && (this.buffer = "%40" + this.buffer), this.atFlag = !0;
-      const S = i(this.buffer);
-      for (let A = 0; A < S; ++A) {
-        const R = this.buffer.codePointAt(A);
-        if (R === 58 && !this.passwordTokenSeenFlag) {
-          this.passwordTokenSeenFlag = !0;
+  URLStateMachine.prototype["parse scheme start"] = function parseSchemeStart(c, cStr) {
+    if (isASCIIAlpha(c)) {
+      this.buffer += cStr.toLowerCase();
+      this.state = "scheme";
+    } else if (!this.stateOverride) {
+      this.state = "no scheme";
+      --this.pointer;
+    } else {
+      this.parseError = true;
+      return failure;
+    }
+    return true;
+  };
+  URLStateMachine.prototype["parse scheme"] = function parseScheme(c, cStr) {
+    if (isASCIIAlphanumeric(c) || c === 43 || c === 45 || c === 46) {
+      this.buffer += cStr.toLowerCase();
+    } else if (c === 58) {
+      if (this.stateOverride) {
+        if (isSpecial(this.url) && !isSpecialScheme(this.buffer)) {
+          return false;
+        }
+        if (!isSpecial(this.url) && isSpecialScheme(this.buffer)) {
+          return false;
+        }
+        if ((includesCredentials(this.url) || this.url.port !== null) && this.buffer === "file") {
+          return false;
+        }
+        if (this.url.scheme === "file" && (this.url.host === "" || this.url.host === null)) {
+          return false;
+        }
+      }
+      this.url.scheme = this.buffer;
+      this.buffer = "";
+      if (this.stateOverride) {
+        return false;
+      }
+      if (this.url.scheme === "file") {
+        if (this.input[this.pointer + 1] !== 47 || this.input[this.pointer + 2] !== 47) {
+          this.parseError = true;
+        }
+        this.state = "file";
+      } else if (isSpecial(this.url) && this.base !== null && this.base.scheme === this.url.scheme) {
+        this.state = "special relative or authority";
+      } else if (isSpecial(this.url)) {
+        this.state = "special authority slashes";
+      } else if (this.input[this.pointer + 1] === 47) {
+        this.state = "path or authority";
+        ++this.pointer;
+      } else {
+        this.url.cannotBeABaseURL = true;
+        this.url.path.push("");
+        this.state = "cannot-be-a-base-URL path";
+      }
+    } else if (!this.stateOverride) {
+      this.buffer = "";
+      this.state = "no scheme";
+      this.pointer = -1;
+    } else {
+      this.parseError = true;
+      return failure;
+    }
+    return true;
+  };
+  URLStateMachine.prototype["parse no scheme"] = function parseNoScheme(c) {
+    if (this.base === null || this.base.cannotBeABaseURL && c !== 35) {
+      return failure;
+    } else if (this.base.cannotBeABaseURL && c === 35) {
+      this.url.scheme = this.base.scheme;
+      this.url.path = this.base.path.slice();
+      this.url.query = this.base.query;
+      this.url.fragment = "";
+      this.url.cannotBeABaseURL = true;
+      this.state = "fragment";
+    } else if (this.base.scheme === "file") {
+      this.state = "file";
+      --this.pointer;
+    } else {
+      this.state = "relative";
+      --this.pointer;
+    }
+    return true;
+  };
+  URLStateMachine.prototype["parse special relative or authority"] = function parseSpecialRelativeOrAuthority(c) {
+    if (c === 47 && this.input[this.pointer + 1] === 47) {
+      this.state = "special authority ignore slashes";
+      ++this.pointer;
+    } else {
+      this.parseError = true;
+      this.state = "relative";
+      --this.pointer;
+    }
+    return true;
+  };
+  URLStateMachine.prototype["parse path or authority"] = function parsePathOrAuthority(c) {
+    if (c === 47) {
+      this.state = "authority";
+    } else {
+      this.state = "path";
+      --this.pointer;
+    }
+    return true;
+  };
+  URLStateMachine.prototype["parse relative"] = function parseRelative(c) {
+    this.url.scheme = this.base.scheme;
+    if (isNaN(c)) {
+      this.url.username = this.base.username;
+      this.url.password = this.base.password;
+      this.url.host = this.base.host;
+      this.url.port = this.base.port;
+      this.url.path = this.base.path.slice();
+      this.url.query = this.base.query;
+    } else if (c === 47) {
+      this.state = "relative slash";
+    } else if (c === 63) {
+      this.url.username = this.base.username;
+      this.url.password = this.base.password;
+      this.url.host = this.base.host;
+      this.url.port = this.base.port;
+      this.url.path = this.base.path.slice();
+      this.url.query = "";
+      this.state = "query";
+    } else if (c === 35) {
+      this.url.username = this.base.username;
+      this.url.password = this.base.password;
+      this.url.host = this.base.host;
+      this.url.port = this.base.port;
+      this.url.path = this.base.path.slice();
+      this.url.query = this.base.query;
+      this.url.fragment = "";
+      this.state = "fragment";
+    } else if (isSpecial(this.url) && c === 92) {
+      this.parseError = true;
+      this.state = "relative slash";
+    } else {
+      this.url.username = this.base.username;
+      this.url.password = this.base.password;
+      this.url.host = this.base.host;
+      this.url.port = this.base.port;
+      this.url.path = this.base.path.slice(0, this.base.path.length - 1);
+      this.state = "path";
+      --this.pointer;
+    }
+    return true;
+  };
+  URLStateMachine.prototype["parse relative slash"] = function parseRelativeSlash(c) {
+    if (isSpecial(this.url) && (c === 47 || c === 92)) {
+      if (c === 92) {
+        this.parseError = true;
+      }
+      this.state = "special authority ignore slashes";
+    } else if (c === 47) {
+      this.state = "authority";
+    } else {
+      this.url.username = this.base.username;
+      this.url.password = this.base.password;
+      this.url.host = this.base.host;
+      this.url.port = this.base.port;
+      this.state = "path";
+      --this.pointer;
+    }
+    return true;
+  };
+  URLStateMachine.prototype["parse special authority slashes"] = function parseSpecialAuthoritySlashes(c) {
+    if (c === 47 && this.input[this.pointer + 1] === 47) {
+      this.state = "special authority ignore slashes";
+      ++this.pointer;
+    } else {
+      this.parseError = true;
+      this.state = "special authority ignore slashes";
+      --this.pointer;
+    }
+    return true;
+  };
+  URLStateMachine.prototype["parse special authority ignore slashes"] = function parseSpecialAuthorityIgnoreSlashes(c) {
+    if (c !== 47 && c !== 92) {
+      this.state = "authority";
+      --this.pointer;
+    } else {
+      this.parseError = true;
+    }
+    return true;
+  };
+  URLStateMachine.prototype["parse authority"] = function parseAuthority(c, cStr) {
+    if (c === 64) {
+      this.parseError = true;
+      if (this.atFlag) {
+        this.buffer = "%40" + this.buffer;
+      }
+      this.atFlag = true;
+      const len = countSymbols2(this.buffer);
+      for (let pointer = 0; pointer < len; ++pointer) {
+        const codePoint = this.buffer.codePointAt(pointer);
+        if (codePoint === 58 && !this.passwordTokenSeenFlag) {
+          this.passwordTokenSeenFlag = true;
           continue;
         }
-        const X = Y(R, M);
-        this.passwordTokenSeenFlag ? this.url.password += X : this.url.username += X;
+        const encodedCodePoints = percentEncodeChar(codePoint, isUserinfoPercentEncode);
+        if (this.passwordTokenSeenFlag) {
+          this.url.password += encodedCodePoints;
+        } else {
+          this.url.username += encodedCodePoints;
+        }
       }
       this.buffer = "";
-    } else if (isNaN(o) || o === 47 || o === 63 || o === 35 || u(this.url) && o === 92) {
-      if (this.atFlag && this.buffer === "")
-        return this.parseError = !0, d;
-      this.pointer -= i(this.buffer) + 1, this.buffer = "", this.state = "host";
-    } else
-      this.buffer += y;
-    return !0;
-  }, $.prototype["parse hostname"] = $.prototype["parse host"] = function(o, y) {
-    if (this.stateOverride && this.url.scheme === "file")
-      --this.pointer, this.state = "file host";
-    else if (o === 58 && !this.arrFlag) {
-      if (this.buffer === "")
-        return this.parseError = !0, d;
-      const S = He(this.buffer, u(this.url));
-      if (S === d)
-        return d;
-      if (this.url.host = S, this.buffer = "", this.state = "port", this.stateOverride === "hostname")
-        return !1;
-    } else if (isNaN(o) || o === 47 || o === 63 || o === 35 || u(this.url) && o === 92) {
-      if (--this.pointer, u(this.url) && this.buffer === "")
-        return this.parseError = !0, d;
-      if (this.stateOverride && this.buffer === "" && (Ca(this.url) || this.url.port !== null))
-        return this.parseError = !0, !1;
-      const S = He(this.buffer, u(this.url));
-      if (S === d)
-        return d;
-      if (this.url.host = S, this.buffer = "", this.state = "path start", this.stateOverride)
-        return !1;
-    } else
-      o === 91 ? this.arrFlag = !0 : o === 93 && (this.arrFlag = !1), this.buffer += y;
-    return !0;
-  }, $.prototype["parse port"] = function(o, y) {
-    if (m(o))
-      this.buffer += y;
-    else if (isNaN(o) || o === 47 || o === 63 || o === 35 || u(this.url) && o === 92 || this.stateOverride) {
-      if (this.buffer !== "") {
-        const S = parseInt(this.buffer);
-        if (S > Math.pow(2, 16) - 1)
-          return this.parseError = !0, d;
-        this.url.port = S === _(this.url.scheme) ? null : S, this.buffer = "";
+    } else if (isNaN(c) || c === 47 || c === 63 || c === 35 || isSpecial(this.url) && c === 92) {
+      if (this.atFlag && this.buffer === "") {
+        this.parseError = true;
+        return failure;
       }
-      if (this.stateOverride)
-        return !1;
-      this.state = "path start", --this.pointer;
-    } else
-      return this.parseError = !0, d;
-    return !0;
+      this.pointer -= countSymbols2(this.buffer) + 1;
+      this.buffer = "";
+      this.state = "host";
+    } else {
+      this.buffer += cStr;
+    }
+    return true;
   };
-  const p2 = /* @__PURE__ */ new Set([47, 92, 63, 35]);
-  $.prototype["parse file"] = function(o) {
-    return this.url.scheme = "file", o === 47 || o === 92 ? (o === 92 && (this.parseError = !0), this.state = "file slash") : this.base !== null && this.base.scheme === "file" ? isNaN(o) ? (this.url.host = this.base.host, this.url.path = this.base.path.slice(), this.url.query = this.base.query) : o === 63 ? (this.url.host = this.base.host, this.url.path = this.base.path.slice(), this.url.query = "", this.state = "query") : o === 35 ? (this.url.host = this.base.host, this.url.path = this.base.path.slice(), this.url.query = this.base.query, this.url.fragment = "", this.state = "fragment") : (this.input.length - this.pointer - 1 === 0 || // remaining consists of 0 code points
-    !c(o, this.input[this.pointer + 1]) || this.input.length - this.pointer - 1 >= 2 && // remaining has at least 2 code points
-    !p2.has(this.input[this.pointer + 2]) ? (this.url.host = this.base.host, this.url.path = this.base.path.slice(), Va(this.url)) : this.parseError = !0, this.state = "path", --this.pointer) : (this.state = "path", --this.pointer), !0;
-  }, $.prototype["parse file slash"] = function(o) {
-    return o === 47 || o === 92 ? (o === 92 && (this.parseError = !0), this.state = "file host") : (this.base !== null && this.base.scheme === "file" && (f(this.base.path[0]) ? this.url.path.push(this.base.path[0]) : this.url.host = this.base.host), this.state = "path", --this.pointer), !0;
-  }, $.prototype["parse file host"] = function(o, y) {
-    if (isNaN(o) || o === 47 || o === 92 || o === 63 || o === 35)
-      if (--this.pointer, !this.stateOverride && h(this.buffer))
-        this.parseError = !0, this.state = "path";
-      else if (this.buffer === "") {
-        if (this.url.host = "", this.stateOverride)
-          return !1;
+  URLStateMachine.prototype["parse hostname"] = URLStateMachine.prototype["parse host"] = function parseHostName(c, cStr) {
+    if (this.stateOverride && this.url.scheme === "file") {
+      --this.pointer;
+      this.state = "file host";
+    } else if (c === 58 && !this.arrFlag) {
+      if (this.buffer === "") {
+        this.parseError = true;
+        return failure;
+      }
+      const host = parseHost(this.buffer, isSpecial(this.url));
+      if (host === failure) {
+        return failure;
+      }
+      this.url.host = host;
+      this.buffer = "";
+      this.state = "port";
+      if (this.stateOverride === "hostname") {
+        return false;
+      }
+    } else if (isNaN(c) || c === 47 || c === 63 || c === 35 || isSpecial(this.url) && c === 92) {
+      --this.pointer;
+      if (isSpecial(this.url) && this.buffer === "") {
+        this.parseError = true;
+        return failure;
+      } else if (this.stateOverride && this.buffer === "" && (includesCredentials(this.url) || this.url.port !== null)) {
+        this.parseError = true;
+        return false;
+      }
+      const host = parseHost(this.buffer, isSpecial(this.url));
+      if (host === failure) {
+        return failure;
+      }
+      this.url.host = host;
+      this.buffer = "";
+      this.state = "path start";
+      if (this.stateOverride) {
+        return false;
+      }
+    } else {
+      if (c === 91) {
+        this.arrFlag = true;
+      } else if (c === 93) {
+        this.arrFlag = false;
+      }
+      this.buffer += cStr;
+    }
+    return true;
+  };
+  URLStateMachine.prototype["parse port"] = function parsePort(c, cStr) {
+    if (isASCIIDigit(c)) {
+      this.buffer += cStr;
+    } else if (isNaN(c) || c === 47 || c === 63 || c === 35 || isSpecial(this.url) && c === 92 || this.stateOverride) {
+      if (this.buffer !== "") {
+        const port = parseInt(this.buffer);
+        if (port > Math.pow(2, 16) - 1) {
+          this.parseError = true;
+          return failure;
+        }
+        this.url.port = port === defaultPort(this.url.scheme) ? null : port;
+        this.buffer = "";
+      }
+      if (this.stateOverride) {
+        return false;
+      }
+      this.state = "path start";
+      --this.pointer;
+    } else {
+      this.parseError = true;
+      return failure;
+    }
+    return true;
+  };
+  const fileOtherwiseCodePoints = /* @__PURE__ */ new Set([47, 92, 63, 35]);
+  URLStateMachine.prototype["parse file"] = function parseFile(c) {
+    this.url.scheme = "file";
+    if (c === 47 || c === 92) {
+      if (c === 92) {
+        this.parseError = true;
+      }
+      this.state = "file slash";
+    } else if (this.base !== null && this.base.scheme === "file") {
+      if (isNaN(c)) {
+        this.url.host = this.base.host;
+        this.url.path = this.base.path.slice();
+        this.url.query = this.base.query;
+      } else if (c === 63) {
+        this.url.host = this.base.host;
+        this.url.path = this.base.path.slice();
+        this.url.query = "";
+        this.state = "query";
+      } else if (c === 35) {
+        this.url.host = this.base.host;
+        this.url.path = this.base.path.slice();
+        this.url.query = this.base.query;
+        this.url.fragment = "";
+        this.state = "fragment";
+      } else {
+        if (this.input.length - this.pointer - 1 === 0 || // remaining consists of 0 code points
+        !isWindowsDriveLetterCodePoints(c, this.input[this.pointer + 1]) || this.input.length - this.pointer - 1 >= 2 && // remaining has at least 2 code points
+        !fileOtherwiseCodePoints.has(this.input[this.pointer + 2])) {
+          this.url.host = this.base.host;
+          this.url.path = this.base.path.slice();
+          shortenPath(this.url);
+        } else {
+          this.parseError = true;
+        }
+        this.state = "path";
+        --this.pointer;
+      }
+    } else {
+      this.state = "path";
+      --this.pointer;
+    }
+    return true;
+  };
+  URLStateMachine.prototype["parse file slash"] = function parseFileSlash(c) {
+    if (c === 47 || c === 92) {
+      if (c === 92) {
+        this.parseError = true;
+      }
+      this.state = "file host";
+    } else {
+      if (this.base !== null && this.base.scheme === "file") {
+        if (isNormalizedWindowsDriveLetterString(this.base.path[0])) {
+          this.url.path.push(this.base.path[0]);
+        } else {
+          this.url.host = this.base.host;
+        }
+      }
+      this.state = "path";
+      --this.pointer;
+    }
+    return true;
+  };
+  URLStateMachine.prototype["parse file host"] = function parseFileHost(c, cStr) {
+    if (isNaN(c) || c === 47 || c === 92 || c === 63 || c === 35) {
+      --this.pointer;
+      if (!this.stateOverride && isWindowsDriveLetterString(this.buffer)) {
+        this.parseError = true;
+        this.state = "path";
+      } else if (this.buffer === "") {
+        this.url.host = "";
+        if (this.stateOverride) {
+          return false;
+        }
         this.state = "path start";
       } else {
-        let S = He(this.buffer, u(this.url));
-        if (S === d)
-          return d;
-        if (S === "localhost" && (S = ""), this.url.host = S, this.stateOverride)
-          return !1;
-        this.buffer = "", this.state = "path start";
+        let host = parseHost(this.buffer, isSpecial(this.url));
+        if (host === failure) {
+          return failure;
+        }
+        if (host === "localhost") {
+          host = "";
+        }
+        this.url.host = host;
+        if (this.stateOverride) {
+          return false;
+        }
+        this.buffer = "";
+        this.state = "path start";
       }
-    else
-      this.buffer += y;
-    return !0;
-  }, $.prototype["parse path start"] = function(o) {
-    return u(this.url) ? (o === 92 && (this.parseError = !0), this.state = "path", o !== 47 && o !== 92 && --this.pointer) : !this.stateOverride && o === 63 ? (this.url.query = "", this.state = "query") : !this.stateOverride && o === 35 ? (this.url.fragment = "", this.state = "fragment") : o !== void 0 && (this.state = "path", o !== 47 && --this.pointer), !0;
-  }, $.prototype["parse path"] = function(o) {
-    if (isNaN(o) || o === 47 || u(this.url) && o === 92 || !this.stateOverride && (o === 63 || o === 35)) {
-      if (u(this.url) && o === 92 && (this.parseError = !0), T(this.buffer) ? (Va(this.url), o !== 47 && !(u(this.url) && o === 92) && this.url.path.push("")) : D(this.buffer) && o !== 47 && !(u(this.url) && o === 92) ? this.url.path.push("") : D(this.buffer) || (this.url.scheme === "file" && this.url.path.length === 0 && h(this.buffer) && (this.url.host !== "" && this.url.host !== null && (this.parseError = !0, this.url.host = ""), this.buffer = this.buffer[0] + ":"), this.url.path.push(this.buffer)), this.buffer = "", this.url.scheme === "file" && (o === void 0 || o === 63 || o === 35))
-        for (; this.url.path.length > 1 && this.url.path[0] === ""; )
-          this.parseError = !0, this.url.path.shift();
-      o === 63 && (this.url.query = "", this.state = "query"), o === 35 && (this.url.fragment = "", this.state = "fragment");
-    } else
-      o === 37 && (!N(this.input[this.pointer + 1]) || !N(this.input[this.pointer + 2])) && (this.parseError = !0), this.buffer += Y(o, O);
-    return !0;
-  }, $.prototype["parse cannot-be-a-base-URL path"] = function(o) {
-    return o === 63 ? (this.url.query = "", this.state = "query") : o === 35 ? (this.url.fragment = "", this.state = "fragment") : (!isNaN(o) && o !== 37 && (this.parseError = !0), o === 37 && (!N(this.input[this.pointer + 1]) || !N(this.input[this.pointer + 2])) && (this.parseError = !0), isNaN(o) || (this.url.path[0] = this.url.path[0] + Y(o, x))), !0;
-  }, $.prototype["parse query"] = function(o, y) {
-    if (isNaN(o) || !this.stateOverride && o === 35) {
-      (!u(this.url) || this.url.scheme === "ws" || this.url.scheme === "wss") && (this.encodingOverride = "utf-8");
-      const S = new Buffer(this.buffer);
-      for (let A = 0; A < S.length; ++A)
-        S[A] < 33 || S[A] > 126 || S[A] === 34 || S[A] === 35 || S[A] === 60 || S[A] === 62 ? this.url.query += g(S[A]) : this.url.query += String.fromCodePoint(S[A]);
-      this.buffer = "", o === 35 && (this.url.fragment = "", this.state = "fragment");
-    } else
-      o === 37 && (!N(this.input[this.pointer + 1]) || !N(this.input[this.pointer + 2])) && (this.parseError = !0), this.buffer += y;
-    return !0;
-  }, $.prototype["parse fragment"] = function(o) {
-    return isNaN(o) || (o === 0 ? this.parseError = !0 : (o === 37 && (!N(this.input[this.pointer + 1]) || !N(this.input[this.pointer + 2])) && (this.parseError = !0), this.url.fragment += Y(o, x))), !0;
+    } else {
+      this.buffer += cStr;
+    }
+    return true;
   };
-  function d2(s, o) {
-    let y = s.scheme + ":";
-    if (s.host !== null ? (y += "//", (s.username !== "" || s.password !== "") && (y += s.username, s.password !== "" && (y += ":" + s.password), y += "@"), y += ke(s.host), s.port !== null && (y += ":" + s.port)) : s.host === null && s.scheme === "file" && (y += "//"), s.cannotBeABaseURL)
-      y += s.path[0];
-    else
-      for (const S of s.path)
-        y += "/" + S;
-    return s.query !== null && (y += "?" + s.query), !o && s.fragment !== null && (y += "#" + s.fragment), y;
+  URLStateMachine.prototype["parse path start"] = function parsePathStart(c) {
+    if (isSpecial(this.url)) {
+      if (c === 92) {
+        this.parseError = true;
+      }
+      this.state = "path";
+      if (c !== 47 && c !== 92) {
+        --this.pointer;
+      }
+    } else if (!this.stateOverride && c === 63) {
+      this.url.query = "";
+      this.state = "query";
+    } else if (!this.stateOverride && c === 35) {
+      this.url.fragment = "";
+      this.state = "fragment";
+    } else if (c !== void 0) {
+      this.state = "path";
+      if (c !== 47) {
+        --this.pointer;
+      }
+    }
+    return true;
+  };
+  URLStateMachine.prototype["parse path"] = function parsePath(c) {
+    if (isNaN(c) || c === 47 || isSpecial(this.url) && c === 92 || !this.stateOverride && (c === 63 || c === 35)) {
+      if (isSpecial(this.url) && c === 92) {
+        this.parseError = true;
+      }
+      if (isDoubleDot(this.buffer)) {
+        shortenPath(this.url);
+        if (c !== 47 && !(isSpecial(this.url) && c === 92)) {
+          this.url.path.push("");
+        }
+      } else if (isSingleDot(this.buffer) && c !== 47 && !(isSpecial(this.url) && c === 92)) {
+        this.url.path.push("");
+      } else if (!isSingleDot(this.buffer)) {
+        if (this.url.scheme === "file" && this.url.path.length === 0 && isWindowsDriveLetterString(this.buffer)) {
+          if (this.url.host !== "" && this.url.host !== null) {
+            this.parseError = true;
+            this.url.host = "";
+          }
+          this.buffer = this.buffer[0] + ":";
+        }
+        this.url.path.push(this.buffer);
+      }
+      this.buffer = "";
+      if (this.url.scheme === "file" && (c === void 0 || c === 63 || c === 35)) {
+        while (this.url.path.length > 1 && this.url.path[0] === "") {
+          this.parseError = true;
+          this.url.path.shift();
+        }
+      }
+      if (c === 63) {
+        this.url.query = "";
+        this.state = "query";
+      }
+      if (c === 35) {
+        this.url.fragment = "";
+        this.state = "fragment";
+      }
+    } else {
+      if (c === 37 && (!isASCIIHex(this.input[this.pointer + 1]) || !isASCIIHex(this.input[this.pointer + 2]))) {
+        this.parseError = true;
+      }
+      this.buffer += percentEncodeChar(c, isPathPercentEncode);
+    }
+    return true;
+  };
+  URLStateMachine.prototype["parse cannot-be-a-base-URL path"] = function parseCannotBeABaseURLPath(c) {
+    if (c === 63) {
+      this.url.query = "";
+      this.state = "query";
+    } else if (c === 35) {
+      this.url.fragment = "";
+      this.state = "fragment";
+    } else {
+      if (!isNaN(c) && c !== 37) {
+        this.parseError = true;
+      }
+      if (c === 37 && (!isASCIIHex(this.input[this.pointer + 1]) || !isASCIIHex(this.input[this.pointer + 2]))) {
+        this.parseError = true;
+      }
+      if (!isNaN(c)) {
+        this.url.path[0] = this.url.path[0] + percentEncodeChar(c, isC0ControlPercentEncode);
+      }
+    }
+    return true;
+  };
+  URLStateMachine.prototype["parse query"] = function parseQuery(c, cStr) {
+    if (isNaN(c) || !this.stateOverride && c === 35) {
+      if (!isSpecial(this.url) || this.url.scheme === "ws" || this.url.scheme === "wss") {
+        this.encodingOverride = "utf-8";
+      }
+      const buffer = new Buffer(this.buffer);
+      for (let i = 0; i < buffer.length; ++i) {
+        if (buffer[i] < 33 || buffer[i] > 126 || buffer[i] === 34 || buffer[i] === 35 || buffer[i] === 60 || buffer[i] === 62) {
+          this.url.query += percentEncode(buffer[i]);
+        } else {
+          this.url.query += String.fromCodePoint(buffer[i]);
+        }
+      }
+      this.buffer = "";
+      if (c === 35) {
+        this.url.fragment = "";
+        this.state = "fragment";
+      }
+    } else {
+      if (c === 37 && (!isASCIIHex(this.input[this.pointer + 1]) || !isASCIIHex(this.input[this.pointer + 2]))) {
+        this.parseError = true;
+      }
+      this.buffer += cStr;
+    }
+    return true;
+  };
+  URLStateMachine.prototype["parse fragment"] = function parseFragment(c) {
+    if (isNaN(c)) ;
+    else if (c === 0) {
+      this.parseError = true;
+    } else {
+      if (c === 37 && (!isASCIIHex(this.input[this.pointer + 1]) || !isASCIIHex(this.input[this.pointer + 2]))) {
+        this.parseError = true;
+      }
+      this.url.fragment += percentEncodeChar(c, isC0ControlPercentEncode);
+    }
+    return true;
+  };
+  function serializeURL(url, excludeFragment) {
+    let output = url.scheme + ":";
+    if (url.host !== null) {
+      output += "//";
+      if (url.username !== "" || url.password !== "") {
+        output += url.username;
+        if (url.password !== "") {
+          output += ":" + url.password;
+        }
+        output += "@";
+      }
+      output += serializeHost(url.host);
+      if (url.port !== null) {
+        output += ":" + url.port;
+      }
+    } else if (url.host === null && url.scheme === "file") {
+      output += "//";
+    }
+    if (url.cannotBeABaseURL) {
+      output += url.path[0];
+    } else {
+      for (const string of url.path) {
+        output += "/" + string;
+      }
+    }
+    if (url.query !== null) {
+      output += "?" + url.query;
+    }
+    if (!excludeFragment && url.fragment !== null) {
+      output += "#" + url.fragment;
+    }
+    return output;
   }
-  function t2(s) {
-    let o = s.scheme + "://";
-    return o += ke(s.host), s.port !== null && (o += ":" + s.port), o;
+  function serializeOrigin(tuple) {
+    let result = tuple.scheme + "://";
+    result += serializeHost(tuple.host);
+    if (tuple.port !== null) {
+      result += ":" + tuple.port;
+    }
+    return result;
   }
-  a.exports.serializeURL = d2, a.exports.serializeURLOrigin = function(s) {
-    switch (s.scheme) {
+  module.exports.serializeURL = serializeURL;
+  module.exports.serializeURLOrigin = function(url) {
+    switch (url.scheme) {
       case "blob":
         try {
-          return a.exports.serializeURLOrigin(a.exports.parseURL(s.path[0]));
-        } catch {
+          return module.exports.serializeURLOrigin(module.exports.parseURL(url.path[0]));
+        } catch (e) {
           return "null";
         }
       case "ftp":
@@ -78337,368 +79207,550 @@ Fe.PROCESSING_OPTIONS = K1;
       case "https":
       case "ws":
       case "wss":
-        return t2({
-          scheme: s.scheme,
-          host: s.host,
-          port: s.port
+        return serializeOrigin({
+          scheme: url.scheme,
+          host: url.host,
+          port: url.port
         });
       case "file":
         return "file://";
       default:
         return "null";
     }
-  }, a.exports.basicURLParse = function(s, o) {
-    o === void 0 && (o = {});
-    const y = new $(s, o.baseURL, o.encodingOverride, o.url, o.stateOverride);
-    return y.failure ? "failure" : y.url;
-  }, a.exports.setTheUsername = function(s, o) {
-    s.username = "";
-    const y = e.ucs2.decode(o);
-    for (let S = 0; S < y.length; ++S)
-      s.username += Y(y[S], M);
-  }, a.exports.setThePassword = function(s, o) {
-    s.password = "";
-    const y = e.ucs2.decode(o);
-    for (let S = 0; S < y.length; ++S)
-      s.password += Y(y[S], M);
-  }, a.exports.serializeHost = ke, a.exports.cannotHaveAUsernamePasswordPort = e2, a.exports.serializeInteger = function(s) {
-    return String(s);
-  }, a.exports.parseURL = function(s, o) {
-    return o === void 0 && (o = {}), a.exports.basicURLParse(s, { baseURL: o.baseURL, encodingOverride: o.encodingOverride });
   };
-})(wp);
-var V1 = wp.exports;
-const z = V1;
-vp.implementation = class {
-  constructor(e) {
-    const p = e[0], t = e[1];
-    let d = null;
-    if (t !== void 0 && (d = z.basicURLParse(t), d === "failure"))
-      throw new TypeError("Invalid base URL");
-    const i = z.basicURLParse(p, { baseURL: d });
-    if (i === "failure")
+  module.exports.basicURLParse = function(input, options) {
+    if (options === void 0) {
+      options = {};
+    }
+    const usm2 = new URLStateMachine(input, options.baseURL, options.encodingOverride, options.url, options.stateOverride);
+    if (usm2.failure) {
+      return "failure";
+    }
+    return usm2.url;
+  };
+  module.exports.setTheUsername = function(url, username) {
+    url.username = "";
+    const decoded = punycode2.ucs2.decode(username);
+    for (let i = 0; i < decoded.length; ++i) {
+      url.username += percentEncodeChar(decoded[i], isUserinfoPercentEncode);
+    }
+  };
+  module.exports.setThePassword = function(url, password) {
+    url.password = "";
+    const decoded = punycode2.ucs2.decode(password);
+    for (let i = 0; i < decoded.length; ++i) {
+      url.password += percentEncodeChar(decoded[i], isUserinfoPercentEncode);
+    }
+  };
+  module.exports.serializeHost = serializeHost;
+  module.exports.cannotHaveAUsernamePasswordPort = cannotHaveAUsernamePasswordPort;
+  module.exports.serializeInteger = function(integer) {
+    return String(integer);
+  };
+  module.exports.parseURL = function(input, options) {
+    if (options === void 0) {
+      options = {};
+    }
+    return module.exports.basicURLParse(input, { baseURL: options.baseURL, encodingOverride: options.encodingOverride });
+  };
+})(urlStateMachine);
+var urlStateMachineExports = urlStateMachine.exports;
+const usm = urlStateMachineExports;
+URLImpl.implementation = class URLImpl2 {
+  constructor(constructorArgs) {
+    const url = constructorArgs[0];
+    const base = constructorArgs[1];
+    let parsedBase = null;
+    if (base !== void 0) {
+      parsedBase = usm.basicURLParse(base);
+      if (parsedBase === "failure") {
+        throw new TypeError("Invalid base URL");
+      }
+    }
+    const parsedURL = usm.basicURLParse(url, { baseURL: parsedBase });
+    if (parsedURL === "failure") {
       throw new TypeError("Invalid URL");
-    this._url = i;
+    }
+    this._url = parsedURL;
   }
   get href() {
-    return z.serializeURL(this._url);
+    return usm.serializeURL(this._url);
   }
-  set href(e) {
-    const p = z.basicURLParse(e);
-    if (p === "failure")
+  set href(v) {
+    const parsedURL = usm.basicURLParse(v);
+    if (parsedURL === "failure") {
       throw new TypeError("Invalid URL");
-    this._url = p;
+    }
+    this._url = parsedURL;
   }
   get origin() {
-    return z.serializeURLOrigin(this._url);
+    return usm.serializeURLOrigin(this._url);
   }
   get protocol() {
     return this._url.scheme + ":";
   }
-  set protocol(e) {
-    z.basicURLParse(e + ":", { url: this._url, stateOverride: "scheme start" });
+  set protocol(v) {
+    usm.basicURLParse(v + ":", { url: this._url, stateOverride: "scheme start" });
   }
   get username() {
     return this._url.username;
   }
-  set username(e) {
-    z.cannotHaveAUsernamePasswordPort(this._url) || z.setTheUsername(this._url, e);
+  set username(v) {
+    if (usm.cannotHaveAUsernamePasswordPort(this._url)) {
+      return;
+    }
+    usm.setTheUsername(this._url, v);
   }
   get password() {
     return this._url.password;
   }
-  set password(e) {
-    z.cannotHaveAUsernamePasswordPort(this._url) || z.setThePassword(this._url, e);
-  }
-  get host() {
-    const e = this._url;
-    return e.host === null ? "" : e.port === null ? z.serializeHost(e.host) : z.serializeHost(e.host) + ":" + z.serializeInteger(e.port);
-  }
-  set host(e) {
-    this._url.cannotBeABaseURL || z.basicURLParse(e, { url: this._url, stateOverride: "host" });
-  }
-  get hostname() {
-    return this._url.host === null ? "" : z.serializeHost(this._url.host);
-  }
-  set hostname(e) {
-    this._url.cannotBeABaseURL || z.basicURLParse(e, { url: this._url, stateOverride: "hostname" });
-  }
-  get port() {
-    return this._url.port === null ? "" : z.serializeInteger(this._url.port);
-  }
-  set port(e) {
-    z.cannotHaveAUsernamePasswordPort(this._url) || (e === "" ? this._url.port = null : z.basicURLParse(e, { url: this._url, stateOverride: "port" }));
-  }
-  get pathname() {
-    return this._url.cannotBeABaseURL ? this._url.path[0] : this._url.path.length === 0 ? "" : "/" + this._url.path.join("/");
-  }
-  set pathname(e) {
-    this._url.cannotBeABaseURL || (this._url.path = [], z.basicURLParse(e, { url: this._url, stateOverride: "path start" }));
-  }
-  get search() {
-    return this._url.query === null || this._url.query === "" ? "" : "?" + this._url.query;
-  }
-  set search(e) {
-    const p = this._url;
-    if (e === "") {
-      p.query = null;
+  set password(v) {
+    if (usm.cannotHaveAUsernamePasswordPort(this._url)) {
       return;
     }
-    const t = e[0] === "?" ? e.substring(1) : e;
-    p.query = "", z.basicURLParse(t, { url: p, stateOverride: "query" });
+    usm.setThePassword(this._url, v);
+  }
+  get host() {
+    const url = this._url;
+    if (url.host === null) {
+      return "";
+    }
+    if (url.port === null) {
+      return usm.serializeHost(url.host);
+    }
+    return usm.serializeHost(url.host) + ":" + usm.serializeInteger(url.port);
+  }
+  set host(v) {
+    if (this._url.cannotBeABaseURL) {
+      return;
+    }
+    usm.basicURLParse(v, { url: this._url, stateOverride: "host" });
+  }
+  get hostname() {
+    if (this._url.host === null) {
+      return "";
+    }
+    return usm.serializeHost(this._url.host);
+  }
+  set hostname(v) {
+    if (this._url.cannotBeABaseURL) {
+      return;
+    }
+    usm.basicURLParse(v, { url: this._url, stateOverride: "hostname" });
+  }
+  get port() {
+    if (this._url.port === null) {
+      return "";
+    }
+    return usm.serializeInteger(this._url.port);
+  }
+  set port(v) {
+    if (usm.cannotHaveAUsernamePasswordPort(this._url)) {
+      return;
+    }
+    if (v === "") {
+      this._url.port = null;
+    } else {
+      usm.basicURLParse(v, { url: this._url, stateOverride: "port" });
+    }
+  }
+  get pathname() {
+    if (this._url.cannotBeABaseURL) {
+      return this._url.path[0];
+    }
+    if (this._url.path.length === 0) {
+      return "";
+    }
+    return "/" + this._url.path.join("/");
+  }
+  set pathname(v) {
+    if (this._url.cannotBeABaseURL) {
+      return;
+    }
+    this._url.path = [];
+    usm.basicURLParse(v, { url: this._url, stateOverride: "path start" });
+  }
+  get search() {
+    if (this._url.query === null || this._url.query === "") {
+      return "";
+    }
+    return "?" + this._url.query;
+  }
+  set search(v) {
+    const url = this._url;
+    if (v === "") {
+      url.query = null;
+      return;
+    }
+    const input = v[0] === "?" ? v.substring(1) : v;
+    url.query = "";
+    usm.basicURLParse(input, { url, stateOverride: "query" });
   }
   get hash() {
-    return this._url.fragment === null || this._url.fragment === "" ? "" : "#" + this._url.fragment;
+    if (this._url.fragment === null || this._url.fragment === "") {
+      return "";
+    }
+    return "#" + this._url.fragment;
   }
-  set hash(e) {
-    if (e === "") {
+  set hash(v) {
+    if (v === "") {
       this._url.fragment = null;
       return;
     }
-    const p = e[0] === "#" ? e.substring(1) : e;
-    this._url.fragment = "", z.basicURLParse(p, { url: this._url, stateOverride: "fragment" });
+    const input = v[0] === "#" ? v.substring(1) : v;
+    this._url.fragment = "";
+    usm.basicURLParse(input, { url: this._url, stateOverride: "fragment" });
   }
   toJSON() {
     return this.href;
   }
 };
-(function(a) {
-  const e = B2, p = $2, t = vp, d = p.implSymbol;
-  function i(l) {
-    if (!this || this[d] || !(this instanceof i))
+(function(module) {
+  const conversions2 = lib$1;
+  const utils2 = utilsExports;
+  const Impl = URLImpl;
+  const impl = utils2.implSymbol;
+  function URL2(url) {
+    if (!this || this[impl] || !(this instanceof URL2)) {
       throw new TypeError("Failed to construct 'URL': Please use the 'new' operator, this DOM object constructor cannot be called as a function.");
-    if (arguments.length < 1)
+    }
+    if (arguments.length < 1) {
       throw new TypeError("Failed to construct 'URL': 1 argument required, but only " + arguments.length + " present.");
-    const m = [];
-    for (let r = 0; r < arguments.length && r < 2; ++r)
-      m[r] = arguments[r];
-    m[0] = e.USVString(m[0]), m[1] !== void 0 && (m[1] = e.USVString(m[1])), a.exports.setup(this, m);
+    }
+    const args = [];
+    for (let i = 0; i < arguments.length && i < 2; ++i) {
+      args[i] = arguments[i];
+    }
+    args[0] = conversions2["USVString"](args[0]);
+    if (args[1] !== void 0) {
+      args[1] = conversions2["USVString"](args[1]);
+    }
+    module.exports.setup(this, args);
   }
-  i.prototype.toJSON = function() {
-    if (!this || !a.exports.is(this))
+  URL2.prototype.toJSON = function toJSON() {
+    if (!this || !module.exports.is(this)) {
       throw new TypeError("Illegal invocation");
-    const m = [];
-    for (let r = 0; r < arguments.length && r < 0; ++r)
-      m[r] = arguments[r];
-    return this[d].toJSON.apply(this[d], m);
-  }, Object.defineProperty(i.prototype, "href", {
+    }
+    const args = [];
+    for (let i = 0; i < arguments.length && i < 0; ++i) {
+      args[i] = arguments[i];
+    }
+    return this[impl].toJSON.apply(this[impl], args);
+  };
+  Object.defineProperty(URL2.prototype, "href", {
     get() {
-      return this[d].href;
+      return this[impl].href;
     },
-    set(l) {
-      l = e.USVString(l), this[d].href = l;
+    set(V) {
+      V = conversions2["USVString"](V);
+      this[impl].href = V;
     },
-    enumerable: !0,
-    configurable: !0
-  }), i.prototype.toString = function() {
-    if (!this || !a.exports.is(this))
+    enumerable: true,
+    configurable: true
+  });
+  URL2.prototype.toString = function() {
+    if (!this || !module.exports.is(this)) {
       throw new TypeError("Illegal invocation");
+    }
     return this.href;
-  }, Object.defineProperty(i.prototype, "origin", {
+  };
+  Object.defineProperty(URL2.prototype, "origin", {
     get() {
-      return this[d].origin;
+      return this[impl].origin;
     },
-    enumerable: !0,
-    configurable: !0
-  }), Object.defineProperty(i.prototype, "protocol", {
+    enumerable: true,
+    configurable: true
+  });
+  Object.defineProperty(URL2.prototype, "protocol", {
     get() {
-      return this[d].protocol;
+      return this[impl].protocol;
     },
-    set(l) {
-      l = e.USVString(l), this[d].protocol = l;
+    set(V) {
+      V = conversions2["USVString"](V);
+      this[impl].protocol = V;
     },
-    enumerable: !0,
-    configurable: !0
-  }), Object.defineProperty(i.prototype, "username", {
+    enumerable: true,
+    configurable: true
+  });
+  Object.defineProperty(URL2.prototype, "username", {
     get() {
-      return this[d].username;
+      return this[impl].username;
     },
-    set(l) {
-      l = e.USVString(l), this[d].username = l;
+    set(V) {
+      V = conversions2["USVString"](V);
+      this[impl].username = V;
     },
-    enumerable: !0,
-    configurable: !0
-  }), Object.defineProperty(i.prototype, "password", {
+    enumerable: true,
+    configurable: true
+  });
+  Object.defineProperty(URL2.prototype, "password", {
     get() {
-      return this[d].password;
+      return this[impl].password;
     },
-    set(l) {
-      l = e.USVString(l), this[d].password = l;
+    set(V) {
+      V = conversions2["USVString"](V);
+      this[impl].password = V;
     },
-    enumerable: !0,
-    configurable: !0
-  }), Object.defineProperty(i.prototype, "host", {
+    enumerable: true,
+    configurable: true
+  });
+  Object.defineProperty(URL2.prototype, "host", {
     get() {
-      return this[d].host;
+      return this[impl].host;
     },
-    set(l) {
-      l = e.USVString(l), this[d].host = l;
+    set(V) {
+      V = conversions2["USVString"](V);
+      this[impl].host = V;
     },
-    enumerable: !0,
-    configurable: !0
-  }), Object.defineProperty(i.prototype, "hostname", {
+    enumerable: true,
+    configurable: true
+  });
+  Object.defineProperty(URL2.prototype, "hostname", {
     get() {
-      return this[d].hostname;
+      return this[impl].hostname;
     },
-    set(l) {
-      l = e.USVString(l), this[d].hostname = l;
+    set(V) {
+      V = conversions2["USVString"](V);
+      this[impl].hostname = V;
     },
-    enumerable: !0,
-    configurable: !0
-  }), Object.defineProperty(i.prototype, "port", {
+    enumerable: true,
+    configurable: true
+  });
+  Object.defineProperty(URL2.prototype, "port", {
     get() {
-      return this[d].port;
+      return this[impl].port;
     },
-    set(l) {
-      l = e.USVString(l), this[d].port = l;
+    set(V) {
+      V = conversions2["USVString"](V);
+      this[impl].port = V;
     },
-    enumerable: !0,
-    configurable: !0
-  }), Object.defineProperty(i.prototype, "pathname", {
+    enumerable: true,
+    configurable: true
+  });
+  Object.defineProperty(URL2.prototype, "pathname", {
     get() {
-      return this[d].pathname;
+      return this[impl].pathname;
     },
-    set(l) {
-      l = e.USVString(l), this[d].pathname = l;
+    set(V) {
+      V = conversions2["USVString"](V);
+      this[impl].pathname = V;
     },
-    enumerable: !0,
-    configurable: !0
-  }), Object.defineProperty(i.prototype, "search", {
+    enumerable: true,
+    configurable: true
+  });
+  Object.defineProperty(URL2.prototype, "search", {
     get() {
-      return this[d].search;
+      return this[impl].search;
     },
-    set(l) {
-      l = e.USVString(l), this[d].search = l;
+    set(V) {
+      V = conversions2["USVString"](V);
+      this[impl].search = V;
     },
-    enumerable: !0,
-    configurable: !0
-  }), Object.defineProperty(i.prototype, "hash", {
+    enumerable: true,
+    configurable: true
+  });
+  Object.defineProperty(URL2.prototype, "hash", {
     get() {
-      return this[d].hash;
+      return this[impl].hash;
     },
-    set(l) {
-      l = e.USVString(l), this[d].hash = l;
+    set(V) {
+      V = conversions2["USVString"](V);
+      this[impl].hash = V;
     },
-    enumerable: !0,
-    configurable: !0
-  }), a.exports = {
-    is(l) {
-      return !!l && l[d] instanceof t.implementation;
+    enumerable: true,
+    configurable: true
+  });
+  module.exports = {
+    is(obj) {
+      return !!obj && obj[impl] instanceof Impl.implementation;
     },
-    create(l, m) {
-      let r = Object.create(i.prototype);
-      return this.setup(r, l, m), r;
+    create(constructorArgs, privateData) {
+      let obj = Object.create(URL2.prototype);
+      this.setup(obj, constructorArgs, privateData);
+      return obj;
     },
-    setup(l, m, r) {
-      r || (r = {}), r.wrapper = l, l[d] = new t.implementation(m, r), l[d][p.wrapperSymbol] = l;
+    setup(obj, constructorArgs, privateData) {
+      if (!privateData) privateData = {};
+      privateData.wrapper = obj;
+      obj[impl] = new Impl.implementation(constructorArgs, privateData);
+      obj[impl][utils2.wrapperSymbol] = obj;
     },
-    interface: i,
+    interface: URL2,
     expose: {
-      Window: { URL: i },
-      Worker: { URL: i }
+      Window: { URL: URL2 },
+      Worker: { URL: URL2 }
     }
   };
-})(cp);
-var q2 = cp.exports;
-w1.URL = q2.interface;
-w1.serializeURL = V1.serializeURL;
-w1.serializeURLOrigin = V1.serializeURLOrigin;
-w1.basicURLParse = V1.basicURLParse;
-w1.setTheUsername = V1.setTheUsername;
-w1.setThePassword = V1.setThePassword;
-w1.serializeHost = V1.serializeHost;
-w1.serializeInteger = V1.serializeInteger;
-w1.parseURL = V1.parseURL;
-const J2 = v1.Readable, T1 = Symbol("buffer"), Je = Symbol("type");
-class Y1 {
+})(URL$2);
+var URLExports = URL$2.exports;
+publicApi.URL = URLExports.interface;
+publicApi.serializeURL = urlStateMachineExports.serializeURL;
+publicApi.serializeURLOrigin = urlStateMachineExports.serializeURLOrigin;
+publicApi.basicURLParse = urlStateMachineExports.basicURLParse;
+publicApi.setTheUsername = urlStateMachineExports.setTheUsername;
+publicApi.setThePassword = urlStateMachineExports.setThePassword;
+publicApi.serializeHost = urlStateMachineExports.serializeHost;
+publicApi.serializeInteger = urlStateMachineExports.serializeInteger;
+publicApi.parseURL = urlStateMachineExports.parseURL;
+const Readable = Stream.Readable;
+const BUFFER = Symbol("buffer");
+const TYPE = Symbol("type");
+class Blob {
   constructor() {
-    this[Je] = "";
-    const e = arguments[0], p = arguments[1], t = [];
-    let d = 0;
-    if (e) {
-      const l = e, m = Number(l.length);
-      for (let r = 0; r < m; r++) {
-        const v = l[r];
-        let N;
-        v instanceof Buffer ? N = v : ArrayBuffer.isView(v) ? N = Buffer.from(v.buffer, v.byteOffset, v.byteLength) : v instanceof ArrayBuffer ? N = Buffer.from(v) : v instanceof Y1 ? N = v[T1] : N = Buffer.from(typeof v == "string" ? v : String(v)), d += N.length, t.push(N);
+    this[TYPE] = "";
+    const blobParts = arguments[0];
+    const options = arguments[1];
+    const buffers = [];
+    let size = 0;
+    if (blobParts) {
+      const a = blobParts;
+      const length = Number(a.length);
+      for (let i = 0; i < length; i++) {
+        const element = a[i];
+        let buffer;
+        if (element instanceof Buffer) {
+          buffer = element;
+        } else if (ArrayBuffer.isView(element)) {
+          buffer = Buffer.from(element.buffer, element.byteOffset, element.byteLength);
+        } else if (element instanceof ArrayBuffer) {
+          buffer = Buffer.from(element);
+        } else if (element instanceof Blob) {
+          buffer = element[BUFFER];
+        } else {
+          buffer = Buffer.from(typeof element === "string" ? element : String(element));
+        }
+        size += buffer.length;
+        buffers.push(buffer);
       }
     }
-    this[T1] = Buffer.concat(t);
-    let i = p && p.type !== void 0 && String(p.type).toLowerCase();
-    i && !/[^\u0020-\u007E]/.test(i) && (this[Je] = i);
+    this[BUFFER] = Buffer.concat(buffers);
+    let type = options && options.type !== void 0 && String(options.type).toLowerCase();
+    if (type && !/[^\u0020-\u007E]/.test(type)) {
+      this[TYPE] = type;
+    }
   }
   get size() {
-    return this[T1].length;
+    return this[BUFFER].length;
   }
   get type() {
-    return this[Je];
+    return this[TYPE];
   }
   text() {
-    return Promise.resolve(this[T1].toString());
+    return Promise.resolve(this[BUFFER].toString());
   }
   arrayBuffer() {
-    const e = this[T1], p = e.buffer.slice(e.byteOffset, e.byteOffset + e.byteLength);
-    return Promise.resolve(p);
+    const buf = this[BUFFER];
+    const ab = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+    return Promise.resolve(ab);
   }
   stream() {
-    const e = new J2();
-    return e._read = function() {
-    }, e.push(this[T1]), e.push(null), e;
+    const readable = new Readable();
+    readable._read = function() {
+    };
+    readable.push(this[BUFFER]);
+    readable.push(null);
+    return readable;
   }
   toString() {
     return "[object Blob]";
   }
   slice() {
-    const e = this.size, p = arguments[0], t = arguments[1];
-    let d, i;
-    p === void 0 ? d = 0 : p < 0 ? d = Math.max(e + p, 0) : d = Math.min(p, e), t === void 0 ? i = e : t < 0 ? i = Math.max(e + t, 0) : i = Math.min(t, e);
-    const l = Math.max(i - d, 0), r = this[T1].slice(d, d + l), v = new Y1([], { type: arguments[2] });
-    return v[T1] = r, v;
+    const size = this.size;
+    const start = arguments[0];
+    const end = arguments[1];
+    let relativeStart, relativeEnd;
+    if (start === void 0) {
+      relativeStart = 0;
+    } else if (start < 0) {
+      relativeStart = Math.max(size + start, 0);
+    } else {
+      relativeStart = Math.min(start, size);
+    }
+    if (end === void 0) {
+      relativeEnd = size;
+    } else if (end < 0) {
+      relativeEnd = Math.max(size + end, 0);
+    } else {
+      relativeEnd = Math.min(end, size);
+    }
+    const span = Math.max(relativeEnd - relativeStart, 0);
+    const buffer = this[BUFFER];
+    const slicedBuffer = buffer.slice(relativeStart, relativeStart + span);
+    const blob = new Blob([], { type: arguments[2] });
+    blob[BUFFER] = slicedBuffer;
+    return blob;
   }
 }
-Object.defineProperties(Y1.prototype, {
-  size: { enumerable: !0 },
-  type: { enumerable: !0 },
-  slice: { enumerable: !0 }
+Object.defineProperties(Blob.prototype, {
+  size: { enumerable: true },
+  type: { enumerable: true },
+  slice: { enumerable: true }
 });
-Object.defineProperty(Y1.prototype, Symbol.toStringTag, {
+Object.defineProperty(Blob.prototype, Symbol.toStringTag, {
   value: "Blob",
-  writable: !1,
-  enumerable: !1,
-  configurable: !0
+  writable: false,
+  enumerable: false,
+  configurable: true
 });
-function i1(a, e, p) {
-  Error.call(this, a), this.message = a, this.type = e, p && (this.code = this.errno = p.code), Error.captureStackTrace(this, this.constructor);
+function FetchError(message, type, systemError) {
+  Error.call(this, message);
+  this.message = message;
+  this.type = type;
+  if (systemError) {
+    this.code = this.errno = systemError.code;
+  }
+  Error.captureStackTrace(this, this.constructor);
 }
-i1.prototype = Object.create(Error.prototype);
-i1.prototype.constructor = i1;
-i1.prototype.name = "FetchError";
-let ea;
+FetchError.prototype = Object.create(Error.prototype);
+FetchError.prototype.constructor = FetchError;
+FetchError.prototype.name = "FetchError";
+let convert;
 try {
-  ea = require("encoding").convert;
-} catch {
+  convert = require("encoding").convert;
+} catch (e) {
 }
-const A1 = Symbol("Body internals"), Ba = v1.PassThrough;
-function a1(a) {
-  var e = this, p = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {}, t = p.size;
-  let d = t === void 0 ? 0 : t;
-  var i = p.timeout;
-  let l = i === void 0 ? 0 : i;
-  a == null ? a = null : yp(a) ? a = Buffer.from(a.toString()) : ne(a) || Buffer.isBuffer(a) || (Object.prototype.toString.call(a) === "[object ArrayBuffer]" ? a = Buffer.from(a) : ArrayBuffer.isView(a) ? a = Buffer.from(a.buffer, a.byteOffset, a.byteLength) : a instanceof v1 || (a = Buffer.from(String(a)))), this[A1] = {
-    body: a,
-    disturbed: !1,
+const INTERNALS = Symbol("Body internals");
+const PassThrough = Stream.PassThrough;
+function Body(body) {
+  var _this = this;
+  var _ref = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {}, _ref$size = _ref.size;
+  let size = _ref$size === void 0 ? 0 : _ref$size;
+  var _ref$timeout = _ref.timeout;
+  let timeout = _ref$timeout === void 0 ? 0 : _ref$timeout;
+  if (body == null) {
+    body = null;
+  } else if (isURLSearchParams(body)) {
+    body = Buffer.from(body.toString());
+  } else if (isBlob(body)) ;
+  else if (Buffer.isBuffer(body)) ;
+  else if (Object.prototype.toString.call(body) === "[object ArrayBuffer]") {
+    body = Buffer.from(body);
+  } else if (ArrayBuffer.isView(body)) {
+    body = Buffer.from(body.buffer, body.byteOffset, body.byteLength);
+  } else if (body instanceof Stream) ;
+  else {
+    body = Buffer.from(String(body));
+  }
+  this[INTERNALS] = {
+    body,
+    disturbed: false,
     error: null
-  }, this.size = d, this.timeout = l, a instanceof v1 && a.on("error", function(m) {
-    const r = m.name === "AbortError" ? m : new i1(`Invalid response body while trying to fetch ${e.url}: ${m.message}`, "system", m);
-    e[A1].error = r;
-  });
+  };
+  this.size = size;
+  this.timeout = timeout;
+  if (body instanceof Stream) {
+    body.on("error", function(err) {
+      const error = err.name === "AbortError" ? err : new FetchError(`Invalid response body while trying to fetch ${_this.url}: ${err.message}`, "system", err);
+      _this[INTERNALS].error = error;
+    });
+  }
 }
-a1.prototype = {
+Body.prototype = {
   get body() {
-    return this[A1].body;
+    return this[INTERNALS].body;
   },
   get bodyUsed() {
-    return this[A1].disturbed;
+    return this[INTERNALS].disturbed;
   },
   /**
    * Decode response as ArrayBuffer
@@ -78706,8 +79758,8 @@ a1.prototype = {
    * @return  Promise
    */
   arrayBuffer() {
-    return Z1.call(this).then(function(a) {
-      return a.buffer.slice(a.byteOffset, a.byteOffset + a.byteLength);
+    return consumeBody.call(this).then(function(buf) {
+      return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
     });
   },
   /**
@@ -78716,15 +79768,15 @@ a1.prototype = {
    * @return Promise
    */
   blob() {
-    let a = this.headers && this.headers.get("content-type") || "";
-    return Z1.call(this).then(function(e) {
+    let ct = this.headers && this.headers.get("content-type") || "";
+    return consumeBody.call(this).then(function(buf) {
       return Object.assign(
         // Prevent copying
-        new Y1([], {
-          type: a.toLowerCase()
+        new Blob([], {
+          type: ct.toLowerCase()
         }),
         {
-          [T1]: e
+          [BUFFER]: buf
         }
       );
     });
@@ -78735,12 +79787,12 @@ a1.prototype = {
    * @return  Promise
    */
   json() {
-    var a = this;
-    return Z1.call(this).then(function(e) {
+    var _this2 = this;
+    return consumeBody.call(this).then(function(buffer) {
       try {
-        return JSON.parse(e.toString());
-      } catch (p) {
-        return a1.Promise.reject(new i1(`invalid json response body at ${a.url} reason: ${p.message}`, "invalid-json"));
+        return JSON.parse(buffer.toString());
+      } catch (err) {
+        return Body.Promise.reject(new FetchError(`invalid json response body at ${_this2.url} reason: ${err.message}`, "invalid-json"));
       }
     });
   },
@@ -78750,8 +79802,8 @@ a1.prototype = {
    * @return  Promise
    */
   text() {
-    return Z1.call(this).then(function(a) {
-      return a.toString();
+    return consumeBody.call(this).then(function(buffer) {
+      return buffer.toString();
     });
   },
   /**
@@ -78760,7 +79812,7 @@ a1.prototype = {
    * @return  Promise
    */
   buffer() {
-    return Z1.call(this);
+    return consumeBody.call(this);
   },
   /**
    * Decode response as text, while automatically detecting the encoding and
@@ -78769,116 +79821,236 @@ a1.prototype = {
    * @return  Promise
    */
   textConverted() {
-    var a = this;
-    return Z1.call(this).then(function(e) {
-      return W2(e, a.headers);
+    var _this3 = this;
+    return consumeBody.call(this).then(function(buffer) {
+      return convertBody(buffer, _this3.headers);
     });
   }
 };
-Object.defineProperties(a1.prototype, {
-  body: { enumerable: !0 },
-  bodyUsed: { enumerable: !0 },
-  arrayBuffer: { enumerable: !0 },
-  blob: { enumerable: !0 },
-  json: { enumerable: !0 },
-  text: { enumerable: !0 }
+Object.defineProperties(Body.prototype, {
+  body: { enumerable: true },
+  bodyUsed: { enumerable: true },
+  arrayBuffer: { enumerable: true },
+  blob: { enumerable: true },
+  json: { enumerable: true },
+  text: { enumerable: true }
 });
-a1.mixIn = function(a) {
-  for (const e of Object.getOwnPropertyNames(a1.prototype))
-    if (!(e in a)) {
-      const p = Object.getOwnPropertyDescriptor(a1.prototype, e);
-      Object.defineProperty(a, e, p);
+Body.mixIn = function(proto) {
+  for (const name of Object.getOwnPropertyNames(Body.prototype)) {
+    if (!(name in proto)) {
+      const desc = Object.getOwnPropertyDescriptor(Body.prototype, name);
+      Object.defineProperty(proto, name, desc);
     }
+  }
 };
-function Z1() {
-  var a = this;
-  if (this[A1].disturbed)
-    return a1.Promise.reject(new TypeError(`body used already for: ${this.url}`));
-  if (this[A1].disturbed = !0, this[A1].error)
-    return a1.Promise.reject(this[A1].error);
-  let e = this.body;
-  if (e === null)
-    return a1.Promise.resolve(Buffer.alloc(0));
-  if (ne(e) && (e = e.stream()), Buffer.isBuffer(e))
-    return a1.Promise.resolve(e);
-  if (!(e instanceof v1))
-    return a1.Promise.resolve(Buffer.alloc(0));
-  let p = [], t = 0, d = !1;
-  return new a1.Promise(function(i, l) {
-    let m;
-    a.timeout && (m = setTimeout(function() {
-      d = !0, l(new i1(`Response timeout while trying to fetch ${a.url} (over ${a.timeout}ms)`, "body-timeout"));
-    }, a.timeout)), e.on("error", function(r) {
-      r.name === "AbortError" ? (d = !0, l(r)) : l(new i1(`Invalid response body while trying to fetch ${a.url}: ${r.message}`, "system", r));
-    }), e.on("data", function(r) {
-      if (!(d || r === null)) {
-        if (a.size && t + r.length > a.size) {
-          d = !0, l(new i1(`content size at ${a.url} over limit: ${a.size}`, "max-size"));
-          return;
-        }
-        t += r.length, p.push(r);
+function consumeBody() {
+  var _this4 = this;
+  if (this[INTERNALS].disturbed) {
+    return Body.Promise.reject(new TypeError(`body used already for: ${this.url}`));
+  }
+  this[INTERNALS].disturbed = true;
+  if (this[INTERNALS].error) {
+    return Body.Promise.reject(this[INTERNALS].error);
+  }
+  let body = this.body;
+  if (body === null) {
+    return Body.Promise.resolve(Buffer.alloc(0));
+  }
+  if (isBlob(body)) {
+    body = body.stream();
+  }
+  if (Buffer.isBuffer(body)) {
+    return Body.Promise.resolve(body);
+  }
+  if (!(body instanceof Stream)) {
+    return Body.Promise.resolve(Buffer.alloc(0));
+  }
+  let accum = [];
+  let accumBytes = 0;
+  let abort = false;
+  return new Body.Promise(function(resolve, reject) {
+    let resTimeout;
+    if (_this4.timeout) {
+      resTimeout = setTimeout(function() {
+        abort = true;
+        reject(new FetchError(`Response timeout while trying to fetch ${_this4.url} (over ${_this4.timeout}ms)`, "body-timeout"));
+      }, _this4.timeout);
+    }
+    body.on("error", function(err) {
+      if (err.name === "AbortError") {
+        abort = true;
+        reject(err);
+      } else {
+        reject(new FetchError(`Invalid response body while trying to fetch ${_this4.url}: ${err.message}`, "system", err));
       }
-    }), e.on("end", function() {
-      if (!d) {
-        clearTimeout(m);
-        try {
-          i(Buffer.concat(p, t));
-        } catch (r) {
-          l(new i1(`Could not create Buffer from response body for ${a.url}: ${r.message}`, "system", r));
-        }
+    });
+    body.on("data", function(chunk) {
+      if (abort || chunk === null) {
+        return;
+      }
+      if (_this4.size && accumBytes + chunk.length > _this4.size) {
+        abort = true;
+        reject(new FetchError(`content size at ${_this4.url} over limit: ${_this4.size}`, "max-size"));
+        return;
+      }
+      accumBytes += chunk.length;
+      accum.push(chunk);
+    });
+    body.on("end", function() {
+      if (abort) {
+        return;
+      }
+      clearTimeout(resTimeout);
+      try {
+        resolve(Buffer.concat(accum, accumBytes));
+      } catch (err) {
+        reject(new FetchError(`Could not create Buffer from response body for ${_this4.url}: ${err.message}`, "system", err));
       }
     });
   });
 }
-function W2(a, e) {
-  if (typeof ea != "function")
+function convertBody(buffer, headers2) {
+  if (typeof convert !== "function") {
     throw new Error("The package `encoding` must be installed to use the textConverted() function");
-  const p = e.get("content-type");
-  let t = "utf-8", d, i;
-  return p && (d = /charset=([^;]*)/i.exec(p)), i = a.slice(0, 1024).toString(), !d && i && (d = /<meta.+?charset=(['"])(.+?)\1/i.exec(i)), !d && i && (d = /<meta[\s]+?http-equiv=(['"])content-type\1[\s]+?content=(['"])(.+?)\2/i.exec(i), d || (d = /<meta[\s]+?content=(['"])(.+?)\1[\s]+?http-equiv=(['"])content-type\3/i.exec(i), d && d.pop()), d && (d = /charset=(.*)/i.exec(d.pop()))), !d && i && (d = /<\?xml.+?encoding=(['"])(.+?)\1/i.exec(i)), d && (t = d.pop(), (t === "gb2312" || t === "gbk") && (t = "gb18030")), ea(a, "UTF-8", t).toString();
+  }
+  const ct = headers2.get("content-type");
+  let charset = "utf-8";
+  let res, str;
+  if (ct) {
+    res = /charset=([^;]*)/i.exec(ct);
+  }
+  str = buffer.slice(0, 1024).toString();
+  if (!res && str) {
+    res = /<meta.+?charset=(['"])(.+?)\1/i.exec(str);
+  }
+  if (!res && str) {
+    res = /<meta[\s]+?http-equiv=(['"])content-type\1[\s]+?content=(['"])(.+?)\2/i.exec(str);
+    if (!res) {
+      res = /<meta[\s]+?content=(['"])(.+?)\1[\s]+?http-equiv=(['"])content-type\3/i.exec(str);
+      if (res) {
+        res.pop();
+      }
+    }
+    if (res) {
+      res = /charset=(.*)/i.exec(res.pop());
+    }
+  }
+  if (!res && str) {
+    res = /<\?xml.+?encoding=(['"])(.+?)\1/i.exec(str);
+  }
+  if (res) {
+    charset = res.pop();
+    if (charset === "gb2312" || charset === "gbk") {
+      charset = "gb18030";
+    }
+  }
+  return convert(buffer, "UTF-8", charset).toString();
 }
-function yp(a) {
-  return typeof a != "object" || typeof a.append != "function" || typeof a.delete != "function" || typeof a.get != "function" || typeof a.getAll != "function" || typeof a.has != "function" || typeof a.set != "function" ? !1 : a.constructor.name === "URLSearchParams" || Object.prototype.toString.call(a) === "[object URLSearchParams]" || typeof a.sort == "function";
+function isURLSearchParams(obj) {
+  if (typeof obj !== "object" || typeof obj.append !== "function" || typeof obj.delete !== "function" || typeof obj.get !== "function" || typeof obj.getAll !== "function" || typeof obj.has !== "function" || typeof obj.set !== "function") {
+    return false;
+  }
+  return obj.constructor.name === "URLSearchParams" || Object.prototype.toString.call(obj) === "[object URLSearchParams]" || typeof obj.sort === "function";
 }
-function ne(a) {
-  return typeof a == "object" && typeof a.arrayBuffer == "function" && typeof a.type == "string" && typeof a.stream == "function" && typeof a.constructor == "function" && typeof a.constructor.name == "string" && /^(Blob|File)$/.test(a.constructor.name) && /^(Blob|File)$/.test(a[Symbol.toStringTag]);
+function isBlob(obj) {
+  return typeof obj === "object" && typeof obj.arrayBuffer === "function" && typeof obj.type === "string" && typeof obj.stream === "function" && typeof obj.constructor === "function" && typeof obj.constructor.name === "string" && /^(Blob|File)$/.test(obj.constructor.name) && /^(Blob|File)$/.test(obj[Symbol.toStringTag]);
 }
-function Dp(a) {
-  let e, p, t = a.body;
-  if (a.bodyUsed)
+function clone(instance) {
+  let p1, p2;
+  let body = instance.body;
+  if (instance.bodyUsed) {
     throw new Error("cannot clone body after it is used");
-  return t instanceof v1 && typeof t.getBoundary != "function" && (e = new Ba(), p = new Ba(), t.pipe(e), t.pipe(p), a[A1].body = e, t = p), t;
+  }
+  if (body instanceof Stream && typeof body.getBoundary !== "function") {
+    p1 = new PassThrough();
+    p2 = new PassThrough();
+    body.pipe(p1);
+    body.pipe(p2);
+    instance[INTERNALS].body = p1;
+    body = p2;
+  }
+  return body;
 }
-function Sp(a) {
-  return a === null ? null : typeof a == "string" ? "text/plain;charset=UTF-8" : yp(a) ? "application/x-www-form-urlencoded;charset=UTF-8" : ne(a) ? a.type || null : Buffer.isBuffer(a) || Object.prototype.toString.call(a) === "[object ArrayBuffer]" || ArrayBuffer.isView(a) ? null : typeof a.getBoundary == "function" ? `multipart/form-data;boundary=${a.getBoundary()}` : a instanceof v1 ? null : "text/plain;charset=UTF-8";
+function extractContentType(body) {
+  if (body === null) {
+    return null;
+  } else if (typeof body === "string") {
+    return "text/plain;charset=UTF-8";
+  } else if (isURLSearchParams(body)) {
+    return "application/x-www-form-urlencoded;charset=UTF-8";
+  } else if (isBlob(body)) {
+    return body.type || null;
+  } else if (Buffer.isBuffer(body)) {
+    return null;
+  } else if (Object.prototype.toString.call(body) === "[object ArrayBuffer]") {
+    return null;
+  } else if (ArrayBuffer.isView(body)) {
+    return null;
+  } else if (typeof body.getBoundary === "function") {
+    return `multipart/form-data;boundary=${body.getBoundary()}`;
+  } else if (body instanceof Stream) {
+    return null;
+  } else {
+    return "text/plain;charset=UTF-8";
+  }
 }
-function Tp(a) {
-  const e = a.body;
-  return e === null ? 0 : ne(e) ? e.size : Buffer.isBuffer(e) ? e.length : e && typeof e.getLengthSync == "function" && (e._lengthRetrievers && e._lengthRetrievers.length == 0 || // 1.x
-  e.hasKnownLength && e.hasKnownLength()) ? e.getLengthSync() : null;
+function getTotalBytes(instance) {
+  const body = instance.body;
+  if (body === null) {
+    return 0;
+  } else if (isBlob(body)) {
+    return body.size;
+  } else if (Buffer.isBuffer(body)) {
+    return body.length;
+  } else if (body && typeof body.getLengthSync === "function") {
+    if (body._lengthRetrievers && body._lengthRetrievers.length == 0 || // 1.x
+    body.hasKnownLength && body.hasKnownLength()) {
+      return body.getLengthSync();
+    }
+    return null;
+  } else {
+    return null;
+  }
 }
-function X2(a, e) {
-  const p = e.body;
-  p === null ? a.end() : ne(p) ? p.stream().pipe(a) : Buffer.isBuffer(p) ? (a.write(p), a.end()) : p.pipe(a);
+function writeToStream(dest, instance) {
+  const body = instance.body;
+  if (body === null) {
+    dest.end();
+  } else if (isBlob(body)) {
+    body.stream().pipe(dest);
+  } else if (Buffer.isBuffer(body)) {
+    dest.write(body);
+    dest.end();
+  } else {
+    body.pipe(dest);
+  }
 }
-a1.Promise = global.Promise;
-const bp = /[^\^_`a-zA-Z\-0-9!#$%&'*+.|~]/, aa = /[^\t\x20-\x7e\x80-\xff]/;
-function ie(a) {
-  if (a = `${a}`, bp.test(a) || a === "")
-    throw new TypeError(`${a} is not a legal HTTP header name`);
+Body.Promise = global.Promise;
+const invalidTokenRegex = /[^\^_`a-zA-Z\-0-9!#$%&'*+.|~]/;
+const invalidHeaderCharRegex = /[^\t\x20-\x7e\x80-\xff]/;
+function validateName(name) {
+  name = `${name}`;
+  if (invalidTokenRegex.test(name) || name === "") {
+    throw new TypeError(`${name} is not a legal HTTP header name`);
+  }
 }
-function Ma(a) {
-  if (a = `${a}`, aa.test(a))
-    throw new TypeError(`${a} is not a legal HTTP header value`);
+function validateValue(value) {
+  value = `${value}`;
+  if (invalidHeaderCharRegex.test(value)) {
+    throw new TypeError(`${value} is not a legal HTTP header value`);
+  }
 }
-function W1(a, e) {
-  e = e.toLowerCase();
-  for (const p in a)
-    if (p.toLowerCase() === e)
-      return p;
+function find(map, name) {
+  name = name.toLowerCase();
+  for (const key in map) {
+    if (key.toLowerCase() === name) {
+      return key;
+    }
+  }
+  return void 0;
 }
-const J = Symbol("map");
-let E1 = class Lp {
+const MAP = Symbol("map");
+let Headers$2 = class Headers {
   /**
    * Headers class
    *
@@ -78886,37 +80058,47 @@ let E1 = class Lp {
    * @return  Void
    */
   constructor() {
-    let e = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : void 0;
-    if (this[J] = /* @__PURE__ */ Object.create(null), e instanceof Lp) {
-      const p = e.raw(), t = Object.keys(p);
-      for (const d of t)
-        for (const i of p[d])
-          this.append(d, i);
+    let init = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : void 0;
+    this[MAP] = /* @__PURE__ */ Object.create(null);
+    if (init instanceof Headers) {
+      const rawHeaders = init.raw();
+      const headerNames = Object.keys(rawHeaders);
+      for (const headerName of headerNames) {
+        for (const value of rawHeaders[headerName]) {
+          this.append(headerName, value);
+        }
+      }
       return;
     }
-    if (e != null) if (typeof e == "object") {
-      const p = e[Symbol.iterator];
-      if (p != null) {
-        if (typeof p != "function")
+    if (init == null) ;
+    else if (typeof init === "object") {
+      const method = init[Symbol.iterator];
+      if (method != null) {
+        if (typeof method !== "function") {
           throw new TypeError("Header pairs must be iterable");
-        const t = [];
-        for (const d of e) {
-          if (typeof d != "object" || typeof d[Symbol.iterator] != "function")
+        }
+        const pairs = [];
+        for (const pair of init) {
+          if (typeof pair !== "object" || typeof pair[Symbol.iterator] !== "function") {
             throw new TypeError("Each header pair must be iterable");
-          t.push(Array.from(d));
+          }
+          pairs.push(Array.from(pair));
         }
-        for (const d of t) {
-          if (d.length !== 2)
+        for (const pair of pairs) {
+          if (pair.length !== 2) {
             throw new TypeError("Each header pair must be a name/value tuple");
-          this.append(d[0], d[1]);
+          }
+          this.append(pair[0], pair[1]);
         }
-      } else
-        for (const t of Object.keys(e)) {
-          const d = e[t];
-          this.append(t, d);
+      } else {
+        for (const key of Object.keys(init)) {
+          const value = init[key];
+          this.append(key, value);
         }
-    } else
+      }
+    } else {
       throw new TypeError("Provided initializer must be an object");
+    }
   }
   /**
    * Return combined header value given name
@@ -78924,10 +80106,14 @@ let E1 = class Lp {
    * @param   String  name  Header name
    * @return  Mixed
    */
-  get(e) {
-    e = `${e}`, ie(e);
-    const p = W1(this[J], e);
-    return p === void 0 ? null : this[J][p].join(", ");
+  get(name) {
+    name = `${name}`;
+    validateName(name);
+    const key = find(this[MAP], name);
+    if (key === void 0) {
+      return null;
+    }
+    return this[MAP][key].join(", ");
   }
   /**
    * Iterate over all headers
@@ -78936,12 +80122,16 @@ let E1 = class Lp {
    * @param   Boolean   thisArg   `this` context for callback function
    * @return  Void
    */
-  forEach(e) {
-    let p = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : void 0, t = pa(this), d = 0;
-    for (; d < t.length; ) {
-      var i = t[d];
-      const l = i[0], m = i[1];
-      e.call(p, m, l, this), t = pa(this), d++;
+  forEach(callback) {
+    let thisArg = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : void 0;
+    let pairs = getHeaders(this);
+    let i = 0;
+    while (i < pairs.length) {
+      var _pairs$i = pairs[i];
+      const name = _pairs$i[0], value = _pairs$i[1];
+      callback.call(thisArg, value, name, this);
+      pairs = getHeaders(this);
+      i++;
     }
   }
   /**
@@ -78951,10 +80141,13 @@ let E1 = class Lp {
    * @param   String  value  Header value
    * @return  Void
    */
-  set(e, p) {
-    e = `${e}`, p = `${p}`, ie(e), Ma(p);
-    const t = W1(this[J], e);
-    this[J][t !== void 0 ? t : e] = [p];
+  set(name, value) {
+    name = `${name}`;
+    value = `${value}`;
+    validateName(name);
+    validateValue(value);
+    const key = find(this[MAP], name);
+    this[MAP][key !== void 0 ? key : name] = [value];
   }
   /**
    * Append a value onto existing header
@@ -78963,10 +80156,17 @@ let E1 = class Lp {
    * @param   String  value  Header value
    * @return  Void
    */
-  append(e, p) {
-    e = `${e}`, p = `${p}`, ie(e), Ma(p);
-    const t = W1(this[J], e);
-    t !== void 0 ? this[J][t].push(p) : this[J][e] = [p];
+  append(name, value) {
+    name = `${name}`;
+    value = `${value}`;
+    validateName(name);
+    validateValue(value);
+    const key = find(this[MAP], name);
+    if (key !== void 0) {
+      this[MAP][key].push(value);
+    } else {
+      this[MAP][name] = [value];
+    }
   }
   /**
    * Check for header name existence
@@ -78974,8 +80174,10 @@ let E1 = class Lp {
    * @param   String   name  Header name
    * @return  Boolean
    */
-  has(e) {
-    return e = `${e}`, ie(e), W1(this[J], e) !== void 0;
+  has(name) {
+    name = `${name}`;
+    validateName(name);
+    return find(this[MAP], name) !== void 0;
   }
   /**
    * Delete all header values given name
@@ -78983,10 +80185,13 @@ let E1 = class Lp {
    * @param   String  name  Header name
    * @return  Void
    */
-  delete(e) {
-    e = `${e}`, ie(e);
-    const p = W1(this[J], e);
-    p !== void 0 && delete this[J][p];
+  delete(name) {
+    name = `${name}`;
+    validateName(name);
+    const key = find(this[MAP], name);
+    if (key !== void 0) {
+      delete this[MAP][key];
+    }
   }
   /**
    * Return raw headers (non-spec api)
@@ -78994,7 +80199,7 @@ let E1 = class Lp {
    * @return  Object
    */
   raw() {
-    return this[J];
+    return this[MAP];
   }
   /**
    * Get an iterator on keys.
@@ -79002,7 +80207,7 @@ let E1 = class Lp {
    * @return  Iterator
    */
   keys() {
-    return We(this, "key");
+    return createHeadersIterator(this, "key");
   }
   /**
    * Get an iterator on values.
@@ -79010,7 +80215,7 @@ let E1 = class Lp {
    * @return  Iterator
    */
   values() {
-    return We(this, "value");
+    return createHeadersIterator(this, "value");
   }
   /**
    * Get an iterator on entries.
@@ -79020,119 +80225,150 @@ let E1 = class Lp {
    * @return  Iterator
    */
   [Symbol.iterator]() {
-    return We(this, "key+value");
+    return createHeadersIterator(this, "key+value");
   }
 };
-E1.prototype.entries = E1.prototype[Symbol.iterator];
-Object.defineProperty(E1.prototype, Symbol.toStringTag, {
+Headers$2.prototype.entries = Headers$2.prototype[Symbol.iterator];
+Object.defineProperty(Headers$2.prototype, Symbol.toStringTag, {
   value: "Headers",
-  writable: !1,
-  enumerable: !1,
-  configurable: !0
+  writable: false,
+  enumerable: false,
+  configurable: true
 });
-Object.defineProperties(E1.prototype, {
-  get: { enumerable: !0 },
-  forEach: { enumerable: !0 },
-  set: { enumerable: !0 },
-  append: { enumerable: !0 },
-  has: { enumerable: !0 },
-  delete: { enumerable: !0 },
-  keys: { enumerable: !0 },
-  values: { enumerable: !0 },
-  entries: { enumerable: !0 }
+Object.defineProperties(Headers$2.prototype, {
+  get: { enumerable: true },
+  forEach: { enumerable: true },
+  set: { enumerable: true },
+  append: { enumerable: true },
+  has: { enumerable: true },
+  delete: { enumerable: true },
+  keys: { enumerable: true },
+  values: { enumerable: true },
+  entries: { enumerable: true }
 });
-function pa(a) {
-  let e = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : "key+value";
-  return Object.keys(a[J]).sort().map(e === "key" ? function(t) {
-    return t.toLowerCase();
-  } : e === "value" ? function(t) {
-    return a[J][t].join(", ");
-  } : function(t) {
-    return [t.toLowerCase(), a[J][t].join(", ")];
+function getHeaders(headers2) {
+  let kind = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : "key+value";
+  const keys = Object.keys(headers2[MAP]).sort();
+  return keys.map(kind === "key" ? function(k) {
+    return k.toLowerCase();
+  } : kind === "value" ? function(k) {
+    return headers2[MAP][k].join(", ");
+  } : function(k) {
+    return [k.toLowerCase(), headers2[MAP][k].join(", ")];
   });
 }
-const da = Symbol("internal");
-function We(a, e) {
-  const p = Object.create(ua);
-  return p[da] = {
-    target: a,
-    kind: e,
+const INTERNAL = Symbol("internal");
+function createHeadersIterator(target, kind) {
+  const iterator = Object.create(HeadersIteratorPrototype);
+  iterator[INTERNAL] = {
+    target,
+    kind,
     index: 0
-  }, p;
+  };
+  return iterator;
 }
-const ua = Object.setPrototypeOf({
+const HeadersIteratorPrototype = Object.setPrototypeOf({
   next() {
-    if (!this || Object.getPrototypeOf(this) !== ua)
+    if (!this || Object.getPrototypeOf(this) !== HeadersIteratorPrototype) {
       throw new TypeError("Value of `this` is not a HeadersIterator");
-    var a = this[da];
-    const e = a.target, p = a.kind, t = a.index, d = pa(e, p), i = d.length;
-    return t >= i ? {
-      value: void 0,
-      done: !0
-    } : (this[da].index = t + 1, {
-      value: d[t],
-      done: !1
-    });
+    }
+    var _INTERNAL = this[INTERNAL];
+    const target = _INTERNAL.target, kind = _INTERNAL.kind, index = _INTERNAL.index;
+    const values = getHeaders(target, kind);
+    const len = values.length;
+    if (index >= len) {
+      return {
+        value: void 0,
+        done: true
+      };
+    }
+    this[INTERNAL].index = index + 1;
+    return {
+      value: values[index],
+      done: false
+    };
   }
 }, Object.getPrototypeOf(Object.getPrototypeOf([][Symbol.iterator]())));
-Object.defineProperty(ua, Symbol.toStringTag, {
+Object.defineProperty(HeadersIteratorPrototype, Symbol.toStringTag, {
   value: "HeadersIterator",
-  writable: !1,
-  enumerable: !1,
-  configurable: !0
+  writable: false,
+  enumerable: false,
+  configurable: true
 });
-function K2(a) {
-  const e = Object.assign({ __proto__: null }, a[J]), p = W1(a[J], "Host");
-  return p !== void 0 && (e[p] = e[p][0]), e;
+function exportNodeCompatibleHeaders(headers2) {
+  const obj = Object.assign({ __proto__: null }, headers2[MAP]);
+  const hostHeaderKey = find(headers2[MAP], "Host");
+  if (hostHeaderKey !== void 0) {
+    obj[hostHeaderKey] = obj[hostHeaderKey][0];
+  }
+  return obj;
 }
-function Y2(a) {
-  const e = new E1();
-  for (const p of Object.keys(a))
-    if (!bp.test(p))
-      if (Array.isArray(a[p]))
-        for (const t of a[p])
-          aa.test(t) || (e[J][p] === void 0 ? e[J][p] = [t] : e[J][p].push(t));
-      else aa.test(a[p]) || (e[J][p] = [a[p]]);
-  return e;
-}
-const x1 = Symbol("Response internals"), Q2 = rp.STATUS_CODES;
-class f1 {
-  constructor() {
-    let e = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : null, p = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
-    a1.call(this, e, p);
-    const t = p.status || 200, d = new E1(p.headers);
-    if (e != null && !d.has("Content-Type")) {
-      const i = Sp(e);
-      i && d.append("Content-Type", i);
+function createHeadersLenient(obj) {
+  const headers2 = new Headers$2();
+  for (const name of Object.keys(obj)) {
+    if (invalidTokenRegex.test(name)) {
+      continue;
     }
-    this[x1] = {
-      url: p.url,
-      status: t,
-      statusText: p.statusText || Q2[t],
-      headers: d,
-      counter: p.counter
+    if (Array.isArray(obj[name])) {
+      for (const val of obj[name]) {
+        if (invalidHeaderCharRegex.test(val)) {
+          continue;
+        }
+        if (headers2[MAP][name] === void 0) {
+          headers2[MAP][name] = [val];
+        } else {
+          headers2[MAP][name].push(val);
+        }
+      }
+    } else if (!invalidHeaderCharRegex.test(obj[name])) {
+      headers2[MAP][name] = [obj[name]];
+    }
+  }
+  return headers2;
+}
+const INTERNALS$1 = Symbol("Response internals");
+const STATUS_CODES = http.STATUS_CODES;
+class Response {
+  constructor() {
+    let body = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : null;
+    let opts = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
+    Body.call(this, body, opts);
+    const status = opts.status || 200;
+    const headers2 = new Headers$2(opts.headers);
+    if (body != null && !headers2.has("Content-Type")) {
+      const contentType = extractContentType(body);
+      if (contentType) {
+        headers2.append("Content-Type", contentType);
+      }
+    }
+    this[INTERNALS$1] = {
+      url: opts.url,
+      status,
+      statusText: opts.statusText || STATUS_CODES[status],
+      headers: headers2,
+      counter: opts.counter
     };
   }
   get url() {
-    return this[x1].url || "";
+    return this[INTERNALS$1].url || "";
   }
   get status() {
-    return this[x1].status;
+    return this[INTERNALS$1].status;
   }
   /**
    * Convenience property representing if the request ended normally
    */
   get ok() {
-    return this[x1].status >= 200 && this[x1].status < 300;
+    return this[INTERNALS$1].status >= 200 && this[INTERNALS$1].status < 300;
   }
   get redirected() {
-    return this[x1].counter > 0;
+    return this[INTERNALS$1].counter > 0;
   }
   get statusText() {
-    return this[x1].statusText;
+    return this[INTERNALS$1].statusText;
   }
   get headers() {
-    return this[x1].headers;
+    return this[INTERNALS$1].headers;
   }
   /**
    * Clone this response
@@ -79140,7 +80376,7 @@ class f1 {
    * @return  Response
    */
   clone() {
-    return new f1(Dp(this), {
+    return new Response(clone(this), {
       url: this.url,
       status: this.status,
       statusText: this.statusText,
@@ -79150,76 +80386,102 @@ class f1 {
     });
   }
 }
-a1.mixIn(f1.prototype);
-Object.defineProperties(f1.prototype, {
-  url: { enumerable: !0 },
-  status: { enumerable: !0 },
-  ok: { enumerable: !0 },
-  redirected: { enumerable: !0 },
-  statusText: { enumerable: !0 },
-  headers: { enumerable: !0 },
-  clone: { enumerable: !0 }
+Body.mixIn(Response.prototype);
+Object.defineProperties(Response.prototype, {
+  url: { enumerable: true },
+  status: { enumerable: true },
+  ok: { enumerable: true },
+  redirected: { enumerable: true },
+  statusText: { enumerable: true },
+  headers: { enumerable: true },
+  clone: { enumerable: true }
 });
-Object.defineProperty(f1.prototype, Symbol.toStringTag, {
+Object.defineProperty(Response.prototype, Symbol.toStringTag, {
   value: "Response",
-  writable: !1,
-  enumerable: !1,
-  configurable: !0
+  writable: false,
+  enumerable: false,
+  configurable: true
 });
-const L1 = Symbol("Request internals"), ed = Re.URL || w1.URL, ad = Re.parse, pd = Re.format;
-function Xe(a) {
-  return /^[a-zA-Z][a-zA-Z\d+\-.]*:/.exec(a) && (a = new ed(a).toString()), ad(a);
+const INTERNALS$2 = Symbol("Request internals");
+const URL = Url.URL || publicApi.URL;
+const parse_url = Url.parse;
+const format_url = Url.format;
+function parseURL(urlStr) {
+  if (/^[a-zA-Z][a-zA-Z\d+\-.]*:/.exec(urlStr)) {
+    urlStr = new URL(urlStr).toString();
+  }
+  return parse_url(urlStr);
 }
-const dd = "destroy" in v1.Readable.prototype;
-function Ee(a) {
-  return typeof a == "object" && typeof a[L1] == "object";
+const streamDestructionSupported = "destroy" in Stream.Readable.prototype;
+function isRequest(input) {
+  return typeof input === "object" && typeof input[INTERNALS$2] === "object";
 }
-function td(a) {
-  const e = a && typeof a == "object" && Object.getPrototypeOf(a);
-  return !!(e && e.constructor.name === "AbortSignal");
+function isAbortSignal(signal) {
+  const proto = signal && typeof signal === "object" && Object.getPrototypeOf(signal);
+  return !!(proto && proto.constructor.name === "AbortSignal");
 }
-class j1 {
-  constructor(e) {
-    let p = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {}, t;
-    Ee(e) ? t = Xe(e.url) : (e && e.href ? t = Xe(e.href) : t = Xe(`${e}`), e = {});
-    let d = p.method || e.method || "GET";
-    if (d = d.toUpperCase(), (p.body != null || Ee(e) && e.body !== null) && (d === "GET" || d === "HEAD"))
-      throw new TypeError("Request with GET/HEAD method cannot have body");
-    let i = p.body != null ? p.body : Ee(e) && e.body !== null ? Dp(e) : null;
-    a1.call(this, i, {
-      timeout: p.timeout || e.timeout || 0,
-      size: p.size || e.size || 0
-    });
-    const l = new E1(p.headers || e.headers || {});
-    if (i != null && !l.has("Content-Type")) {
-      const r = Sp(i);
-      r && l.append("Content-Type", r);
+class Request {
+  constructor(input) {
+    let init = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
+    let parsedURL;
+    if (!isRequest(input)) {
+      if (input && input.href) {
+        parsedURL = parseURL(input.href);
+      } else {
+        parsedURL = parseURL(`${input}`);
+      }
+      input = {};
+    } else {
+      parsedURL = parseURL(input.url);
     }
-    let m = Ee(e) ? e.signal : null;
-    if ("signal" in p && (m = p.signal), m != null && !td(m))
+    let method = init.method || input.method || "GET";
+    method = method.toUpperCase();
+    if ((init.body != null || isRequest(input) && input.body !== null) && (method === "GET" || method === "HEAD")) {
+      throw new TypeError("Request with GET/HEAD method cannot have body");
+    }
+    let inputBody = init.body != null ? init.body : isRequest(input) && input.body !== null ? clone(input) : null;
+    Body.call(this, inputBody, {
+      timeout: init.timeout || input.timeout || 0,
+      size: init.size || input.size || 0
+    });
+    const headers2 = new Headers$2(init.headers || input.headers || {});
+    if (inputBody != null && !headers2.has("Content-Type")) {
+      const contentType = extractContentType(inputBody);
+      if (contentType) {
+        headers2.append("Content-Type", contentType);
+      }
+    }
+    let signal = isRequest(input) ? input.signal : null;
+    if ("signal" in init) signal = init.signal;
+    if (signal != null && !isAbortSignal(signal)) {
       throw new TypeError("Expected signal to be an instanceof AbortSignal");
-    this[L1] = {
-      method: d,
-      redirect: p.redirect || e.redirect || "follow",
-      headers: l,
-      parsedURL: t,
-      signal: m
-    }, this.follow = p.follow !== void 0 ? p.follow : e.follow !== void 0 ? e.follow : 20, this.compress = p.compress !== void 0 ? p.compress : e.compress !== void 0 ? e.compress : !0, this.counter = p.counter || e.counter || 0, this.agent = p.agent || e.agent;
+    }
+    this[INTERNALS$2] = {
+      method,
+      redirect: init.redirect || input.redirect || "follow",
+      headers: headers2,
+      parsedURL,
+      signal
+    };
+    this.follow = init.follow !== void 0 ? init.follow : input.follow !== void 0 ? input.follow : 20;
+    this.compress = init.compress !== void 0 ? init.compress : input.compress !== void 0 ? input.compress : true;
+    this.counter = init.counter || input.counter || 0;
+    this.agent = init.agent || input.agent;
   }
   get method() {
-    return this[L1].method;
+    return this[INTERNALS$2].method;
   }
   get url() {
-    return pd(this[L1].parsedURL);
+    return format_url(this[INTERNALS$2].parsedURL);
   }
   get headers() {
-    return this[L1].headers;
+    return this[INTERNALS$2].headers;
   }
   get redirect() {
-    return this[L1].redirect;
+    return this[INTERNALS$2].redirect;
   }
   get signal() {
-    return this[L1].signal;
+    return this[INTERNALS$2].signal;
   }
   /**
    * Clone this request
@@ -79227,234 +80489,343 @@ class j1 {
    * @return  Request
    */
   clone() {
-    return new j1(this);
+    return new Request(this);
   }
 }
-a1.mixIn(j1.prototype);
-Object.defineProperty(j1.prototype, Symbol.toStringTag, {
+Body.mixIn(Request.prototype);
+Object.defineProperty(Request.prototype, Symbol.toStringTag, {
   value: "Request",
-  writable: !1,
-  enumerable: !1,
-  configurable: !0
+  writable: false,
+  enumerable: false,
+  configurable: true
 });
-Object.defineProperties(j1.prototype, {
-  method: { enumerable: !0 },
-  url: { enumerable: !0 },
-  headers: { enumerable: !0 },
-  redirect: { enumerable: !0 },
-  clone: { enumerable: !0 },
-  signal: { enumerable: !0 }
+Object.defineProperties(Request.prototype, {
+  method: { enumerable: true },
+  url: { enumerable: true },
+  headers: { enumerable: true },
+  redirect: { enumerable: true },
+  clone: { enumerable: true },
+  signal: { enumerable: true }
 });
-function id(a) {
-  const e = a[L1].parsedURL, p = new E1(a[L1].headers);
-  if (p.has("Accept") || p.set("Accept", "*/*"), !e.protocol || !e.hostname)
-    throw new TypeError("Only absolute URLs are supported");
-  if (!/^https?:$/.test(e.protocol))
-    throw new TypeError("Only HTTP(S) protocols are supported");
-  if (a.signal && a.body instanceof v1.Readable && !dd)
-    throw new Error("Cancellation of streamed requests with AbortSignal is not supported in node < 8");
-  let t = null;
-  if (a.body == null && /^(POST|PUT)$/i.test(a.method) && (t = "0"), a.body != null) {
-    const i = Tp(a);
-    typeof i == "number" && (t = String(i));
+function getNodeRequestOptions(request) {
+  const parsedURL = request[INTERNALS$2].parsedURL;
+  const headers2 = new Headers$2(request[INTERNALS$2].headers);
+  if (!headers2.has("Accept")) {
+    headers2.set("Accept", "*/*");
   }
-  t && p.set("Content-Length", t), p.has("User-Agent") || p.set("User-Agent", "node-fetch/1.0 (+https://github.com/bitinn/node-fetch)"), a.compress && !p.has("Accept-Encoding") && p.set("Accept-Encoding", "gzip,deflate");
-  let d = a.agent;
-  return typeof d == "function" && (d = d(e)), Object.assign({}, e, {
-    method: a.method,
-    headers: K2(p),
-    agent: d
+  if (!parsedURL.protocol || !parsedURL.hostname) {
+    throw new TypeError("Only absolute URLs are supported");
+  }
+  if (!/^https?:$/.test(parsedURL.protocol)) {
+    throw new TypeError("Only HTTP(S) protocols are supported");
+  }
+  if (request.signal && request.body instanceof Stream.Readable && !streamDestructionSupported) {
+    throw new Error("Cancellation of streamed requests with AbortSignal is not supported in node < 8");
+  }
+  let contentLengthValue = null;
+  if (request.body == null && /^(POST|PUT)$/i.test(request.method)) {
+    contentLengthValue = "0";
+  }
+  if (request.body != null) {
+    const totalBytes = getTotalBytes(request);
+    if (typeof totalBytes === "number") {
+      contentLengthValue = String(totalBytes);
+    }
+  }
+  if (contentLengthValue) {
+    headers2.set("Content-Length", contentLengthValue);
+  }
+  if (!headers2.has("User-Agent")) {
+    headers2.set("User-Agent", "node-fetch/1.0 (+https://github.com/bitinn/node-fetch)");
+  }
+  if (request.compress && !headers2.has("Accept-Encoding")) {
+    headers2.set("Accept-Encoding", "gzip,deflate");
+  }
+  let agent = request.agent;
+  if (typeof agent === "function") {
+    agent = agent(parsedURL);
+  }
+  return Object.assign({}, parsedURL, {
+    method: request.method,
+    headers: exportNodeCompatibleHeaders(headers2),
+    agent
   });
 }
-function Q1(a) {
-  Error.call(this, a), this.type = "aborted", this.message = a, Error.captureStackTrace(this, this.constructor);
+function AbortError(message) {
+  Error.call(this, message);
+  this.type = "aborted";
+  this.message = message;
+  Error.captureStackTrace(this, this.constructor);
 }
-Q1.prototype = Object.create(Error.prototype);
-Q1.prototype.constructor = Q1;
-Q1.prototype.name = "AbortError";
-const me = Re.URL || w1.URL, $a = v1.PassThrough, ld = function(e, p) {
-  const t = new me(p).hostname, d = new me(e).hostname;
-  return t === d || t[t.length - d.length - 1] === "." && t.endsWith(d);
-}, rd = function(e, p) {
-  const t = new me(p).protocol, d = new me(e).protocol;
-  return t === d;
+AbortError.prototype = Object.create(Error.prototype);
+AbortError.prototype.constructor = AbortError;
+AbortError.prototype.name = "AbortError";
+const URL$1 = Url.URL || publicApi.URL;
+const PassThrough$1 = Stream.PassThrough;
+const isDomainOrSubdomain = function isDomainOrSubdomain2(destination, original) {
+  const orig = new URL$1(original).hostname;
+  const dest = new URL$1(destination).hostname;
+  return orig === dest || orig[orig.length - dest.length - 1] === "." && orig.endsWith(dest);
 };
-function P1(a, e) {
-  if (!P1.Promise)
+const isSameProtocol = function isSameProtocol2(destination, original) {
+  const orig = new URL$1(original).protocol;
+  const dest = new URL$1(destination).protocol;
+  return orig === dest;
+};
+function fetch$1(url, opts) {
+  if (!fetch$1.Promise) {
     throw new Error("native promise missing, set fetch.Promise to your favorite alternative");
-  return a1.Promise = P1.Promise, new P1.Promise(function(p, t) {
-    const d = new j1(a, e), i = id(d), l = (i.protocol === "https:" ? r2 : rp).request, m = d.signal;
-    let r = null;
-    const v = function() {
-      let f = new Q1("The user aborted a request.");
-      t(f), d.body && d.body instanceof v1.Readable && Ke(d.body, f), !(!r || !r.body) && r.body.emit("error", f);
+  }
+  Body.Promise = fetch$1.Promise;
+  return new fetch$1.Promise(function(resolve, reject) {
+    const request = new Request(url, opts);
+    const options = getNodeRequestOptions(request);
+    const send = (options.protocol === "https:" ? https : http).request;
+    const signal = request.signal;
+    let response = null;
+    const abort = function abort2() {
+      let error = new AbortError("The user aborted a request.");
+      reject(error);
+      if (request.body && request.body instanceof Stream.Readable) {
+        destroyStream(request.body, error);
+      }
+      if (!response || !response.body) return;
+      response.body.emit("error", error);
     };
-    if (m && m.aborted) {
-      v();
+    if (signal && signal.aborted) {
+      abort();
       return;
     }
-    const N = function() {
-      v(), c();
-    }, D = l(i);
-    let T;
-    m && m.addEventListener("abort", N);
-    function c() {
-      D.abort(), m && m.removeEventListener("abort", N), clearTimeout(T);
+    const abortAndFinalize = function abortAndFinalize2() {
+      abort();
+      finalize();
+    };
+    const req = send(options);
+    let reqTimeout;
+    if (signal) {
+      signal.addEventListener("abort", abortAndFinalize);
     }
-    d.timeout && D.once("socket", function(h) {
-      T = setTimeout(function() {
-        t(new i1(`network timeout at: ${d.url}`, "request-timeout")), c();
-      }, d.timeout);
-    }), D.on("error", function(h) {
-      t(new i1(`request to ${d.url} failed, reason: ${h.message}`, "system", h)), r && r.body && Ke(r.body, h), c();
-    }), md(D, function(h) {
-      m && m.aborted || r && r.body && Ke(r.body, h);
-    }), parseInt(process.version.substring(1)) < 14 && D.on("socket", function(h) {
-      h.addListener("close", function(f) {
-        const w = h.listenerCount("data") > 0;
-        if (r && w && !f && !(m && m.aborted)) {
-          const E = new Error("Premature close");
-          E.code = "ERR_STREAM_PREMATURE_CLOSE", r.body.emit("error", E);
-        }
+    function finalize() {
+      req.abort();
+      if (signal) signal.removeEventListener("abort", abortAndFinalize);
+      clearTimeout(reqTimeout);
+    }
+    if (request.timeout) {
+      req.once("socket", function(socket) {
+        reqTimeout = setTimeout(function() {
+          reject(new FetchError(`network timeout at: ${request.url}`, "request-timeout"));
+          finalize();
+        }, request.timeout);
       });
-    }), D.on("response", function(h) {
-      clearTimeout(T);
-      const f = Y2(h.headers);
-      if (P1.isRedirect(h.statusCode)) {
-        const _ = f.get("Location");
-        let g = null;
+    }
+    req.on("error", function(err) {
+      reject(new FetchError(`request to ${request.url} failed, reason: ${err.message}`, "system", err));
+      if (response && response.body) {
+        destroyStream(response.body, err);
+      }
+      finalize();
+    });
+    fixResponseChunkedTransferBadEnding(req, function(err) {
+      if (signal && signal.aborted) {
+        return;
+      }
+      if (response && response.body) {
+        destroyStream(response.body, err);
+      }
+    });
+    if (parseInt(process.version.substring(1)) < 14) {
+      req.on("socket", function(s) {
+        s.addListener("close", function(hadError) {
+          const hasDataListener = s.listenerCount("data") > 0;
+          if (response && hasDataListener && !hadError && !(signal && signal.aborted)) {
+            const err = new Error("Premature close");
+            err.code = "ERR_STREAM_PREMATURE_CLOSE";
+            response.body.emit("error", err);
+          }
+        });
+      });
+    }
+    req.on("response", function(res) {
+      clearTimeout(reqTimeout);
+      const headers2 = createHeadersLenient(res.headers);
+      if (fetch$1.isRedirect(res.statusCode)) {
+        const location = headers2.get("Location");
+        let locationURL = null;
         try {
-          g = _ === null ? null : new me(_, d.url).toString();
-        } catch {
-          if (d.redirect !== "manual") {
-            t(new i1(`uri requested responds with an invalid redirect URL: ${_}`, "invalid-redirect")), c();
+          locationURL = location === null ? null : new URL$1(location, request.url).toString();
+        } catch (err) {
+          if (request.redirect !== "manual") {
+            reject(new FetchError(`uri requested responds with an invalid redirect URL: ${location}`, "invalid-redirect"));
+            finalize();
             return;
           }
         }
-        switch (d.redirect) {
+        switch (request.redirect) {
           case "error":
-            t(new i1(`uri requested responds with a redirect, redirect mode is set to error: ${d.url}`, "no-redirect")), c();
+            reject(new FetchError(`uri requested responds with a redirect, redirect mode is set to error: ${request.url}`, "no-redirect"));
+            finalize();
             return;
           case "manual":
-            if (g !== null)
+            if (locationURL !== null) {
               try {
-                f.set("Location", g);
-              } catch (V) {
-                t(V);
+                headers2.set("Location", locationURL);
+              } catch (err) {
+                reject(err);
               }
+            }
             break;
           case "follow":
-            if (g === null)
+            if (locationURL === null) {
               break;
-            if (d.counter >= d.follow) {
-              t(new i1(`maximum redirect reached at: ${d.url}`, "max-redirect")), c();
+            }
+            if (request.counter >= request.follow) {
+              reject(new FetchError(`maximum redirect reached at: ${request.url}`, "max-redirect"));
+              finalize();
               return;
             }
-            const b = {
-              headers: new E1(d.headers),
-              follow: d.follow,
-              counter: d.counter + 1,
-              agent: d.agent,
-              compress: d.compress,
-              method: d.method,
-              body: d.body,
-              signal: d.signal,
-              timeout: d.timeout,
-              size: d.size
+            const requestOpts = {
+              headers: new Headers$2(request.headers),
+              follow: request.follow,
+              counter: request.counter + 1,
+              agent: request.agent,
+              compress: request.compress,
+              method: request.method,
+              body: request.body,
+              signal: request.signal,
+              timeout: request.timeout,
+              size: request.size
             };
-            if (!ld(d.url, g) || !rd(d.url, g))
-              for (const V of ["authorization", "www-authenticate", "cookie", "cookie2"])
-                b.headers.delete(V);
-            if (h.statusCode !== 303 && d.body && Tp(d) === null) {
-              t(new i1("Cannot follow redirect with body being a readable stream", "unsupported-redirect")), c();
+            if (!isDomainOrSubdomain(request.url, locationURL) || !isSameProtocol(request.url, locationURL)) {
+              for (const name of ["authorization", "www-authenticate", "cookie", "cookie2"]) {
+                requestOpts.headers.delete(name);
+              }
+            }
+            if (res.statusCode !== 303 && request.body && getTotalBytes(request) === null) {
+              reject(new FetchError("Cannot follow redirect with body being a readable stream", "unsupported-redirect"));
+              finalize();
               return;
             }
-            (h.statusCode === 303 || (h.statusCode === 301 || h.statusCode === 302) && d.method === "POST") && (b.method = "GET", b.body = void 0, b.headers.delete("content-length")), p(P1(new j1(g, b))), c();
+            if (res.statusCode === 303 || (res.statusCode === 301 || res.statusCode === 302) && request.method === "POST") {
+              requestOpts.method = "GET";
+              requestOpts.body = void 0;
+              requestOpts.headers.delete("content-length");
+            }
+            resolve(fetch$1(new Request(locationURL, requestOpts)));
+            finalize();
             return;
         }
       }
-      h.once("end", function() {
-        m && m.removeEventListener("abort", N);
+      res.once("end", function() {
+        if (signal) signal.removeEventListener("abort", abortAndFinalize);
       });
-      let w = h.pipe(new $a());
-      const E = {
-        url: d.url,
-        status: h.statusCode,
-        statusText: h.statusMessage,
-        headers: f,
-        size: d.size,
-        timeout: d.timeout,
-        counter: d.counter
-      }, n = f.get("Content-Encoding");
-      if (!d.compress || d.method === "HEAD" || n === null || h.statusCode === 204 || h.statusCode === 304) {
-        r = new f1(w, E), p(r);
-        return;
-      }
-      const u = {
-        flush: b1.Z_SYNC_FLUSH,
-        finishFlush: b1.Z_SYNC_FLUSH
+      let body = res.pipe(new PassThrough$1());
+      const response_options = {
+        url: request.url,
+        status: res.statusCode,
+        statusText: res.statusMessage,
+        headers: headers2,
+        size: request.size,
+        timeout: request.timeout,
+        counter: request.counter
       };
-      if (n == "gzip" || n == "x-gzip") {
-        w = w.pipe(b1.createGunzip(u)), r = new f1(w, E), p(r);
+      const codings = headers2.get("Content-Encoding");
+      if (!request.compress || request.method === "HEAD" || codings === null || res.statusCode === 204 || res.statusCode === 304) {
+        response = new Response(body, response_options);
+        resolve(response);
         return;
       }
-      if (n == "deflate" || n == "x-deflate") {
-        const _ = h.pipe(new $a());
-        _.once("data", function(g) {
-          (g[0] & 15) === 8 ? w = w.pipe(b1.createInflate()) : w = w.pipe(b1.createInflateRaw()), r = new f1(w, E), p(r);
-        }), _.on("end", function() {
-          r || (r = new f1(w, E), p(r));
+      const zlibOptions = {
+        flush: zlib.Z_SYNC_FLUSH,
+        finishFlush: zlib.Z_SYNC_FLUSH
+      };
+      if (codings == "gzip" || codings == "x-gzip") {
+        body = body.pipe(zlib.createGunzip(zlibOptions));
+        response = new Response(body, response_options);
+        resolve(response);
+        return;
+      }
+      if (codings == "deflate" || codings == "x-deflate") {
+        const raw = res.pipe(new PassThrough$1());
+        raw.once("data", function(chunk) {
+          if ((chunk[0] & 15) === 8) {
+            body = body.pipe(zlib.createInflate());
+          } else {
+            body = body.pipe(zlib.createInflateRaw());
+          }
+          response = new Response(body, response_options);
+          resolve(response);
+        });
+        raw.on("end", function() {
+          if (!response) {
+            response = new Response(body, response_options);
+            resolve(response);
+          }
         });
         return;
       }
-      if (n == "br" && typeof b1.createBrotliDecompress == "function") {
-        w = w.pipe(b1.createBrotliDecompress()), r = new f1(w, E), p(r);
+      if (codings == "br" && typeof zlib.createBrotliDecompress === "function") {
+        body = body.pipe(zlib.createBrotliDecompress());
+        response = new Response(body, response_options);
+        resolve(response);
         return;
       }
-      r = new f1(w, E), p(r);
-    }), X2(D, d);
-  });
-}
-function md(a, e) {
-  let p;
-  a.on("socket", function(t) {
-    p = t;
-  }), a.on("response", function(t) {
-    const d = t.headers;
-    d["transfer-encoding"] === "chunked" && !d["content-length"] && t.once("close", function(i) {
-      if (p && p.listenerCount("data") > 0 && !i) {
-        const m = new Error("Premature close");
-        m.code = "ERR_STREAM_PREMATURE_CLOSE", e(m);
-      }
+      response = new Response(body, response_options);
+      resolve(response);
     });
+    writeToStream(req, request);
   });
 }
-function Ke(a, e) {
-  a.destroy ? a.destroy(e) : (a.emit("error", e), a.end());
+function fixResponseChunkedTransferBadEnding(request, errorCallback) {
+  let socket;
+  request.on("socket", function(s) {
+    socket = s;
+  });
+  request.on("response", function(response) {
+    const headers2 = response.headers;
+    if (headers2["transfer-encoding"] === "chunked" && !headers2["content-length"]) {
+      response.once("close", function(hadError) {
+        const hasDataListener = socket && socket.listenerCount("data") > 0;
+        if (hasDataListener && !hadError) {
+          const err = new Error("Premature close");
+          err.code = "ERR_STREAM_PREMATURE_CLOSE";
+          errorCallback(err);
+        }
+      });
+    }
+  });
 }
-P1.isRedirect = function(a) {
-  return a === 301 || a === 302 || a === 303 || a === 307 || a === 308;
+function destroyStream(stream, err) {
+  if (stream.destroy) {
+    stream.destroy(err);
+  } else {
+    stream.emit("error", err);
+    stream.end();
+  }
+}
+fetch$1.isRedirect = function(code) {
+  return code === 301 || code === 302 || code === 303 || code === 307 || code === 308;
 };
-P1.Promise = global.Promise;
-const sd = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+fetch$1.Promise = global.Promise;
+const lib = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  AbortError: Q1,
-  FetchError: i1,
-  Headers: E1,
-  Request: j1,
-  Response: f1,
-  default: P1
-}, Symbol.toStringTag, { value: "Module" })), od = /* @__PURE__ */ op(sd);
-var _1 = {};
+  AbortError,
+  FetchError,
+  Headers: Headers$2,
+  Request,
+  Response,
+  default: fetch$1
+}, Symbol.toStringTag, { value: "Module" }));
+const require$$2 = /* @__PURE__ */ getAugmentedNamespace(lib);
+var events = {};
 /**
  * @license MIT
  * @copyright Copyright (c) 2024, GoldFrite
  */
-Object.defineProperty(_1, "__esModule", { value: !0 });
-const nd = m2;
-class ud {
+Object.defineProperty(events, "__esModule", { value: true });
+const events_1$9 = require$$0$2;
+class EventEmitter {
   constructor() {
-    this.emitter = new nd.EventEmitter();
+    this.emitter = new events_1$9.EventEmitter();
   }
   /**
    * Add a listener for the given event.
@@ -79462,16 +80833,20 @@ class ud {
    * @param listener The callback function.
    * @returns This EventEmitter instance.
    */
-  on(e, p) {
-    return this.emitter.on(e, p), this;
+  on(eventName, listener) {
+    this.emitter.on(eventName, listener);
+    return this;
   }
   /**
    * Forward all events emitted by this EventEmitter to another EventEmitter.
    * @param target The target EventEmitter to forward events to (usually `this`).
    */
-  forwardEvents(e) {
-    const p = this.emit;
-    this.emit = (t, ...d) => (e.emit(t, ...d), p.apply(this, [t, ...d]));
+  forwardEvents(target) {
+    const originalEmit = this.emit;
+    this.emit = (event, ...args) => {
+      target.emit(event, ...args);
+      return originalEmit.apply(this, [event, ...args]);
+    };
   }
   /**
    * Emit an event with the given arguments.
@@ -79479,22 +80854,26 @@ class ud {
    * @param args The arguments to pass to the listeners.
    * @returns `true` if the event had listeners, `false` otherwise.
    */
-  emit(e, ...p) {
-    return this.emitter.emit(e, ...p);
+  emit(eventName, ...args) {
+    return this.emitter.emit(eventName, ...args);
   }
 }
-_1.default = ud;
-var N1 = {};
+events.default = EventEmitter;
+var utils$1 = {};
 /**
  * @license MIT
  * @copyright Copyright (c) 2024, GoldFrite
  */
-var Pe = I && I.__importDefault || function(a) {
-  return a && a.__esModule ? a : { default: a };
+var __importDefault$c = commonjsGlobal && commonjsGlobal.__importDefault || function(mod) {
+  return mod && mod.__esModule ? mod : { "default": mod };
 };
-Object.defineProperty(N1, "__esModule", { value: !0 });
-const O1 = l1, Ne = Pe(n1), fd = Pe(H1), cd = Pe(sp), hd = Pe(s2);
-let vd = class {
+Object.defineProperty(utils$1, "__esModule", { value: true });
+const errors_1$8 = errors$1;
+const path_1$9 = __importDefault$c(require$$1$2);
+const fs_1$5 = __importDefault$c(require$$2$1);
+const crypto_1 = __importDefault$c(require$$3);
+const os_1 = __importDefault$c(require$$4);
+let Utils$6 = class Utils {
   /**
    * Get the current operating system code.
    * @returns The operating system code (`'win'`, `'mac'` or `'lin'`).
@@ -79506,7 +80885,7 @@ let vd = class {
       return "mac";
     if (process.platform === "linux")
       return "lin";
-    throw new O1.EMLLibError(O1.ErrorType.UNKNOWN_OS, "Unknown operating system");
+    throw new errors_1$8.EMLLibError(errors_1$8.ErrorType.UNKNOWN_OS, "Unknown operating system");
   }
   /**
    * Get the current operating system Minecraft-code.
@@ -79519,7 +80898,7 @@ let vd = class {
       return "osx";
     if (process.platform === "linux")
       return "linux";
-    throw new O1.EMLLibError(O1.ErrorType.UNKNOWN_OS, "Unknown operating system");
+    throw new errors_1$8.EMLLibError(errors_1$8.ErrorType.UNKNOWN_OS, "Unknown operating system");
   }
   /**
    * Get the current architecture.
@@ -79530,17 +80909,19 @@ let vd = class {
       return "64";
     if (process.arch.includes("32"))
       return "32";
-    throw new O1.EMLLibError(O1.ErrorType.UNKNOWN_OS, "Unknown architecture");
+    throw new errors_1$8.EMLLibError(errors_1$8.ErrorType.UNKNOWN_OS, "Unknown architecture");
   }
   /**
    * Get the current architecture Minecraft-code.
    * @returns The architecture (`'x64'` or `'x86'`).
    */
   getArch_MCCode() {
-    return process.arch.includes("x") ? "x86" : "x64";
+    if (process.arch.includes("x"))
+      return "x86";
+    return "x64";
   }
   getOSVersion() {
-    return hd.default.release();
+    return os_1.default.release();
   }
   /**
    * Get the path to the application data folder, depending on the operating system.
@@ -79554,8 +80935,10 @@ let vd = class {
    * @param serverId Your Minecraft server ID (eg. `'minecraft'`).
    * @returns The path to the server folder (eg. `'C:\Users\user\AppData\Roaming\.minecraft'`).
    */
-  getServerFolder(e) {
-    return e = e.replace(/[^a-z0-9]/gi, "_").toLowerCase(), e = this.getOS() === "mac" ? e : `.${e}`, Ne.default.join(this.getAppDataFolder(), e);
+  getServerFolder(serverId) {
+    serverId = serverId.replace(/[^a-z0-9]/gi, "_").toLowerCase();
+    serverId = this.getOS() === "mac" ? serverId : `.${serverId}`;
+    return path_1$9.default.join(this.getAppDataFolder(), serverId);
   }
   /**
    * Get the path of the temp folder, depending on the operating system.
@@ -79569,12 +80952,12 @@ let vd = class {
    * @param filePath Path of the file.
    * @returns The hash of the file.
    */
-  getFileHash(e) {
+  getFileHash(filePath) {
     try {
-      const p = fd.default.readFileSync(e);
-      return cd.default.createHash("sha1").update(p).digest("hex");
-    } catch (p) {
-      throw new O1.EMLLibError(O1.ErrorType.HASH_ERROR, `Error while getting hash of the file ${e}: ${p}`);
+      const fileHash = fs_1$5.default.readFileSync(filePath);
+      return crypto_1.default.createHash("sha1").update(fileHash).digest("hex");
+    } catch (err) {
+      throw new errors_1$8.EMLLibError(errors_1$8.ErrorType.HASH_ERROR, `Error while getting hash of the file ${filePath}: ${err}`);
     }
   }
   /**
@@ -79582,36 +80965,64 @@ let vd = class {
    * @param lib The library to check.
    * @returns `true` if the library is allowed, `false` otherwise.
    */
-  isLibAllowed(e) {
-    return e.rules ? e.rules.length > 1 ? e.rules[0].action === "allow" && e.rules[1].action === "disallow" ? e.rules[1].os.name !== this.getOS_MCCode() : !1 : e.rules[0].action === "allow" && e.rules[0].os ? e.rules[0].os.name === this.getOS_MCCode() : !0 : !0;
+  isLibAllowed(lib2) {
+    if (lib2.rules) {
+      if (lib2.rules.length > 1) {
+        if (lib2.rules[0].action === "allow" && lib2.rules[1].action === "disallow") {
+          return lib2.rules[1].os.name !== this.getOS_MCCode();
+        }
+        return false;
+      } else {
+        if (lib2.rules[0].action === "allow" && lib2.rules[0].os) {
+          return lib2.rules[0].os.name === this.getOS_MCCode();
+        }
+        return true;
+      }
+    }
+    return true;
   }
   /**
    * Check if a JVM/game argument is allowed for the current operating system.
    * @param arg The argument to check.
    * @returns `true` if the argument is allowed, `false` otherwise.
    */
-  isArgAllowed(e) {
-    if (e.rules)
-      if (e.rules.length > 1) {
-        if (e.rules[0].action === "allow" && e.rules[1].action === "disallow") {
-          if (e.rules[1].os.name)
-            return e.rules[1].os.name !== this.getOS_MCCode();
-          if (e.rules[1].os.arch)
-            return e.rules[1].os.arch !== this.getArch_MCCode();
+  isArgAllowed(arg) {
+    if (arg.rules) {
+      if (arg.rules.length > 1) {
+        if (arg.rules[0].action === "allow" && arg.rules[1].action === "disallow") {
+          if (arg.rules[1].os.name)
+            return arg.rules[1].os.name !== this.getOS_MCCode();
+          if (arg.rules[1].os.arch)
+            return arg.rules[1].os.arch !== this.getArch_MCCode();
         }
-        return !1;
-      } else
-        return e.rules[0].action === "allow" && e.rules[0].os ? e.rules[0].os.name ? e.rules[0].os.name === this.getOS_MCCode() && e.rules[0].os.version ? +this.getOSVersion().split(".")[0] >= 10 : e.rules[0].os.name === this.getOS_MCCode() : e.rules[0].os.arch ? e.rules[0].os.arch === this.getArch_MCCode() : e.rules[0].os.name === this.getOS_MCCode() : !(e.rules[0].action === "allow" && e.rules[0].features);
-    return !0;
+        return false;
+      } else {
+        if (arg.rules[0].action === "allow" && arg.rules[0].os) {
+          if (arg.rules[0].os.name) {
+            if (arg.rules[0].os.name === this.getOS_MCCode() && arg.rules[0].os.version)
+              return +this.getOSVersion().split(".")[0] >= 10;
+            return arg.rules[0].os.name === this.getOS_MCCode();
+          }
+          if (arg.rules[0].os.arch)
+            return arg.rules[0].os.arch === this.getArch_MCCode();
+          return arg.rules[0].os.name === this.getOS_MCCode();
+        } else if (arg.rules[0].action === "allow" && arg.rules[0].features) {
+          return false;
+        }
+        return true;
+      }
+    }
+    return true;
   }
   /**
    * Get the name of a Maven library.
    * @param libName The name of the library (eg. `'com.mojang:authlib:1.5.25'`).
    * @returns The name of the library.
    */
-  getLibraryName(e) {
-    const p = e.match(/@([a-z]*)$/) ? e.split("@").pop() : "jar", t = e.replace(/@([a-z]*)$/, "").split(":");
-    return `${t[1]}-${t[2]}${t[3] ? "-" + t[3] : ""}.${p}`;
+  getLibraryName(libName) {
+    const ext = libName.match(/@([a-z]*)$/) ? libName.split("@").pop() : "jar";
+    const l = libName.replace(/@([a-z]*)$/, "").split(":");
+    return `${l[1]}-${l[2]}${l[3] ? "-" + l[3] : ""}.${ext}`;
   }
   /**
    * Get the path of a Maven library.
@@ -79619,9 +81030,9 @@ let vd = class {
    * @param path [Optional] Additional path to add to the library path.
    * @returns The path of the library.
    */
-  getLibraryPath(e, ...p) {
-    const t = e.replace(/@([a-z]*)$/, "").split(":");
-    return Ne.default.join(...p, `${t[0].replace(/\./g, "/")}/${t[1]}/${t[2]}/`);
+  getLibraryPath(libName, ...path2) {
+    const l = libName.replace(/@([a-z]*)$/, "").split(":");
+    return path_1$9.default.join(...path2, `${l[0].replace(/\./g, "/")}/${l[1]}/${l[2]}/`);
   }
   /**
    * Check if a version is newer than another.
@@ -79630,37 +81041,53 @@ let vd = class {
    * @returns `true` if `checkVersion` is newer than `refVersion`, `false` if `checkVersion` is older than
    * `refVersion`, `null` if the versions are the same.
    */
-  isNewer(e, p) {
-    if (e.sha1 === p.sha1)
+  isNewer(ref, check) {
+    if (ref.sha1 === check.sha1)
       return null;
-    if (e.name.split("-").pop() !== p.name.split("-").pop())
-      return !1;
-    const t = Ne.default.join(e.path, "/").replaceAll("/", "\\").replace(/\\$/, "").split("\\").slice(0, -1).pop().split(".").map((i) => +i.split("-").shift()), d = Ne.default.join(p.path, "/").replaceAll("/", "\\").replace(/\\$/, "").split("\\").slice(0, -1).pop().split(".").map((i) => +i.split("-").shift());
-    for (let i = 0; i < t.length; i++) {
-      if (!d[i] + "" && t[i] && d.push(0), d[i] + "" && !t[i] && t.push(0), d[i] > t[i])
-        return !0;
-      if (d[i] < t[i])
-        return !1;
+    if (ref.name.split("-").pop() !== check.name.split("-").pop())
+      return false;
+    const vRef = path_1$9.default.join(ref.path, "/").replaceAll("/", "\\").replace(/\\$/, "").split("\\").slice(0, -1).pop().split(".").map((v) => +v.split("-").shift());
+    const vCheck = path_1$9.default.join(check.path, "/").replaceAll("/", "\\").replace(/\\$/, "").split("\\").slice(0, -1).pop().split(".").map((v) => +v.split("-").shift());
+    for (let i = 0; i < vRef.length; i++) {
+      if (!vCheck[i] + "" && vRef[i])
+        vCheck.push(0);
+      if (vCheck[i] + "" && !vRef[i])
+        vRef.push(0);
+      if (vCheck[i] > vRef[i])
+        return true;
+      if (vCheck[i] < vRef[i])
+        return false;
     }
-    return !1;
+    return false;
   }
 };
-N1.default = new vd();
+utils$1.default = new Utils$6();
 /**
  * @license MIT
  * @copyright Copyright (c) 2024, GoldFrite
  */
-var ue = I && I.__importDefault || function(a) {
-  return a && a.__esModule ? a : { default: a };
+var __importDefault$b = commonjsGlobal && commonjsGlobal.__importDefault || function(mod) {
+  return mod && mod.__esModule ? mod : { "default": mod };
 };
-Object.defineProperty(oe, "__esModule", { value: !0 });
-const G1 = ue(H1), ye = ue(n1), wd = ue(od), _d = ue(_1), gd = ue(N1);
-class Ed extends _d.default {
+Object.defineProperty(downloader, "__esModule", { value: true });
+const fs_1$4 = __importDefault$b(require$$2$1);
+const path_1$8 = __importDefault$b(require$$1$2);
+const node_fetch_1 = __importDefault$b(require$$2);
+const events_1$8 = __importDefault$b(events);
+const utils_1$7 = __importDefault$b(utils$1);
+class Downloader extends events_1$8.default {
   /**
    * @param dest Destination folder.
    */
-  constructor(e) {
-    super(), this.size = 0, this.downloaded = { amount: 0, size: 0 }, this.error = !1, this.speed = 0, this.eta = 0, this.history = [], this.dest = ye.default.join(e);
+  constructor(dest) {
+    super();
+    this.size = 0;
+    this.downloaded = { amount: 0, size: 0 };
+    this.error = false;
+    this.speed = 0;
+    this.eta = 0;
+    this.history = [];
+    this.dest = path_1$8.default.join(dest);
   }
   /**
    * Download files from the list.
@@ -79668,17 +81095,25 @@ class Ed extends _d.default {
    * @param skipCheck [Optional: default is `false`] Skip files that already exist in the
    * destination folder (force to download all files).
    */
-  async download(e, p = !1) {
-    const t = p ? e : this.getFilesToDownload(e);
-    if (this.size = 0, this.size = t.reduce((i, l) => i + (l.size || 0), 0), this.downloaded = { amount: 0, size: 0 }, this.error = !1, this.speed = 0, this.eta = 0, this.history = [], this.size === 0) {
+  async download(files, skipCheck = false) {
+    const filesToDownload = !skipCheck ? this.getFilesToDownload(files) : files;
+    this.size = 0;
+    this.size = filesToDownload.reduce((acc, curr) => acc + (curr.size || 0), 0);
+    this.downloaded = { amount: 0, size: 0 };
+    this.error = false;
+    this.speed = 0;
+    this.eta = 0;
+    this.history = [];
+    if (this.size === 0) {
       this.emit("download_end", { downloaded: this.downloaded });
       return;
     }
-    const d = t.length > 5 ? 5 : t.length;
-    for (let i = 0; i < d; i++)
-      this.downloadFile(t, i);
-    return new Promise((i, l) => {
-      this.on("download_end", () => i()), this.on("download_error", (m) => l(m));
+    const max2 = filesToDownload.length > 5 ? 5 : filesToDownload.length;
+    for (let i = 0; i < max2; i++)
+      this.downloadFile(filesToDownload, i);
+    return new Promise((resolve, reject) => {
+      this.on("download_end", () => resolve());
+      this.on("download_error", (err) => reject(err));
     });
   }
   /**
@@ -79686,108 +81121,151 @@ class Ed extends _d.default {
    * @param files List of files to check.
    * @returns List of files to download.
    */
-  getFilesToDownload(e) {
-    let p = [];
-    return e.forEach((t) => {
-      const d = ye.default.join(this.dest, t.path, t.name);
-      t.type === "FOLDER" ? G1.default.existsSync(d) || G1.default.mkdirSync(d, { recursive: !0 }) : (!G1.default.existsSync(d) || t.sha1 !== gd.default.getFileHash(d)) && t.url && p.push(t);
-    }), p;
+  getFilesToDownload(files) {
+    let filesToDownload = [];
+    files.forEach((file) => {
+      const filePath = path_1$8.default.join(this.dest, file.path, file.name);
+      if (file.type === "FOLDER") {
+        if (!fs_1$4.default.existsSync(filePath)) {
+          fs_1$4.default.mkdirSync(filePath, { recursive: true });
+        }
+      } else if ((!fs_1$4.default.existsSync(filePath) || file.sha1 !== utils_1$7.default.getFileHash(filePath)) && file.url) {
+        filesToDownload.push(file);
+      }
+    });
+    return filesToDownload;
   }
-  async downloadFile(e, p, t = 0) {
-    const d = e[p], i = ye.default.join(this.dest, d.path), l = ye.default.join(i, d.name);
-    if (!this.error)
-      try {
-        G1.default.existsSync(i) || G1.default.mkdirSync(i, { recursive: !0 });
-        const m = await (0, wd.default)(d.url, { headers: { Accept: "application/octet-stream" } }), r = G1.default.createWriteStream(l);
-        if (m.status !== 200) {
-          if (t < 5) {
-            setTimeout(() => this.downloadFile(e, p, t + 1), 1e3);
-            return;
-          }
-          this.emit("download_error", {
-            filename: d.name,
-            type: d.type,
-            message: m.statusText
-          }), this.error = !0;
-          return;
-        }
-        if (!m.body) {
-          if (t < 5) {
-            setTimeout(() => this.downloadFile(e, p, t + 1), 1e3);
-            return;
-          }
-          this.emit("download_error", {
-            filename: d.name,
-            type: d.type,
-            message: "No body"
-          }), this.error = !0;
-          return;
-        }
-        await new Promise((v, N) => {
-          m.body.on("data", (D) => {
-            const T = Date.now();
-            for (this.history.push({ size: D.length, time: T }); this.history.length > 0 && T - this.history[0].time > 6e3; )
-              this.history.shift();
-            r.write(D), this.downloaded.size += D.length;
-            const c = this.history.reduce((f, w) => f + w.size, 0), h = (T - this.history[0].time) / 1e3;
-            this.speed = c / h, this.eta = (this.size - this.downloaded.size) / this.speed, this.emit("download_progress", {
-              total: { amount: e.length, size: this.size },
-              downloaded: this.downloaded,
-              speed: this.speed,
-              eta: Math.floor(this.eta),
-              type: d.type
-            });
-          }), m.body.on("error", (D) => {
-            r.destroy(), this.emit("download_error", {
-              filename: d.name,
-              type: d.type,
-              message: D
-            }), this.error = !0, N(D);
-          }), m.body.on("end", (D) => {
-            this.downloaded.amount++, this.downloaded.amount === e.length ? this.emit("download_end", { downloaded: this.downloaded }) : p + 5 < e.length && this.downloadFile(e, p + 5), r.close(), v(D);
-          });
-        });
-      } catch (m) {
+  async downloadFile(files, i, t = 0) {
+    const file = files[i];
+    const dirPath = path_1$8.default.join(this.dest, file.path);
+    const filePath = path_1$8.default.join(dirPath, file.name);
+    if (this.error)
+      return;
+    try {
+      if (!fs_1$4.default.existsSync(dirPath))
+        fs_1$4.default.mkdirSync(dirPath, { recursive: true });
+      const res = await (0, node_fetch_1.default)(file.url, { headers: { Accept: "application/octet-stream" } });
+      const stream = fs_1$4.default.createWriteStream(filePath);
+      if (res.status !== 200) {
         if (t < 5) {
-          setTimeout(() => this.downloadFile(e, p, t + 1), 1e3);
+          setTimeout(() => this.downloadFile(files, i, t + 1), 1e3);
           return;
         }
         this.emit("download_error", {
-          filename: d.name,
-          type: d.type,
-          message: m
-        }), this.error = !0;
+          filename: file.name,
+          type: file.type,
+          message: res.statusText
+        });
+        this.error = true;
         return;
       }
+      if (!res.body) {
+        if (t < 5) {
+          setTimeout(() => this.downloadFile(files, i, t + 1), 1e3);
+          return;
+        }
+        this.emit("download_error", {
+          filename: file.name,
+          type: file.type,
+          message: "No body"
+        });
+        this.error = true;
+        return;
+      }
+      await new Promise((resolve, reject) => {
+        res.body.on("data", (chunk) => {
+          const now = Date.now();
+          this.history.push({ size: chunk.length, time: now });
+          while (this.history.length > 0 && now - this.history[0].time > 6e3) {
+            this.history.shift();
+          }
+          stream.write(chunk);
+          this.downloaded.size += chunk.length;
+          const totalSize = this.history.reduce((acc, curr) => acc + curr.size, 0);
+          const elapsedTime = (now - this.history[0].time) / 1e3;
+          this.speed = totalSize / elapsedTime;
+          this.eta = (this.size - this.downloaded.size) / this.speed;
+          this.emit("download_progress", {
+            total: { amount: files.length, size: this.size },
+            downloaded: this.downloaded,
+            speed: this.speed,
+            eta: Math.floor(this.eta),
+            type: file.type
+          });
+        });
+        res.body.on("error", (err) => {
+          stream.destroy();
+          this.emit("download_error", {
+            filename: file.name,
+            type: file.type,
+            message: err
+          });
+          this.error = true;
+          reject(err);
+        });
+        res.body.on("end", (val) => {
+          this.downloaded.amount++;
+          if (this.downloaded.amount === files.length) {
+            this.emit("download_end", { downloaded: this.downloaded });
+          } else if (i + 5 < files.length) {
+            this.downloadFile(files, i + 5);
+          }
+          stream.close();
+          resolve(val);
+        });
+      });
+    } catch (error) {
+      if (t < 5) {
+        setTimeout(() => this.downloadFile(files, i, t + 1), 1e3);
+        return;
+      }
+      this.emit("download_error", {
+        filename: file.name,
+        type: file.type,
+        message: error
+      });
+      this.error = true;
+      return;
+    }
   }
 }
-oe.default = Ed;
+downloader.default = Downloader;
 /**
  * @license MIT
  * @copyright Copyright (c) 2024, GoldFrite
  */
-var Ue = I && I.__importDefault || function(a) {
-  return a && a.__esModule ? a : { default: a };
+var __importDefault$a = commonjsGlobal && commonjsGlobal.__importDefault || function(mod) {
+  return mod && mod.__esModule ? mod : { "default": mod };
 };
-Object.defineProperty(na, "__esModule", { value: !0 });
-const Nd = Ue(oe), le = Ue(N1), yd = Ue(_1), Dd = Ue(n1), Sd = xe, De = l1;
-class Td extends yd.default {
+Object.defineProperty(bootstraps, "__esModule", { value: true });
+const downloader_1$2 = __importDefault$a(downloader);
+const utils_1$6 = __importDefault$a(utils$1);
+const events_1$7 = __importDefault$a(events);
+const path_1$7 = __importDefault$a(require$$1$2);
+const child_process_1$3 = require$$4$1;
+const errors_1$7 = errors$1;
+class Bootstraps extends events_1$7.default {
   /**
    * @param url The URL of your EML AdminTool website
    */
-  constructor(e) {
-    super(), this.url = `${e}/api`;
+  constructor(url) {
+    super();
+    this.url = `${url}/api`;
   }
   /**
    * Check for updates of your Launcher. This method will return the version of the latest Bootstrap, but it will not download it.
    * @param currentVersion The current version of your Launcher. You can get it with `app.getVersion()`.
    * @returns If an update is available, it will return the Bootstraps object. If not, it will return `false`.
    */
-  async checkForUpdate(e) {
-    let p = await fetch(`${this.url}/bootstraps`, { method: "GET" }).then((t) => t.json()).catch((t) => {
-      throw new Error(`Error while fetching Bootstrap from the EML AdminTool: ${t}`);
+  async checkForUpdate(currentVersion) {
+    let res = await fetch(`${this.url}/bootstraps`, { method: "GET" }).then((res2) => res2.json()).catch((err) => {
+      throw new Error(`Error while fetching Bootstrap from the EML AdminTool: ${err}`);
     });
-    return p.data.version === e || p.data.version == null || p.data.version == "" || p.data[le.default.getOS()] == null ? !1 : p.data;
+    if (res.data.version === currentVersion || res.data.version == null || res.data.version == "" || res.data[utils_1$6.default.getOS()] == null) {
+      return false;
+    } else {
+      return res.data;
+    }
   }
   /**
    * Download the latest Bootstrap from the EML AdminTool.
@@ -79796,18 +81274,21 @@ class Td extends yd.default {
    * @param bootstraps The Bootstraps object returned by `Bootstraps.checkForUpdate()`.
    * @returns The path to the downloaded Bootstrap.
    */
-  async download(e) {
-    const p = le.default.getOS(), t = e[p];
-    if (!t)
-      throw new De.EMLLibError(De.ErrorType.FILE_ERROR, "Not available for this operating system");
-    const d = Dd.default.join(le.default.getTempFolder(), t.path, t.name), i = new Nd.default(le.default.getTempFolder());
-    i.forwardEvents(this);
-    try {
-      await i.download([t]);
-    } catch (l) {
-      throw l;
+  async download(bootstraps2) {
+    const os = utils_1$6.default.getOS();
+    const bootstrap = bootstraps2[os];
+    if (!bootstrap) {
+      throw new errors_1$7.EMLLibError(errors_1$7.ErrorType.FILE_ERROR, "Not available for this operating system");
     }
-    return d;
+    const downloadPath = path_1$7.default.join(utils_1$6.default.getTempFolder(), bootstrap.path, bootstrap.name);
+    const downloader2 = new downloader_1$2.default(utils_1$6.default.getTempFolder());
+    downloader2.forwardEvents(this);
+    try {
+      await downloader2.download([bootstrap]);
+    } catch (error) {
+      throw error;
+    }
+    return downloadPath;
   }
   /**
    * Run the downloaded Bootstrap. This method will execute the downloaded Bootstrap.
@@ -79817,10 +81298,12 @@ class Td extends yd.default {
    * @workInProgress **This method is not tested yet.**
    * @param bootstrapPath The path to the downloaded Bootstrap (returned by `Bootstraos.download()`)
    */
-  runUpdate(e) {
-    const p = le.default.getOS(), t = p === "win" ? `start ${e}` : p === "mac" ? `open ${e}` : `chmod +x ${e} && ./${e}`, d = (0, Sd.spawnSync)(t);
-    if (d.error)
-      throw new De.EMLLibError(De.ErrorType.EXEC_ERROR, `Error while executing the Bootstrap: ${d.error}`);
+  runUpdate(bootstrapPath) {
+    const os = utils_1$6.default.getOS();
+    const cmd = os === "win" ? `start ${bootstrapPath}` : os === "mac" ? `open ${bootstrapPath}` : `chmod +x ${bootstrapPath} && ./${bootstrapPath}`;
+    const run = (0, child_process_1$3.spawnSync)(cmd);
+    if (run.error)
+      throw new errors_1$7.EMLLibError(errors_1$7.ErrorType.EXEC_ERROR, `Error while executing the Bootstrap: ${run.error}`);
     process.exit();
   }
   /**
@@ -79832,227 +81315,264 @@ class Td extends yd.default {
    * over the process. If you need more control, you should use the other methods.
    * @param currentVersion The current version of your Launcher. You can get it with `app.getVersion()`.
    */
-  async checkDownloadAndRun(e) {
-    const p = await this.checkForUpdate(e);
-    if (p) {
-      const t = await this.download(p);
-      this.runUpdate(t);
+  async checkDownloadAndRun(currentVersion) {
+    const bootstraps2 = await this.checkForUpdate(currentVersion);
+    if (bootstraps2) {
+      const bootstrapPath = await this.download(bootstraps2);
+      this.runUpdate(bootstrapPath);
     }
   }
 }
-na.default = Td;
-var fa = {};
+bootstraps.default = Bootstraps;
+var maintenance = {};
 /**
  * @license MIT
  * @copyright Copyright (c) 2024, GoldFrite
  */
-Object.defineProperty(fa, "__esModule", { value: !0 });
-const za = l1;
-class bd {
+Object.defineProperty(maintenance, "__esModule", { value: true });
+const errors_1$6 = errors$1;
+class Maintenance {
   /**
    * @param url The URL of your EML AdminTool website.
    */
-  constructor(e) {
-    this.url = `${e}/api`;
+  constructor(url) {
+    this.url = `${url}/api`;
   }
   /**
    * Get the current Maintenance status from the EML AdminTool.
    * @returns The Maintenance status.
    */
   async getMaintenance() {
-    return (await fetch(`${this.url}/maintenance`, { method: "GET" }).then((p) => p.json()).catch((p) => {
-      throw new za.EMLLibError(za.ErrorType.FETCH_ERROR, `Error while fetching Maintenance from the EML AdminTool: ${p}`);
-    })).data;
+    let res = await fetch(`${this.url}/maintenance`, { method: "GET" }).then((res2) => res2.json()).catch((err) => {
+      throw new errors_1$6.EMLLibError(errors_1$6.ErrorType.FETCH_ERROR, `Error while fetching Maintenance from the EML AdminTool: ${err}`);
+    });
+    return res.data;
   }
 }
-fa.default = bd;
-var ca = {};
+maintenance.default = Maintenance;
+var news = {};
 /**
  * @license MIT
  * @copyright Copyright (c) 2024, GoldFrite
  */
-Object.defineProperty(ca, "__esModule", { value: !0 });
-const q1 = l1;
-class Ld {
+Object.defineProperty(news, "__esModule", { value: true });
+const errors_1$5 = errors$1;
+class News {
   /**
    * @param url The URL of your EML AdminTool website.
    */
-  constructor(e) {
-    this.url = `${e}/api`;
+  constructor(url) {
+    this.url = `${url}/api`;
   }
   /**
    * Get all the news.
    * @returns The list of News.
    */
   async getNews() {
-    return (await fetch(`${this.url}/news`, { method: "GET" }).then((p) => p.json()).catch((p) => {
-      throw new q1.EMLLibError(q1.ErrorType.FETCH_ERROR, `Error while fetching News from the EML AdminTool: ${p}`);
-    })).data;
+    let res = await fetch(`${this.url}/news`, { method: "GET" }).then((res2) => res2.json()).catch((err) => {
+      throw new errors_1$5.EMLLibError(errors_1$5.ErrorType.FETCH_ERROR, `Error while fetching News from the EML AdminTool: ${err}`);
+    });
+    return res.data;
   }
   /**
    * Get all the categories of the News.
    * @returns The list of News Categories.
    */
   async getCategories() {
-    return (await fetch(`${this.url}/news/categories`, { method: "GET" }).then((p) => p.json()).catch((p) => {
-      throw new q1.EMLLibError(q1.ErrorType.FETCH_ERROR, `Error while fetching News Categories from the EML AdminTool: ${p}`);
-    })).data;
+    let res = await fetch(`${this.url}/news/categories`, { method: "GET" }).then((res2) => res2.json()).catch((err) => {
+      throw new errors_1$5.EMLLibError(errors_1$5.ErrorType.FETCH_ERROR, `Error while fetching News Categories from the EML AdminTool: ${err}`);
+    });
+    return res.data;
   }
   /**
    * Get the News of a specific category.
    * @param id The ID of the category (got from `News.getCategories()`).
    * @returns The News if the category.
    */
-  async getNewsByCategory(e) {
-    return (await fetch(`${this.url}/news/categories/${e}`, { method: "GET" }).then((t) => t.json()).catch((t) => {
-      throw new q1.EMLLibError(q1.ErrorType.FETCH_ERROR, `Error while fetching News Categories from the EML AdminTool: ${t}`);
-    })).data;
+  async getNewsByCategory(id) {
+    let res = await fetch(`${this.url}/news/categories/${id}`, { method: "GET" }).then((res2) => res2.json()).catch((err) => {
+      throw new errors_1$5.EMLLibError(errors_1$5.ErrorType.FETCH_ERROR, `Error while fetching News Categories from the EML AdminTool: ${err}`);
+    });
+    return res.data;
   }
 }
-ca.default = Ld;
-var ha = {};
+news.default = News;
+var background = {};
 /**
  * @license MIT
  * @copyright Copyright (c) 2024, GoldFrite
  */
-Object.defineProperty(ha, "__esModule", { value: !0 });
-const Ha = l1;
-class Ad {
+Object.defineProperty(background, "__esModule", { value: true });
+const errors_1$4 = errors$1;
+class Background {
   /**
    * @param url The URL of your EML AdminTool website.
    */
-  constructor(e) {
-    this.url = `${e}/api`;
+  constructor(url) {
+    this.url = `${url}/api`;
   }
   /**
    * Get the current background for the Launcher.
    * @returns The current Background object, or `null` if no background is set.
    */
   async getBackground() {
-    return (await fetch(`${this.url}/backgrounds`).then((p) => p.json()).catch((p) => {
-      throw new Ha.EMLLibError(Ha.ErrorType.DOWNLOAD_ERROR, `Error while fetching backgrounds: ${p}`);
-    })).data.find((p) => p.status === 1) || null;
+    const res = await fetch(`${this.url}/backgrounds`).then((res2) => res2.json()).catch((err) => {
+      throw new errors_1$4.EMLLibError(errors_1$4.ErrorType.DOWNLOAD_ERROR, `Error while fetching backgrounds: ${err}`);
+    });
+    return res.data.find((bg) => bg.status === 1) || null;
   }
 }
-ha.default = Ad;
-var va = {}, wa = {};
+background.default = Background;
+var serverstatus = {};
+var bufferwriter = {};
 /**
  * @license MIT
  * @copyright Copyright (c) 2024, GoldFrite
  * @copyright Copyright (c) 2020, Nick Krecklow
  */
-Object.defineProperty(wa, "__esModule", { value: !0 });
-class Vd {
-  writeByte(e) {
-    const p = Buffer.alloc(1);
-    return p.writeUInt8(e), p;
+Object.defineProperty(bufferwriter, "__esModule", { value: true });
+class BufferWriter {
+  writeByte(val) {
+    const buffer = Buffer.alloc(1);
+    buffer.writeUInt8(val);
+    return buffer;
   }
-  writeShort(e) {
-    const p = Buffer.alloc(2);
-    return p.writeUInt16BE(e), p;
+  writeShort(val) {
+    const buffer = Buffer.alloc(2);
+    buffer.writeUInt16BE(val);
+    return buffer;
   }
-  writeInt(e) {
-    const p = Buffer.alloc(4);
-    return p.writeUInt32BE(e), p;
+  writeInt(val) {
+    const buffer = Buffer.alloc(4);
+    buffer.writeUInt32BE(val);
+    return buffer;
   }
-  writeVarInt(e) {
-    const p = Buffer.alloc(5);
-    let t = 0;
-    for (; ; )
-      if (e & 4294967168)
-        p.writeUInt8(e & 127 | 128, t++), e >>>= 7;
-      else {
-        p.writeUInt8(e, t++);
+  writeVarInt(int) {
+    const buf = Buffer.alloc(5);
+    let i = 0;
+    while (true) {
+      if ((int & 4294967168) === 0) {
+        buf.writeUInt8(int, i++);
         break;
+      } else {
+        buf.writeUInt8(int & 127 | 128, i++);
+        int >>>= 7;
       }
-    return p.subarray(0, t);
+    }
+    return buf.subarray(0, i);
   }
-  writeString(e) {
-    return Buffer.from(e, "utf8");
+  writeString(str) {
+    return Buffer.from(str, "utf8");
   }
-  writeUShort(e) {
-    return Buffer.from([e >> 8, e & 255]);
+  writeUShort(short) {
+    return Buffer.from([short >> 8, short & 255]);
   }
-  writeStringUTF16BE(e) {
-    const p = Buffer.from(e, "utf16le"), t = Buffer.alloc(p.length);
-    for (let d = 0; d < p.length; d += 2)
-      t[d] = p[d + 1], t[d + 1] = p[d];
-    return Buffer.concat([t]);
+  writeStringUTF16BE(str) {
+    const utf16leBuffer = Buffer.from(str, "utf16le");
+    const utf16beBuffer = Buffer.alloc(utf16leBuffer.length);
+    for (let i = 0; i < utf16leBuffer.length; i += 2) {
+      utf16beBuffer[i] = utf16leBuffer[i + 1];
+      utf16beBuffer[i + 1] = utf16leBuffer[i];
+    }
+    return Buffer.concat([utf16beBuffer]);
   }
-  concat(e) {
-    let p = 0;
-    for (let t = 0; t < e.length; t++)
-      p += e[t].length;
-    return Buffer.concat([this.writeVarInt(p), ...e]);
+  concat(bufs) {
+    let length = 0;
+    for (let i = 0; i < bufs.length; i++) {
+      length += bufs[i].length;
+    }
+    return Buffer.concat([this.writeVarInt(length), ...bufs]);
   }
 }
-wa.default = Vd;
-var _a = {};
+bufferwriter.default = BufferWriter;
+var bufferreader = {};
 /**
  * @license MIT
  * @copyright Copyright (c) 2024, GoldFrite
  * @copyright Copyright (c) 2020, Nick Krecklow
  */
-Object.defineProperty(_a, "__esModule", { value: !0 });
-class Cd {
-  constructor(e) {
-    this.buffer = e, this.offset = 0;
+Object.defineProperty(bufferreader, "__esModule", { value: true });
+class BufferReader {
+  constructor(buffer) {
+    this.buffer = buffer;
+    this.offset = 0;
   }
   readVarInt() {
-    let e = 0, p = 0;
-    for (; ; ) {
-      const t = this.buffer.readUInt8(this.offset++);
-      if (e |= (t & 127) << p++ * 7, (t & 128) != 128)
+    let result = 0;
+    let count = 0;
+    while (true) {
+      const b = this.buffer.readUInt8(this.offset++);
+      result |= (b & 127) << count++ * 7;
+      if ((b & 128) != 128) {
         break;
+      }
     }
-    return e;
+    return result;
   }
   readString() {
-    const e = this.readVarInt(), p = this.buffer.toString("utf8", this.offset, this.offset + e);
-    return this.offset += e, p;
+    const length = this.readVarInt();
+    const result = this.buffer.toString("utf8", this.offset, this.offset + length);
+    this.offset += length;
+    return result;
   }
   readStringUTF16BE() {
-    const e = this.readVarInt() * 2, p = this.buffer.subarray(this.offset + 1, this.offset + e);
-    for (let d = 0; d < p.length; d += 2) {
-      const i = p[d];
-      p[d] = p[d + 1], p[d + 1] = i;
+    const length = this.readVarInt() * 2;
+    const val = this.buffer.subarray(this.offset + 1, this.offset + length);
+    for (let i = 0; i < val.length; i += 2) {
+      const temp = val[i];
+      val[i] = val[i + 1];
+      val[i + 1] = temp;
     }
-    const t = p.toString("utf16le");
-    return this.offset += e, t;
+    const result = val.toString("utf16le");
+    this.offset += length;
+    return result;
   }
   getOffset() {
     return this.offset;
   }
 }
-_a.default = Cd;
+bufferreader.default = BufferReader;
 /**
  * @license MIT
  * @copyright Copyright (c) 2024, GoldFrite
  * @copyright Copyright (c) 2020, Nick Krecklow
  */
-var Rd = I && I.__createBinding || (Object.create ? function(a, e, p, t) {
-  t === void 0 && (t = p);
-  var d = Object.getOwnPropertyDescriptor(e, p);
-  (!d || ("get" in d ? !e.__esModule : d.writable || d.configurable)) && (d = { enumerable: !0, get: function() {
-    return e[p];
-  } }), Object.defineProperty(a, t, d);
-} : function(a, e, p, t) {
-  t === void 0 && (t = p), a[t] = e[p];
-}), xd = I && I.__setModuleDefault || (Object.create ? function(a, e) {
-  Object.defineProperty(a, "default", { enumerable: !0, value: e });
-} : function(a, e) {
-  a.default = e;
-}), Od = I && I.__importStar || function(a) {
-  if (a && a.__esModule) return a;
-  var e = {};
-  if (a != null) for (var p in a) p !== "default" && Object.prototype.hasOwnProperty.call(a, p) && Rd(e, a, p);
-  return xd(e, a), e;
-}, Ap = I && I.__importDefault || function(a) {
-  return a && a.__esModule ? a : { default: a };
+var __createBinding = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o, m, k, k2) {
+  if (k2 === void 0) k2 = k;
+  var desc = Object.getOwnPropertyDescriptor(m, k);
+  if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+    desc = { enumerable: true, get: function() {
+      return m[k];
+    } };
+  }
+  Object.defineProperty(o, k2, desc);
+} : function(o, m, k, k2) {
+  if (k2 === void 0) k2 = k;
+  o[k2] = m[k];
+});
+var __setModuleDefault = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function(o, v) {
+  Object.defineProperty(o, "default", { enumerable: true, value: v });
+} : function(o, v) {
+  o["default"] = v;
+});
+var __importStar = commonjsGlobal && commonjsGlobal.__importStar || function(mod) {
+  if (mod && mod.__esModule) return mod;
+  var result = {};
+  if (mod != null) {
+    for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+  }
+  __setModuleDefault(result, mod);
+  return result;
 };
-Object.defineProperty(va, "__esModule", { value: !0 });
-const Id = Od(o2), r1 = l1, Fd = Ap(wa), ka = Ap(_a);
-class Pd {
+var __importDefault$9 = commonjsGlobal && commonjsGlobal.__importDefault || function(mod) {
+  return mod && mod.__esModule ? mod : { "default": mod };
+};
+Object.defineProperty(serverstatus, "__esModule", { value: true });
+const net = __importStar(require$$0$3);
+const errors_1$3 = errors$1;
+const bufferwriter_1 = __importDefault$9(bufferwriter);
+const bufferreader_1 = __importDefault$9(bufferreader);
+class ServerStatus {
   /**
    * **Attention!** This class may not work for some Minecraft servers (Minecraft 1.4 and below, or
    * servers with a specific configuration). If you encounter any problems, please [open an
@@ -80067,99 +81587,134 @@ class Pd {
    * find the protocol version of your Minecraft version [here](https://wiki.vg/Protocol_version_numbers).
    * @param timeout [Optional: default is `5`] The timeout in seconds.
    */
-  constructor(e, p = 25565, t, d, i = 5) {
-    this.ip = e, this.port = p, this.protocol = t, this.pvn = d, this.timeout = i;
+  constructor(ip, port = 25565, protocol, pvn, timeout = 5) {
+    this.ip = ip;
+    this.port = port;
+    this.protocol = protocol;
+    this.pvn = pvn;
+    this.timeout = timeout;
   }
   /**
    * Get the status of the Minecraft server.
    * @returns The Server status.
    */
   async getStatus() {
-    return new Promise((e, p) => {
-      const t = new Fd.default(), d = Date.now();
-      let i = Id.createConnection(this.port, this.ip);
-      i.setNoDelay(!0);
-      const l = setTimeout(() => {
-        throw new r1.EMLLibError(r1.ErrorType.NET_ERROR, "Connection timed out");
+    return new Promise((resolve, reject) => {
+      const bufWriter = new bufferwriter_1.default();
+      const start = Date.now();
+      let socket = net.createConnection(this.port, this.ip);
+      socket.setNoDelay(true);
+      const timeout = setTimeout(() => {
+        throw new errors_1$3.EMLLibError(errors_1$3.ErrorType.NET_ERROR, "Connection timed out");
       }, this.timeout * 1e3);
-      i.on("connect", () => {
+      socket.on("connect", () => {
         if (this.protocol === "modern") {
-          const r = t.concat([
-            t.writeVarInt(0),
-            t.writeVarInt(this.pvn),
-            t.writeVarInt(this.ip.length),
-            t.writeString(this.ip),
-            t.writeUShort(this.port),
-            t.writeVarInt(1)
+          const buf = bufWriter.concat([
+            bufWriter.writeVarInt(0),
+            bufWriter.writeVarInt(this.pvn),
+            bufWriter.writeVarInt(this.ip.length),
+            bufWriter.writeString(this.ip),
+            bufWriter.writeUShort(this.port),
+            bufWriter.writeVarInt(1)
           ]);
-          i.write(r);
-          const v = t.concat([t.writeVarInt(0)]);
-          i.write(v);
+          socket.write(buf);
+          const req = bufWriter.concat([bufWriter.writeVarInt(0)]);
+          socket.write(req);
         } else if (this.protocol === "1.6") {
-          const r = Buffer.concat([
-            t.writeByte(254),
-            t.writeByte(1),
-            t.writeByte(250),
-            t.writeShort(11),
-            t.writeStringUTF16BE("MC|PingHost"),
-            t.writeShort(7 + 2 * this.ip.length),
-            t.writeByte(this.pvn),
-            t.writeShort(2 * this.ip.length),
-            t.writeStringUTF16BE(this.ip),
-            t.writeInt(this.port)
+          const buf = Buffer.concat([
+            bufWriter.writeByte(254),
+            bufWriter.writeByte(1),
+            bufWriter.writeByte(250),
+            bufWriter.writeShort(11),
+            bufWriter.writeStringUTF16BE("MC|PingHost"),
+            bufWriter.writeShort(7 + 2 * this.ip.length),
+            bufWriter.writeByte(this.pvn),
+            bufWriter.writeShort(2 * this.ip.length),
+            bufWriter.writeStringUTF16BE(this.ip),
+            bufWriter.writeInt(this.port)
           ]);
-          i.write(r);
+          socket.write(buf);
         } else if (this.protocol === "1.4-1.5") {
-          const r = Buffer.concat([t.writeByte(254), t.writeByte(1)]);
-          i.write(r);
-        } else
-          p(new r1.EMLLibError(r1.ErrorType.NET_ERROR, "Unsupported protocol version"));
+          const buf = Buffer.concat([bufWriter.writeByte(254), bufWriter.writeByte(1)]);
+          socket.write(buf);
+        } else {
+          reject(new errors_1$3.EMLLibError(errors_1$3.ErrorType.NET_ERROR, "Unsupported protocol version"));
+        }
       });
-      let m = Buffer.alloc(0);
-      i.on("data", (r) => {
-        const v = Date.now() - d;
-        if (m = Buffer.concat([m, r]), !(m.length < 5))
-          if (this.protocol === "modern") {
-            const N = new ka.default(m), D = N.readVarInt();
-            if (m.length - N.getOffset() < D)
-              return;
-            if (N.readVarInt() === 0)
-              try {
-                const T = JSON.parse(N.readString());
-                e({
-                  ping: v,
-                  version: T.version.name,
-                  motd: typeof T.description == "object" && T.description.text ? T.description.text : typeof T.description == "string" ? T.description : "",
-                  players: { max: T.players.max, online: T.players.online }
-                }), i.destroy(), clearTimeout(l);
-              } catch (T) {
-                p(new r1.EMLLibError(r1.ErrorType.NET_ERROR, `Received invalid response: ${T}`)), i.destroy(), clearTimeout(l);
-              }
-            else
-              p(new r1.EMLLibError(r1.ErrorType.NET_ERROR, "Received unexpected packet")), i.destroy(), clearTimeout(l);
-          } else if (m.readUInt8(0) === 255) {
-            const D = new ka.default(m).readStringUTF16BE().split("\0");
-            D[0] !== "§1" && (p(new r1.EMLLibError(r1.ErrorType.NET_ERROR, "Received invalid response: the first field is not '§1'")), i.destroy(), clearTimeout(l)), e({
-              ping: v,
-              version: D[2],
-              motd: D[3],
-              players: { max: +D[5], online: +D[4] }
-            }), i.destroy(), clearTimeout(l);
-          } else
-            p(new r1.EMLLibError(r1.ErrorType.NET_ERROR, "Received invalid response: wrong packet identifier")), i.destroy(), clearTimeout(l);
-      }), i.on("error", (r) => p(new r1.EMLLibError(r1.ErrorType.NET_ERROR, r)));
+      let incomingBuf = Buffer.alloc(0);
+      socket.on("data", (data) => {
+        const ping = Date.now() - start;
+        incomingBuf = Buffer.concat([incomingBuf, data]);
+        if (incomingBuf.length < 5) {
+          return;
+        }
+        if (this.protocol === "modern") {
+          const bufReader = new bufferreader_1.default(incomingBuf);
+          const length = bufReader.readVarInt();
+          if (incomingBuf.length - bufReader.getOffset() < length) {
+            return;
+          }
+          if (bufReader.readVarInt() === 0) {
+            try {
+              const json = JSON.parse(bufReader.readString());
+              resolve({
+                ping,
+                version: json.version.name,
+                motd: typeof json.description === "object" && json.description.text ? json.description.text : typeof json.description === "string" ? json.description : "",
+                players: { max: json.players.max, online: json.players.online }
+              });
+              socket.destroy();
+              clearTimeout(timeout);
+            } catch (err) {
+              reject(new errors_1$3.EMLLibError(errors_1$3.ErrorType.NET_ERROR, `Received invalid response: ${err}`));
+              socket.destroy();
+              clearTimeout(timeout);
+            }
+          } else {
+            reject(new errors_1$3.EMLLibError(errors_1$3.ErrorType.NET_ERROR, `Received unexpected packet`));
+            socket.destroy();
+            clearTimeout(timeout);
+          }
+        } else {
+          if (incomingBuf.readUInt8(0) === 255) {
+            const bufReader = new bufferreader_1.default(incomingBuf);
+            const fields = bufReader.readStringUTF16BE().split("\0");
+            if (fields[0] !== "§1") {
+              reject(new errors_1$3.EMLLibError(errors_1$3.ErrorType.NET_ERROR, `Received invalid response: the first field is not '§1'`));
+              socket.destroy();
+              clearTimeout(timeout);
+            }
+            resolve({
+              ping,
+              version: fields[2],
+              motd: fields[3],
+              players: { max: +fields[5], online: +fields[4] }
+            });
+            socket.destroy();
+            clearTimeout(timeout);
+          } else {
+            reject(new errors_1$3.EMLLibError(errors_1$3.ErrorType.NET_ERROR, `Received invalid response: wrong packet identifier`));
+            socket.destroy();
+            clearTimeout(timeout);
+          }
+        }
+      });
+      socket.on("error", (err) => reject(new errors_1$3.EMLLibError(errors_1$3.ErrorType.NET_ERROR, err)));
     });
   }
 }
-va.default = Pd;
-var fe = {}, je = {}, ee = {};
-Object.defineProperty(ee, "__esModule", { value: !0 });
-ee.JAVA_RUNTIME_URL = ee.MINECRAFT_MANIFEST_URL = void 0;
-ee.MINECRAFT_MANIFEST_URL = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
-ee.JAVA_RUNTIME_URL = "https://launchermeta.mojang.com/v1/products/java-runtime/2ec0cc96c44e5a76b9c8b7c39df7210883d12871/all.json";
-Object.defineProperty(je, "__esModule", { value: !0 });
-const e1 = l1, Za = ee;
-class Ud {
+serverstatus.default = ServerStatus;
+var java = {};
+var manifests = {};
+var consts = {};
+Object.defineProperty(consts, "__esModule", { value: true });
+consts.JAVA_RUNTIME_URL = consts.MINECRAFT_MANIFEST_URL = void 0;
+consts.MINECRAFT_MANIFEST_URL = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
+consts.JAVA_RUNTIME_URL = "https://launchermeta.mojang.com/v1/products/java-runtime/2ec0cc96c44e5a76b9c8b7c39df7210883d12871/all.json";
+Object.defineProperty(manifests, "__esModule", { value: true });
+const errors_1$2 = errors$1;
+const consts_1 = consts;
+class Manifests {
   /**
    * Get the loader info from the EML AdminTool.
    * @param minecraftVersion The version of Minecraft you want to get the loader info for. Set to
@@ -80168,10 +81723,15 @@ class Ud {
    * Minecraft.
    * @param url The URL of the EML AdminTool website, to get the loader info from the EML AdminTool.
    */
-  async getLoaderInfo(e, p) {
-    return !e && !p ? { loader: "vanilla", minecraft_version: "latest_release", loader_version: "latest_release" } : e ? { loader: "vanilla", minecraft_version: e, loader_version: e } : (await fetch(`${p}/api/files-updater/loader`).then((d) => d.json()).catch((d) => {
-      throw new e1.EMLLibError(e1.ErrorType.FETCH_ERROR, `Failed to fetch loader info: ${d.message}`);
-    })).data;
+  async getLoaderInfo(minecraftVersion, url) {
+    if (!minecraftVersion && !url)
+      return { loader: "vanilla", minecraft_version: "latest_release", loader_version: "latest_release" };
+    if (minecraftVersion)
+      return { loader: "vanilla", minecraft_version: minecraftVersion, loader_version: minecraftVersion };
+    const res = await fetch(`${url}/api/files-updater/loader`).then((res2) => res2.json()).catch((err) => {
+      throw new errors_1$2.EMLLibError(errors_1$2.ErrorType.FETCH_ERROR, `Failed to fetch loader info: ${err.message}`);
+    });
+    return res.data;
   }
   /**
    * Get the manifest of the Minecraft version.
@@ -80182,66 +81742,83 @@ class Ud {
    * @param url The URL of the EML AdminTool website, to get the version from the EML AdminTool.
    * @returns The manifest of the Minecraft version.
    */
-  async getMinecraftManifest(e = "latest_release", p) {
-    !e && p && (e = (await this.getLoaderInfo(null, p)).minecraft_version);
-    const t = await this.getMinecraftManifestUrl(e);
-    return await fetch(t).then((i) => i.json()).catch((i) => {
-      throw new e1.EMLLibError(e1.ErrorType.FETCH_ERROR, `Failed to fetch Minecraft manifest: ${i.message}`);
+  async getMinecraftManifest(minecraftVersion = "latest_release", url) {
+    if (!minecraftVersion && url) {
+      minecraftVersion = (await this.getLoaderInfo(null, url)).minecraft_version;
+    }
+    const manifestUrl = await this.getMinecraftManifestUrl(minecraftVersion);
+    const res = await fetch(manifestUrl).then((res2) => res2.json()).catch((err) => {
+      throw new errors_1$2.EMLLibError(errors_1$2.ErrorType.FETCH_ERROR, `Failed to fetch Minecraft manifest: ${err.message}`);
     });
+    return res;
   }
   /**
    * Get the manifest URL of the Minecraft version.
    * @param minecraftVersion The version of Minecraft you want to get the manifest URL for.
    * @returns The manifest URL of the Minecraft version.
    */
-  async getMinecraftManifestUrl(e = null) {
-    const p = await fetch(Za.MINECRAFT_MANIFEST_URL).then((t) => t.json()).catch((t) => {
-      throw new e1.EMLLibError(e1.ErrorType.FETCH_ERROR, `Failed to fetch Minecraft version manifest: ${t.message}`);
+  async getMinecraftManifestUrl(minecraftVersion = null) {
+    const res = await fetch(consts_1.MINECRAFT_MANIFEST_URL).then((res2) => res2.json()).catch((err) => {
+      throw new errors_1$2.EMLLibError(errors_1$2.ErrorType.FETCH_ERROR, `Failed to fetch Minecraft version manifest: ${err.message}`);
     });
-    if (e = e === "latest_release" ? p.latest.release : e === "latest_snapshot" ? p.latest.snapshot : e || "latest_release", !p.versions.find((t) => t.id === e))
-      throw new e1.EMLLibError(e1.ErrorType.MINECRAFT_ERROR, `Minecraft version ${e} not found in manifest`);
-    return p.versions.find((t) => t.id === e).url;
+    minecraftVersion = minecraftVersion === "latest_release" ? res.latest.release : minecraftVersion === "latest_snapshot" ? res.latest.snapshot : minecraftVersion || "latest_release";
+    if (!res.versions.find((version2) => version2.id === minecraftVersion)) {
+      throw new errors_1$2.EMLLibError(errors_1$2.ErrorType.MINECRAFT_ERROR, `Minecraft version ${minecraftVersion} not found in manifest`);
+    }
+    return res.versions.find((version2) => version2.id === minecraftVersion).url;
   }
-  async getJavaManifest(e) {
-    const p = await this.getJavaManifestUrl(e);
-    return await fetch(p).then((d) => d.json()).catch((d) => {
-      throw new e1.EMLLibError(e1.ErrorType.FETCH_ERROR, `Failed to fetch Java manifest: ${d.message}`);
+  async getJavaManifest(javaVersion) {
+    const url = await this.getJavaManifestUrl(javaVersion);
+    const res = await fetch(url).then((res2) => res2.json()).catch((err) => {
+      throw new errors_1$2.EMLLibError(errors_1$2.ErrorType.FETCH_ERROR, `Failed to fetch Java manifest: ${err.message}`);
     });
+    return res;
   }
   /**
    * Get the manifest URL of the Java version.
    * @param javaVersion The version of Java you want to get the manifest for.
    * @returns The manifest URL of the Java version.
    */
-  async getJavaManifestUrl(e) {
-    const p = {
+  async getJavaManifestUrl(javaVersion) {
+    const archMapping = {
       win32: { x64: "windows-x64", ia32: "windows-x86", arm64: "windows-arm64" },
       darwin: { x64: "mac-os", arm64: "mac-os-arm64" },
       linux: { x64: "linux", ia32: "linux-i386" }
-    }, t = process.arch, d = process.platform;
-    if (d !== "win32" && d !== "darwin" && d !== "linux")
-      throw new e1.EMLLibError(e1.ErrorType.UNKNOWN_OS, `Unsupported platform: ${d}`);
-    if (d === "win32" && t !== "x64" && t !== "ia32" && t !== "arm64" || d === "darwin" && t !== "x64" && t !== "arm64" || d === "linux" && t !== "x64" && t !== "ia32")
-      throw new e1.EMLLibError(e1.ErrorType.UNKNOWN_OS, `Unsupported architecture: ${t}`);
-    const i = await fetch(Za.JAVA_RUNTIME_URL).then((l) => l.json()).catch((l) => {
-      throw new e1.EMLLibError(e1.ErrorType.FETCH_ERROR, `Failed to fetch Java manifest: ${l.message}`);
+    };
+    const arch = process.arch;
+    const platform = process.platform;
+    if (platform !== "win32" && platform !== "darwin" && platform !== "linux") {
+      throw new errors_1$2.EMLLibError(errors_1$2.ErrorType.UNKNOWN_OS, `Unsupported platform: ${platform}`);
+    }
+    if (platform === "win32" && arch !== "x64" && arch !== "ia32" && arch !== "arm64" || platform === "darwin" && arch !== "x64" && arch !== "arm64" || platform === "linux" && arch !== "x64" && arch !== "ia32") {
+      throw new errors_1$2.EMLLibError(errors_1$2.ErrorType.UNKNOWN_OS, `Unsupported architecture: ${arch}`);
+    }
+    const res = await fetch(consts_1.JAVA_RUNTIME_URL).then((res2) => res2.json()).catch((err) => {
+      throw new errors_1$2.EMLLibError(errors_1$2.ErrorType.FETCH_ERROR, `Failed to fetch Java manifest: ${err.message}`);
     });
-    if (!i[p[d][t]] || !i[p[d][t]][e] || !i[p[d][t]][e][0] || !i[p[d][t]][e][0].manifest)
-      throw new e1.EMLLibError(e1.ErrorType.JAVA_ERROR, `Java version ${e} not found in manifest`);
-    return i[p[d][t]][e][0].manifest.url;
+    if (!res[archMapping[platform][arch]] || !res[archMapping[platform][arch]][javaVersion] || !res[archMapping[platform][arch]][javaVersion][0] || !res[archMapping[platform][arch]][javaVersion][0].manifest) {
+      throw new errors_1$2.EMLLibError(errors_1$2.ErrorType.JAVA_ERROR, `Java version ${javaVersion} not found in manifest`);
+    }
+    return res[archMapping[platform][arch]][javaVersion][0].manifest.url;
   }
 }
-je.default = new Ud();
+manifests.default = new Manifests();
 /**
  * @license MIT
  * @copyright Copyright (c) 2024, GoldFrite
  */
-var ce = I && I.__importDefault || function(a) {
-  return a && a.__esModule ? a : { default: a };
+var __importDefault$8 = commonjsGlobal && commonjsGlobal.__importDefault || function(mod) {
+  return mod && mod.__esModule ? mod : { "default": mod };
 };
-Object.defineProperty(fe, "__esModule", { value: !0 });
-const jd = ce(_1), Ga = ce(je), $1 = ce(n1), Bd = ce(oe), qa = ce(N1), Md = xe, Ja = l1;
-class $d extends jd.default {
+Object.defineProperty(java, "__esModule", { value: true });
+const events_1$6 = __importDefault$8(events);
+const manifests_1$1 = __importDefault$8(manifests);
+const path_1$6 = __importDefault$8(require$$1$2);
+const downloader_1$1 = __importDefault$8(downloader);
+const utils_1$5 = __importDefault$8(utils$1);
+const child_process_1$2 = require$$4$1;
+const errors_1$1 = errors$1;
+class Java extends events_1$6.default {
   /**
    * @param minecraftVersion The version of Minecraft you want to install Java for. Set to
    * `null` to get the version from the EML AdminTool. Set to `latest_release` to get the latest
@@ -80253,15 +81830,20 @@ class $d extends jd.default {
    * game folder, you must install Java by yourself.
    * @param url The URL of the EML AdminTool website, to get the version from the EML AdminTool.
    */
-  constructor(e, p, t) {
-    super(), this.minecraftVersion = e, this.serverId = p, this.url = t;
+  constructor(minecraftVersion, serverId, url) {
+    super();
+    this.minecraftVersion = minecraftVersion;
+    this.serverId = serverId;
+    this.url = url;
   }
   /**
    * Download Java for the Minecraft version.
    */
   async download() {
-    const e = await this.getFiles(), p = new Bd.default(qa.default.getServerFolder(this.serverId));
-    p.forwardEvents(this), await p.download(e);
+    const files = await this.getFiles();
+    const downloader2 = new downloader_1$1.default(utils_1$5.default.getServerFolder(this.serverId));
+    downloader2.forwardEvents(this);
+    await downloader2.download(files);
   }
   /**
    * Get the files of the Java version to download.
@@ -80270,26 +81852,33 @@ class $d extends jd.default {
    * @param manifest The manifest of the Minecraft version. If not provided, the manifest will be fetched.
    * @returns The files of the Java version.
    */
-  async getFiles(e) {
-    var l, m;
-    e = e || await Ga.default.getMinecraftManifest(this.minecraftVersion, this.url);
-    const p = ((l = e.javaVersion) == null ? void 0 : l.component) || "jre-legacy", t = ((m = e.javaVersion) == null ? void 0 : m.majorVersion) || "8", d = await Ga.default.getJavaManifest(p);
-    let i = [];
-    return Object.entries(d.files).forEach((r) => {
-      r[1].type === "directory" ? i.push({
-        name: $1.default.basename(r[0]),
-        path: $1.default.join("runtime", `jre-${t}`, $1.default.dirname(r[0]), "/"),
-        url: "",
-        type: "FOLDER"
-      }) : r[1].downloads && i.push({
-        name: $1.default.basename(r[0]),
-        path: $1.default.join("runtime", `jre-${t}`, $1.default.dirname(r[0]), "/"),
-        url: r[1].downloads.raw.url,
-        size: r[1].downloads.raw.size,
-        sha1: r[1].downloads.raw.sha1,
-        type: "JAVA"
-      });
-    }), i;
+  async getFiles(manifest) {
+    var _a, _b;
+    manifest = manifest || await manifests_1$1.default.getMinecraftManifest(this.minecraftVersion, this.url);
+    const jreVersion = ((_a = manifest.javaVersion) == null ? void 0 : _a.component) || "jre-legacy";
+    const jreV = ((_b = manifest.javaVersion) == null ? void 0 : _b.majorVersion) || "8";
+    const jreManifest = await manifests_1$1.default.getJavaManifest(jreVersion);
+    let files = [];
+    Object.entries(jreManifest.files).forEach((file) => {
+      if (file[1].type === "directory") {
+        files.push({
+          name: path_1$6.default.basename(file[0]),
+          path: path_1$6.default.join("runtime", `jre-${jreV}`, path_1$6.default.dirname(file[0]), "/"),
+          url: "",
+          type: "FOLDER"
+        });
+      } else if (file[1].downloads) {
+        files.push({
+          name: path_1$6.default.basename(file[0]),
+          path: path_1$6.default.join("runtime", `jre-${jreV}`, path_1$6.default.dirname(file[0]), "/"),
+          url: file[1].downloads.raw.url,
+          size: file[1].downloads.raw.size,
+          sha1: file[1].downloads.raw.sha1,
+          type: "JAVA"
+        });
+      }
+    });
+    return files;
   }
   /**
    * Check if Java is correctly installed.
@@ -80299,20 +81888,24 @@ class $d extends jd.default {
    * @param majorVersion [Optional: default is `8`] Major version of Java to check.
    * @returns The version and architecture of Java.
    */
-  check(e = $1.default.join(qa.default.getServerFolder(this.serverId), "runtime", "jre-${X}", "bin", "java"), p = 8) {
-    var i;
-    const t = (0, Md.spawnSync)(`"${e.replace("${X}", p + "")}"`, ["-version"], { shell: !0 });
-    if (t.error)
-      throw new Ja.EMLLibError(Ja.ErrorType.JAVA_ERROR, `Java is not correctly installed: ${t.error.message}`);
-    const d = {
-      version: ((i = t.output.map((l) => l == null ? void 0 : l.toString("utf8")).join(" ").match(/"(.*?)"/)) == null ? void 0 : i.pop()) || p + "",
-      arch: t.output.map((l) => l == null ? void 0 : l.toString("utf8")).join(" ").includes("64-Bit") ? "64-bit" : "32-bit"
+  check(absolutePath = path_1$6.default.join(utils_1$5.default.getServerFolder(this.serverId), "runtime", "jre-${X}", "bin", "java"), majorVersion = 8) {
+    var _a;
+    const check = (0, child_process_1$2.spawnSync)(`"${absolutePath.replace("${X}", majorVersion + "")}"`, ["-version"], { shell: true });
+    if (check.error)
+      throw new errors_1$1.EMLLibError(errors_1$1.ErrorType.JAVA_ERROR, `Java is not correctly installed: ${check.error.message}`);
+    const res = {
+      version: ((_a = check.output.map((o) => o == null ? void 0 : o.toString("utf8")).join(" ").match(/"(.*?)"/)) == null ? void 0 : _a.pop()) || majorVersion + "",
+      arch: check.output.map((o) => o == null ? void 0 : o.toString("utf8")).join(" ").includes("64-Bit") ? "64-bit" : "32-bit"
     };
-    return this.emit("java_info", d), d;
+    this.emit("java_info", res);
+    return res;
   }
 }
-fe.default = $d;
-var ga = {}, Ea = {}, ae = { exports: {} }, Vp = {
+java.default = Java;
+var launcher = {};
+var filesmanager = {};
+var util = { exports: {} };
+var constants = {
   /* The local file header */
   LOCHDR: 30,
   // LOC header size
@@ -80524,9 +82117,10 @@ var ga = {}, Ea = {}, ae = { exports: {} }, Vp = {
   EF_ZIP64_SCOMP: 8,
   EF_ZIP64_RHO: 16,
   EF_ZIP64_DSN: 24
-}, Be = {};
-(function(a) {
-  const e = {
+};
+var errors = {};
+(function(exports) {
+  const errors2 = {
     /* Header error messages */
     INVALID_LOC: "Invalid LOC header (bad signature)",
     INVALID_CEN: "Invalid CEN header (bad signature)",
@@ -80569,226 +82163,308 @@ var ga = {}, Ea = {}, ae = { exports: {} }, Vp = {
     // Comment can be max 65535 bytes long (NOTE: some non-US characters may take more space)
     EXTRA_FIELD_PARSE_ERROR: "Extra field parsing error"
   };
-  function p(t) {
-    return function(...d) {
-      return d.length && (t = t.replace(/\{(\d)\}/g, (i, l) => d[l] || "")), new Error("ADM-ZIP: " + t);
+  function E(message) {
+    return function(...args) {
+      if (args.length) {
+        message = message.replace(/\{(\d)\}/g, (_, n) => args[n] || "");
+      }
+      return new Error("ADM-ZIP: " + message);
     };
   }
-  for (const t of Object.keys(e))
-    a[t] = p(e[t]);
-})(Be);
-const zd = H1, K = n1, Wa = Vp, Hd = Be, kd = typeof process == "object" && process.platform === "win32", Xa = (a) => typeof a == "object" && a !== null, Cp = new Uint32Array(256).map((a, e) => {
-  for (let p = 0; p < 8; p++)
-    e & 1 ? e = 3988292384 ^ e >>> 1 : e >>>= 1;
-  return e >>> 0;
+  for (const msg of Object.keys(errors2)) {
+    exports[msg] = E(errors2[msg]);
+  }
+})(errors);
+const fsystem = require$$2$1;
+const pth$2 = require$$1$2;
+const Constants$3 = constants;
+const Errors$1 = errors;
+const isWin = typeof process === "object" && "win32" === process.platform;
+const is_Obj = (obj) => typeof obj === "object" && obj !== null;
+const crcTable = new Uint32Array(256).map((t, c) => {
+  for (let k = 0; k < 8; k++) {
+    if ((c & 1) !== 0) {
+      c = 3988292384 ^ c >>> 1;
+    } else {
+      c >>>= 1;
+    }
+  }
+  return c >>> 0;
 });
-function q(a) {
-  this.sep = K.sep, this.fs = zd, Xa(a) && Xa(a.fs) && typeof a.fs.statSync == "function" && (this.fs = a.fs);
+function Utils$5(opts) {
+  this.sep = pth$2.sep;
+  this.fs = fsystem;
+  if (is_Obj(opts)) {
+    if (is_Obj(opts.fs) && typeof opts.fs.statSync === "function") {
+      this.fs = opts.fs;
+    }
+  }
 }
-var Zd = q;
-q.prototype.makeDir = function(a) {
-  const e = this;
-  function p(t) {
-    let d = t.split(e.sep)[0];
-    t.split(e.sep).forEach(function(i) {
-      if (!(!i || i.substr(-1, 1) === ":")) {
-        d += e.sep + i;
-        var l;
-        try {
-          l = e.fs.statSync(d);
-        } catch {
-          e.fs.mkdirSync(d);
-        }
-        if (l && l.isFile()) throw Hd.FILE_IN_THE_WAY(`"${d}"`);
+var utils = Utils$5;
+Utils$5.prototype.makeDir = function(folder) {
+  const self2 = this;
+  function mkdirSync(fpath) {
+    let resolvedPath = fpath.split(self2.sep)[0];
+    fpath.split(self2.sep).forEach(function(name) {
+      if (!name || name.substr(-1, 1) === ":") return;
+      resolvedPath += self2.sep + name;
+      var stat;
+      try {
+        stat = self2.fs.statSync(resolvedPath);
+      } catch (e) {
+        self2.fs.mkdirSync(resolvedPath);
       }
+      if (stat && stat.isFile()) throw Errors$1.FILE_IN_THE_WAY(`"${resolvedPath}"`);
     });
   }
-  p(a);
+  mkdirSync(folder);
 };
-q.prototype.writeFileTo = function(a, e, p, t) {
-  const d = this;
-  if (d.fs.existsSync(a)) {
-    if (!p) return !1;
-    var i = d.fs.statSync(a);
-    if (i.isDirectory())
-      return !1;
-  }
-  var l = K.dirname(a);
-  d.fs.existsSync(l) || d.makeDir(l);
-  var m;
-  try {
-    m = d.fs.openSync(a, "w", 438);
-  } catch {
-    d.fs.chmodSync(a, 438), m = d.fs.openSync(a, "w", 438);
-  }
-  if (m)
-    try {
-      d.fs.writeSync(m, e, 0, e.length, 0);
-    } finally {
-      d.fs.closeSync(m);
+Utils$5.prototype.writeFileTo = function(path2, content, overwrite, attr) {
+  const self2 = this;
+  if (self2.fs.existsSync(path2)) {
+    if (!overwrite) return false;
+    var stat = self2.fs.statSync(path2);
+    if (stat.isDirectory()) {
+      return false;
     }
-  return d.fs.chmodSync(a, t || 438), !0;
+  }
+  var folder = pth$2.dirname(path2);
+  if (!self2.fs.existsSync(folder)) {
+    self2.makeDir(folder);
+  }
+  var fd;
+  try {
+    fd = self2.fs.openSync(path2, "w", 438);
+  } catch (e) {
+    self2.fs.chmodSync(path2, 438);
+    fd = self2.fs.openSync(path2, "w", 438);
+  }
+  if (fd) {
+    try {
+      self2.fs.writeSync(fd, content, 0, content.length, 0);
+    } finally {
+      self2.fs.closeSync(fd);
+    }
+  }
+  self2.fs.chmodSync(path2, attr || 438);
+  return true;
 };
-q.prototype.writeFileToAsync = function(a, e, p, t, d) {
-  typeof t == "function" && (d = t, t = void 0);
-  const i = this;
-  i.fs.exists(a, function(l) {
-    if (l && !p) return d(!1);
-    i.fs.stat(a, function(m, r) {
-      if (l && r.isDirectory())
-        return d(!1);
-      var v = K.dirname(a);
-      i.fs.exists(v, function(N) {
-        N || i.makeDir(v), i.fs.open(a, "w", 438, function(D, T) {
-          D ? i.fs.chmod(a, 438, function() {
-            i.fs.open(a, "w", 438, function(c, h) {
-              i.fs.write(h, e, 0, e.length, 0, function() {
-                i.fs.close(h, function() {
-                  i.fs.chmod(a, t || 438, function() {
-                    d(!0);
+Utils$5.prototype.writeFileToAsync = function(path2, content, overwrite, attr, callback) {
+  if (typeof attr === "function") {
+    callback = attr;
+    attr = void 0;
+  }
+  const self2 = this;
+  self2.fs.exists(path2, function(exist) {
+    if (exist && !overwrite) return callback(false);
+    self2.fs.stat(path2, function(err, stat) {
+      if (exist && stat.isDirectory()) {
+        return callback(false);
+      }
+      var folder = pth$2.dirname(path2);
+      self2.fs.exists(folder, function(exists) {
+        if (!exists) self2.makeDir(folder);
+        self2.fs.open(path2, "w", 438, function(err2, fd) {
+          if (err2) {
+            self2.fs.chmod(path2, 438, function() {
+              self2.fs.open(path2, "w", 438, function(err3, fd2) {
+                self2.fs.write(fd2, content, 0, content.length, 0, function() {
+                  self2.fs.close(fd2, function() {
+                    self2.fs.chmod(path2, attr || 438, function() {
+                      callback(true);
+                    });
                   });
                 });
               });
             });
-          }) : T ? i.fs.write(T, e, 0, e.length, 0, function() {
-            i.fs.close(T, function() {
-              i.fs.chmod(a, t || 438, function() {
-                d(!0);
+          } else if (fd) {
+            self2.fs.write(fd, content, 0, content.length, 0, function() {
+              self2.fs.close(fd, function() {
+                self2.fs.chmod(path2, attr || 438, function() {
+                  callback(true);
+                });
               });
             });
-          }) : i.fs.chmod(a, t || 438, function() {
-            d(!0);
-          });
+          } else {
+            self2.fs.chmod(path2, attr || 438, function() {
+              callback(true);
+            });
+          }
         });
       });
     });
   });
 };
-q.prototype.findFiles = function(a) {
-  const e = this;
-  function p(t, d, i) {
-    let l = [];
-    return e.fs.readdirSync(t).forEach(function(m) {
-      const r = K.join(t, m), v = e.fs.statSync(r);
-      l.push(K.normalize(r) + (v.isDirectory() ? e.sep : "")), v.isDirectory() && i && (l = l.concat(p(r, d, i)));
-    }), l;
+Utils$5.prototype.findFiles = function(path2) {
+  const self2 = this;
+  function findSync(dir, pattern, recursive) {
+    let files = [];
+    self2.fs.readdirSync(dir).forEach(function(file) {
+      const path3 = pth$2.join(dir, file);
+      const stat = self2.fs.statSync(path3);
+      {
+        files.push(pth$2.normalize(path3) + (stat.isDirectory() ? self2.sep : ""));
+      }
+      if (stat.isDirectory() && recursive) files = files.concat(findSync(path3, pattern, recursive));
+    });
+    return files;
   }
-  return p(a, void 0, !0);
+  return findSync(path2, void 0, true);
 };
-q.prototype.findFilesAsync = function(a, e) {
-  const p = this;
-  let t = [];
-  p.fs.readdir(a, function(d, i) {
-    if (d) return e(d);
-    let l = i.length;
-    if (!l) return e(null, t);
-    i.forEach(function(m) {
-      m = K.join(a, m), p.fs.stat(m, function(r, v) {
-        if (r) return e(r);
-        v && (t.push(K.normalize(m) + (v.isDirectory() ? p.sep : "")), v.isDirectory() ? p.findFilesAsync(m, function(N, D) {
-          if (N) return e(N);
-          t = t.concat(D), --l || e(null, t);
-        }) : --l || e(null, t));
+Utils$5.prototype.findFilesAsync = function(dir, cb) {
+  const self2 = this;
+  let results = [];
+  self2.fs.readdir(dir, function(err, list) {
+    if (err) return cb(err);
+    let list_length = list.length;
+    if (!list_length) return cb(null, results);
+    list.forEach(function(file) {
+      file = pth$2.join(dir, file);
+      self2.fs.stat(file, function(err2, stat) {
+        if (err2) return cb(err2);
+        if (stat) {
+          results.push(pth$2.normalize(file) + (stat.isDirectory() ? self2.sep : ""));
+          if (stat.isDirectory()) {
+            self2.findFilesAsync(file, function(err3, res) {
+              if (err3) return cb(err3);
+              results = results.concat(res);
+              if (!--list_length) cb(null, results);
+            });
+          } else {
+            if (!--list_length) cb(null, results);
+          }
+        }
       });
     });
   });
 };
-q.prototype.getAttributes = function() {
+Utils$5.prototype.getAttributes = function() {
 };
-q.prototype.setAttributes = function() {
+Utils$5.prototype.setAttributes = function() {
 };
-q.crc32update = function(a, e) {
-  return Cp[(a ^ e) & 255] ^ a >>> 8;
+Utils$5.crc32update = function(crc, byte) {
+  return crcTable[(crc ^ byte) & 255] ^ crc >>> 8;
 };
-q.crc32 = function(a) {
-  typeof a == "string" && (a = Buffer.from(a, "utf8"));
-  let e = a.length, p = -1;
-  for (let t = 0; t < e; ) p = q.crc32update(p, a[t++]);
-  return ~p >>> 0;
+Utils$5.crc32 = function(buf) {
+  if (typeof buf === "string") {
+    buf = Buffer.from(buf, "utf8");
+  }
+  let len = buf.length;
+  let crc = -1;
+  for (let off = 0; off < len; ) crc = Utils$5.crc32update(crc, buf[off++]);
+  return ~crc >>> 0;
 };
-q.methodToString = function(a) {
-  switch (a) {
-    case Wa.STORED:
-      return "STORED (" + a + ")";
-    case Wa.DEFLATED:
-      return "DEFLATED (" + a + ")";
+Utils$5.methodToString = function(method) {
+  switch (method) {
+    case Constants$3.STORED:
+      return "STORED (" + method + ")";
+    case Constants$3.DEFLATED:
+      return "DEFLATED (" + method + ")";
     default:
-      return "UNSUPPORTED (" + a + ")";
+      return "UNSUPPORTED (" + method + ")";
   }
 };
-q.canonical = function(a) {
-  if (!a) return "";
-  const e = K.posix.normalize("/" + a.split("\\").join("/"));
-  return K.join(".", e);
+Utils$5.canonical = function(path2) {
+  if (!path2) return "";
+  const safeSuffix = pth$2.posix.normalize("/" + path2.split("\\").join("/"));
+  return pth$2.join(".", safeSuffix);
 };
-q.zipnamefix = function(a) {
-  if (!a) return "";
-  const e = K.posix.normalize("/" + a.split("\\").join("/"));
-  return K.posix.join(".", e);
+Utils$5.zipnamefix = function(path2) {
+  if (!path2) return "";
+  const safeSuffix = pth$2.posix.normalize("/" + path2.split("\\").join("/"));
+  return pth$2.posix.join(".", safeSuffix);
 };
-q.findLast = function(a, e) {
-  if (!Array.isArray(a)) throw new TypeError("arr is not array");
-  const p = a.length >>> 0;
-  for (let t = p - 1; t >= 0; t--)
-    if (e(a[t], t, a))
-      return a[t];
-};
-q.sanitize = function(a, e) {
-  a = K.resolve(K.normalize(a));
-  for (var p = e.split("/"), t = 0, d = p.length; t < d; t++) {
-    var i = K.normalize(K.join(a, p.slice(t, d).join(K.sep)));
-    if (i.indexOf(a) === 0)
-      return i;
+Utils$5.findLast = function(arr, callback) {
+  if (!Array.isArray(arr)) throw new TypeError("arr is not array");
+  const len = arr.length >>> 0;
+  for (let i = len - 1; i >= 0; i--) {
+    if (callback(arr[i], i, arr)) {
+      return arr[i];
+    }
   }
-  return K.normalize(K.join(a, K.basename(e)));
+  return void 0;
 };
-q.toBuffer = function(e, p) {
-  return Buffer.isBuffer(e) ? e : e instanceof Uint8Array ? Buffer.from(e) : typeof e == "string" ? p(e) : Buffer.alloc(0);
+Utils$5.sanitize = function(prefix, name) {
+  prefix = pth$2.resolve(pth$2.normalize(prefix));
+  var parts = name.split("/");
+  for (var i = 0, l = parts.length; i < l; i++) {
+    var path2 = pth$2.normalize(pth$2.join(prefix, parts.slice(i, l).join(pth$2.sep)));
+    if (path2.indexOf(prefix) === 0) {
+      return path2;
+    }
+  }
+  return pth$2.normalize(pth$2.join(prefix, pth$2.basename(name)));
 };
-q.readBigUInt64LE = function(a, e) {
-  var p = Buffer.from(a.slice(e, e + 8));
-  return p.swap64(), parseInt(`0x${p.toString("hex")}`);
+Utils$5.toBuffer = function toBuffer(input, encoder) {
+  if (Buffer.isBuffer(input)) {
+    return input;
+  } else if (input instanceof Uint8Array) {
+    return Buffer.from(input);
+  } else {
+    return typeof input === "string" ? encoder(input) : Buffer.alloc(0);
+  }
 };
-q.fromDOS2Date = function(a) {
-  return new Date((a >> 25 & 127) + 1980, Math.max((a >> 21 & 15) - 1, 0), Math.max(a >> 16 & 31, 1), a >> 11 & 31, a >> 5 & 63, (a & 31) << 1);
+Utils$5.readBigUInt64LE = function(buffer, index) {
+  var slice = Buffer.from(buffer.slice(index, index + 8));
+  slice.swap64();
+  return parseInt(`0x${slice.toString("hex")}`);
 };
-q.fromDate2DOS = function(a) {
-  let e = 0, p = 0;
-  return a.getFullYear() > 1979 && (e = (a.getFullYear() - 1980 & 127) << 9 | a.getMonth() + 1 << 5 | a.getDate(), p = a.getHours() << 11 | a.getMinutes() << 5 | a.getSeconds() >> 1), e << 16 | p;
+Utils$5.fromDOS2Date = function(val) {
+  return new Date((val >> 25 & 127) + 1980, Math.max((val >> 21 & 15) - 1, 0), Math.max(val >> 16 & 31, 1), val >> 11 & 31, val >> 5 & 63, (val & 31) << 1);
 };
-q.isWin = kd;
-q.crcTable = Cp;
-const Gd = n1;
-var qd = function(a, { fs: e }) {
-  var p = a || "", t = i(), d = null;
-  function i() {
+Utils$5.fromDate2DOS = function(val) {
+  let date = 0;
+  let time = 0;
+  if (val.getFullYear() > 1979) {
+    date = (val.getFullYear() - 1980 & 127) << 9 | val.getMonth() + 1 << 5 | val.getDate();
+    time = val.getHours() << 11 | val.getMinutes() << 5 | val.getSeconds() >> 1;
+  }
+  return date << 16 | time;
+};
+Utils$5.isWin = isWin;
+Utils$5.crcTable = crcTable;
+const pth$1 = require$$1$2;
+var fattr = function(path2, { fs }) {
+  var _path = path2 || "", _obj = newAttr(), _stat = null;
+  function newAttr() {
     return {
-      directory: !1,
-      readonly: !1,
-      hidden: !1,
-      executable: !1,
+      directory: false,
+      readonly: false,
+      hidden: false,
+      executable: false,
       mtime: 0,
       atime: 0
     };
   }
-  return p && e.existsSync(p) ? (d = e.statSync(p), t.directory = d.isDirectory(), t.mtime = d.mtime, t.atime = d.atime, t.executable = (73 & d.mode) !== 0, t.readonly = (128 & d.mode) === 0, t.hidden = Gd.basename(p)[0] === ".") : console.warn("Invalid path: " + p), {
+  if (_path && fs.existsSync(_path)) {
+    _stat = fs.statSync(_path);
+    _obj.directory = _stat.isDirectory();
+    _obj.mtime = _stat.mtime;
+    _obj.atime = _stat.atime;
+    _obj.executable = (73 & _stat.mode) !== 0;
+    _obj.readonly = (128 & _stat.mode) === 0;
+    _obj.hidden = pth$1.basename(_path)[0] === ".";
+  } else {
+    console.warn("Invalid path: " + _path);
+  }
+  return {
     get directory() {
-      return t.directory;
+      return _obj.directory;
     },
     get readOnly() {
-      return t.readonly;
+      return _obj.readonly;
     },
     get hidden() {
-      return t.hidden;
+      return _obj.hidden;
     },
     get mtime() {
-      return t.mtime;
+      return _obj.mtime;
     },
     get atime() {
-      return t.atime;
+      return _obj.atime;
     },
     get executable() {
-      return t.executable;
+      return _obj.executable;
     },
     decodeAttributes: function() {
     },
@@ -80796,281 +82472,371 @@ var qd = function(a, { fs: e }) {
     },
     toJSON: function() {
       return {
-        path: p,
-        isDirectory: t.directory,
-        isReadOnly: t.readonly,
-        isHidden: t.hidden,
-        isExecutable: t.executable,
-        mTime: t.mtime,
-        aTime: t.atime
+        path: _path,
+        isDirectory: _obj.directory,
+        isReadOnly: _obj.readonly,
+        isHidden: _obj.hidden,
+        isExecutable: _obj.executable,
+        mTime: _obj.mtime,
+        aTime: _obj.atime
       };
     },
     toString: function() {
       return JSON.stringify(this.toJSON(), null, "	");
     }
   };
-}, Jd = {
-  efs: !0,
-  encode: (a) => Buffer.from(a, "utf8"),
-  decode: (a) => a.toString("utf8")
 };
-ae.exports = Zd;
-ae.exports.Constants = Vp;
-ae.exports.Errors = Be;
-ae.exports.FileAttr = qd;
-ae.exports.decoder = Jd;
-var he = ae.exports, Me = {}, F1 = he, L = F1.Constants, Wd = function() {
-  var a = 20, e = 10, p = 0, t = 0, d = 0, i = 0, l = 0, m = 0, r = 0, v = 0, N = 0, D = 0, T = 0, c = 0, h = 0;
-  a |= F1.isWin ? 2560 : 768, p |= L.FLG_EFS;
-  const f = {
+var decoder = {
+  efs: true,
+  encode: (data) => Buffer.from(data, "utf8"),
+  decode: (data) => data.toString("utf8")
+};
+util.exports = utils;
+util.exports.Constants = constants;
+util.exports.Errors = errors;
+util.exports.FileAttr = fattr;
+util.exports.decoder = decoder;
+var utilExports = util.exports;
+var headers = {};
+var Utils$4 = utilExports, Constants$2 = Utils$4.Constants;
+var entryHeader = function() {
+  var _verMade = 20, _version = 10, _flags = 0, _method = 0, _time = 0, _crc = 0, _compressedSize = 0, _size = 0, _fnameLen = 0, _extraLen = 0, _comLen = 0, _diskStart = 0, _inattr = 0, _attr = 0, _offset = 0;
+  _verMade |= Utils$4.isWin ? 2560 : 768;
+  _flags |= Constants$2.FLG_EFS;
+  const _localHeader = {
     extraLen: 0
-  }, w = (n) => Math.max(0, n) >>> 0, E = (n) => Math.max(0, n) & 255;
-  return d = F1.fromDate2DOS(/* @__PURE__ */ new Date()), {
+  };
+  const uint32 = (val) => Math.max(0, val) >>> 0;
+  const uint8 = (val) => Math.max(0, val) & 255;
+  _time = Utils$4.fromDate2DOS(/* @__PURE__ */ new Date());
+  return {
     get made() {
-      return a;
+      return _verMade;
     },
-    set made(n) {
-      a = n;
+    set made(val) {
+      _verMade = val;
     },
     get version() {
-      return e;
+      return _version;
     },
-    set version(n) {
-      e = n;
+    set version(val) {
+      _version = val;
     },
     get flags() {
-      return p;
+      return _flags;
     },
-    set flags(n) {
-      p = n;
+    set flags(val) {
+      _flags = val;
     },
     get flags_efs() {
-      return (p & L.FLG_EFS) > 0;
+      return (_flags & Constants$2.FLG_EFS) > 0;
     },
-    set flags_efs(n) {
-      n ? p |= L.FLG_EFS : p &= ~L.FLG_EFS;
+    set flags_efs(val) {
+      if (val) {
+        _flags |= Constants$2.FLG_EFS;
+      } else {
+        _flags &= ~Constants$2.FLG_EFS;
+      }
     },
     get flags_desc() {
-      return (p & L.FLG_DESC) > 0;
+      return (_flags & Constants$2.FLG_DESC) > 0;
     },
-    set flags_desc(n) {
-      n ? p |= L.FLG_DESC : p &= ~L.FLG_DESC;
+    set flags_desc(val) {
+      if (val) {
+        _flags |= Constants$2.FLG_DESC;
+      } else {
+        _flags &= ~Constants$2.FLG_DESC;
+      }
     },
     get method() {
-      return t;
+      return _method;
     },
-    set method(n) {
-      switch (n) {
-        case L.STORED:
+    set method(val) {
+      switch (val) {
+        case Constants$2.STORED:
           this.version = 10;
-        case L.DEFLATED:
+        case Constants$2.DEFLATED:
         default:
           this.version = 20;
       }
-      t = n;
+      _method = val;
     },
     get time() {
-      return F1.fromDOS2Date(this.timeval);
+      return Utils$4.fromDOS2Date(this.timeval);
     },
-    set time(n) {
-      this.timeval = F1.fromDate2DOS(n);
+    set time(val) {
+      this.timeval = Utils$4.fromDate2DOS(val);
     },
     get timeval() {
-      return d;
+      return _time;
     },
-    set timeval(n) {
-      d = w(n);
+    set timeval(val) {
+      _time = uint32(val);
     },
     get timeHighByte() {
-      return E(d >>> 8);
+      return uint8(_time >>> 8);
     },
     get crc() {
-      return i;
+      return _crc;
     },
-    set crc(n) {
-      i = w(n);
+    set crc(val) {
+      _crc = uint32(val);
     },
     get compressedSize() {
-      return l;
+      return _compressedSize;
     },
-    set compressedSize(n) {
-      l = w(n);
+    set compressedSize(val) {
+      _compressedSize = uint32(val);
     },
     get size() {
-      return m;
+      return _size;
     },
-    set size(n) {
-      m = w(n);
+    set size(val) {
+      _size = uint32(val);
     },
     get fileNameLength() {
-      return r;
+      return _fnameLen;
     },
-    set fileNameLength(n) {
-      r = n;
+    set fileNameLength(val) {
+      _fnameLen = val;
     },
     get extraLength() {
-      return v;
+      return _extraLen;
     },
-    set extraLength(n) {
-      v = n;
+    set extraLength(val) {
+      _extraLen = val;
     },
     get extraLocalLength() {
-      return f.extraLen;
+      return _localHeader.extraLen;
     },
-    set extraLocalLength(n) {
-      f.extraLen = n;
+    set extraLocalLength(val) {
+      _localHeader.extraLen = val;
     },
     get commentLength() {
-      return N;
+      return _comLen;
     },
-    set commentLength(n) {
-      N = n;
+    set commentLength(val) {
+      _comLen = val;
     },
     get diskNumStart() {
-      return D;
+      return _diskStart;
     },
-    set diskNumStart(n) {
-      D = w(n);
+    set diskNumStart(val) {
+      _diskStart = uint32(val);
     },
     get inAttr() {
-      return T;
+      return _inattr;
     },
-    set inAttr(n) {
-      T = w(n);
+    set inAttr(val) {
+      _inattr = uint32(val);
     },
     get attr() {
-      return c;
+      return _attr;
     },
-    set attr(n) {
-      c = w(n);
+    set attr(val) {
+      _attr = uint32(val);
     },
     // get Unix file permissions
     get fileAttr() {
-      return (c || 0) >> 16 & 4095;
+      return (_attr || 0) >> 16 & 4095;
     },
     get offset() {
-      return h;
+      return _offset;
     },
-    set offset(n) {
-      h = w(n);
+    set offset(val) {
+      _offset = uint32(val);
     },
     get encrypted() {
-      return (p & L.FLG_ENC) === L.FLG_ENC;
+      return (_flags & Constants$2.FLG_ENC) === Constants$2.FLG_ENC;
     },
     get centralHeaderSize() {
-      return L.CENHDR + r + v + N;
+      return Constants$2.CENHDR + _fnameLen + _extraLen + _comLen;
     },
     get realDataOffset() {
-      return h + L.LOCHDR + f.fnameLen + f.extraLen;
+      return _offset + Constants$2.LOCHDR + _localHeader.fnameLen + _localHeader.extraLen;
     },
     get localHeader() {
-      return f;
+      return _localHeader;
     },
-    loadLocalHeaderFromBinary: function(n) {
-      var u = n.slice(h, h + L.LOCHDR);
-      if (u.readUInt32LE(0) !== L.LOCSIG)
-        throw F1.Errors.INVALID_LOC();
-      f.version = u.readUInt16LE(L.LOCVER), f.flags = u.readUInt16LE(L.LOCFLG), f.method = u.readUInt16LE(L.LOCHOW), f.time = u.readUInt32LE(L.LOCTIM), f.crc = u.readUInt32LE(L.LOCCRC), f.compressedSize = u.readUInt32LE(L.LOCSIZ), f.size = u.readUInt32LE(L.LOCLEN), f.fnameLen = u.readUInt16LE(L.LOCNAM), f.extraLen = u.readUInt16LE(L.LOCEXT);
-      const _ = h + L.LOCHDR + f.fnameLen, g = _ + f.extraLen;
-      return n.slice(_, g);
+    loadLocalHeaderFromBinary: function(input) {
+      var data = input.slice(_offset, _offset + Constants$2.LOCHDR);
+      if (data.readUInt32LE(0) !== Constants$2.LOCSIG) {
+        throw Utils$4.Errors.INVALID_LOC();
+      }
+      _localHeader.version = data.readUInt16LE(Constants$2.LOCVER);
+      _localHeader.flags = data.readUInt16LE(Constants$2.LOCFLG);
+      _localHeader.method = data.readUInt16LE(Constants$2.LOCHOW);
+      _localHeader.time = data.readUInt32LE(Constants$2.LOCTIM);
+      _localHeader.crc = data.readUInt32LE(Constants$2.LOCCRC);
+      _localHeader.compressedSize = data.readUInt32LE(Constants$2.LOCSIZ);
+      _localHeader.size = data.readUInt32LE(Constants$2.LOCLEN);
+      _localHeader.fnameLen = data.readUInt16LE(Constants$2.LOCNAM);
+      _localHeader.extraLen = data.readUInt16LE(Constants$2.LOCEXT);
+      const extraStart = _offset + Constants$2.LOCHDR + _localHeader.fnameLen;
+      const extraEnd = extraStart + _localHeader.extraLen;
+      return input.slice(extraStart, extraEnd);
     },
-    loadFromBinary: function(n) {
-      if (n.length !== L.CENHDR || n.readUInt32LE(0) !== L.CENSIG)
-        throw F1.Errors.INVALID_CEN();
-      a = n.readUInt16LE(L.CENVEM), e = n.readUInt16LE(L.CENVER), p = n.readUInt16LE(L.CENFLG), t = n.readUInt16LE(L.CENHOW), d = n.readUInt32LE(L.CENTIM), i = n.readUInt32LE(L.CENCRC), l = n.readUInt32LE(L.CENSIZ), m = n.readUInt32LE(L.CENLEN), r = n.readUInt16LE(L.CENNAM), v = n.readUInt16LE(L.CENEXT), N = n.readUInt16LE(L.CENCOM), D = n.readUInt16LE(L.CENDSK), T = n.readUInt16LE(L.CENATT), c = n.readUInt32LE(L.CENATX), h = n.readUInt32LE(L.CENOFF);
+    loadFromBinary: function(data) {
+      if (data.length !== Constants$2.CENHDR || data.readUInt32LE(0) !== Constants$2.CENSIG) {
+        throw Utils$4.Errors.INVALID_CEN();
+      }
+      _verMade = data.readUInt16LE(Constants$2.CENVEM);
+      _version = data.readUInt16LE(Constants$2.CENVER);
+      _flags = data.readUInt16LE(Constants$2.CENFLG);
+      _method = data.readUInt16LE(Constants$2.CENHOW);
+      _time = data.readUInt32LE(Constants$2.CENTIM);
+      _crc = data.readUInt32LE(Constants$2.CENCRC);
+      _compressedSize = data.readUInt32LE(Constants$2.CENSIZ);
+      _size = data.readUInt32LE(Constants$2.CENLEN);
+      _fnameLen = data.readUInt16LE(Constants$2.CENNAM);
+      _extraLen = data.readUInt16LE(Constants$2.CENEXT);
+      _comLen = data.readUInt16LE(Constants$2.CENCOM);
+      _diskStart = data.readUInt16LE(Constants$2.CENDSK);
+      _inattr = data.readUInt16LE(Constants$2.CENATT);
+      _attr = data.readUInt32LE(Constants$2.CENATX);
+      _offset = data.readUInt32LE(Constants$2.CENOFF);
     },
     localHeaderToBinary: function() {
-      var n = Buffer.alloc(L.LOCHDR);
-      return n.writeUInt32LE(L.LOCSIG, 0), n.writeUInt16LE(e, L.LOCVER), n.writeUInt16LE(p, L.LOCFLG), n.writeUInt16LE(t, L.LOCHOW), n.writeUInt32LE(d, L.LOCTIM), n.writeUInt32LE(i, L.LOCCRC), n.writeUInt32LE(l, L.LOCSIZ), n.writeUInt32LE(m, L.LOCLEN), n.writeUInt16LE(r, L.LOCNAM), n.writeUInt16LE(f.extraLen, L.LOCEXT), n;
+      var data = Buffer.alloc(Constants$2.LOCHDR);
+      data.writeUInt32LE(Constants$2.LOCSIG, 0);
+      data.writeUInt16LE(_version, Constants$2.LOCVER);
+      data.writeUInt16LE(_flags, Constants$2.LOCFLG);
+      data.writeUInt16LE(_method, Constants$2.LOCHOW);
+      data.writeUInt32LE(_time, Constants$2.LOCTIM);
+      data.writeUInt32LE(_crc, Constants$2.LOCCRC);
+      data.writeUInt32LE(_compressedSize, Constants$2.LOCSIZ);
+      data.writeUInt32LE(_size, Constants$2.LOCLEN);
+      data.writeUInt16LE(_fnameLen, Constants$2.LOCNAM);
+      data.writeUInt16LE(_localHeader.extraLen, Constants$2.LOCEXT);
+      return data;
     },
     centralHeaderToBinary: function() {
-      var n = Buffer.alloc(L.CENHDR + r + v + N);
-      return n.writeUInt32LE(L.CENSIG, 0), n.writeUInt16LE(a, L.CENVEM), n.writeUInt16LE(e, L.CENVER), n.writeUInt16LE(p, L.CENFLG), n.writeUInt16LE(t, L.CENHOW), n.writeUInt32LE(d, L.CENTIM), n.writeUInt32LE(i, L.CENCRC), n.writeUInt32LE(l, L.CENSIZ), n.writeUInt32LE(m, L.CENLEN), n.writeUInt16LE(r, L.CENNAM), n.writeUInt16LE(v, L.CENEXT), n.writeUInt16LE(N, L.CENCOM), n.writeUInt16LE(D, L.CENDSK), n.writeUInt16LE(T, L.CENATT), n.writeUInt32LE(c, L.CENATX), n.writeUInt32LE(h, L.CENOFF), n;
+      var data = Buffer.alloc(Constants$2.CENHDR + _fnameLen + _extraLen + _comLen);
+      data.writeUInt32LE(Constants$2.CENSIG, 0);
+      data.writeUInt16LE(_verMade, Constants$2.CENVEM);
+      data.writeUInt16LE(_version, Constants$2.CENVER);
+      data.writeUInt16LE(_flags, Constants$2.CENFLG);
+      data.writeUInt16LE(_method, Constants$2.CENHOW);
+      data.writeUInt32LE(_time, Constants$2.CENTIM);
+      data.writeUInt32LE(_crc, Constants$2.CENCRC);
+      data.writeUInt32LE(_compressedSize, Constants$2.CENSIZ);
+      data.writeUInt32LE(_size, Constants$2.CENLEN);
+      data.writeUInt16LE(_fnameLen, Constants$2.CENNAM);
+      data.writeUInt16LE(_extraLen, Constants$2.CENEXT);
+      data.writeUInt16LE(_comLen, Constants$2.CENCOM);
+      data.writeUInt16LE(_diskStart, Constants$2.CENDSK);
+      data.writeUInt16LE(_inattr, Constants$2.CENATT);
+      data.writeUInt32LE(_attr, Constants$2.CENATX);
+      data.writeUInt32LE(_offset, Constants$2.CENOFF);
+      return data;
     },
     toJSON: function() {
-      const n = function(u) {
-        return u + " bytes";
+      const bytes = function(nr) {
+        return nr + " bytes";
       };
       return {
-        made: a,
-        version: e,
-        flags: p,
-        method: F1.methodToString(t),
+        made: _verMade,
+        version: _version,
+        flags: _flags,
+        method: Utils$4.methodToString(_method),
         time: this.time,
-        crc: "0x" + i.toString(16).toUpperCase(),
-        compressedSize: n(l),
-        size: n(m),
-        fileNameLength: n(r),
-        extraLength: n(v),
-        commentLength: n(N),
-        diskNumStart: D,
-        inAttr: T,
-        attr: c,
-        offset: h,
-        centralHeaderSize: n(L.CENHDR + r + v + N)
+        crc: "0x" + _crc.toString(16).toUpperCase(),
+        compressedSize: bytes(_compressedSize),
+        size: bytes(_size),
+        fileNameLength: bytes(_fnameLen),
+        extraLength: bytes(_extraLen),
+        commentLength: bytes(_comLen),
+        diskNumStart: _diskStart,
+        inAttr: _inattr,
+        attr: _attr,
+        offset: _offset,
+        centralHeaderSize: bytes(Constants$2.CENHDR + _fnameLen + _extraLen + _comLen)
       };
     },
     toString: function() {
       return JSON.stringify(this.toJSON(), null, "	");
     }
   };
-}, X1 = he, j = X1.Constants, Xd = function() {
-  var a = 0, e = 0, p = 0, t = 0, d = 0;
+};
+var Utils$3 = utilExports, Constants$1 = Utils$3.Constants;
+var mainHeader = function() {
+  var _volumeEntries = 0, _totalEntries = 0, _size = 0, _offset = 0, _commentLength = 0;
   return {
     get diskEntries() {
-      return a;
+      return _volumeEntries;
     },
-    set diskEntries(i) {
-      a = e = i;
+    set diskEntries(val) {
+      _volumeEntries = _totalEntries = val;
     },
     get totalEntries() {
-      return e;
+      return _totalEntries;
     },
-    set totalEntries(i) {
-      e = a = i;
+    set totalEntries(val) {
+      _totalEntries = _volumeEntries = val;
     },
     get size() {
-      return p;
+      return _size;
     },
-    set size(i) {
-      p = i;
+    set size(val) {
+      _size = val;
     },
     get offset() {
-      return t;
+      return _offset;
     },
-    set offset(i) {
-      t = i;
+    set offset(val) {
+      _offset = val;
     },
     get commentLength() {
-      return d;
+      return _commentLength;
     },
-    set commentLength(i) {
-      d = i;
+    set commentLength(val) {
+      _commentLength = val;
     },
     get mainHeaderSize() {
-      return j.ENDHDR + d;
+      return Constants$1.ENDHDR + _commentLength;
     },
-    loadFromBinary: function(i) {
-      if ((i.length !== j.ENDHDR || i.readUInt32LE(0) !== j.ENDSIG) && (i.length < j.ZIP64HDR || i.readUInt32LE(0) !== j.ZIP64SIG))
-        throw X1.Errors.INVALID_END();
-      i.readUInt32LE(0) === j.ENDSIG ? (a = i.readUInt16LE(j.ENDSUB), e = i.readUInt16LE(j.ENDTOT), p = i.readUInt32LE(j.ENDSIZ), t = i.readUInt32LE(j.ENDOFF), d = i.readUInt16LE(j.ENDCOM)) : (a = X1.readBigUInt64LE(i, j.ZIP64SUB), e = X1.readBigUInt64LE(i, j.ZIP64TOT), p = X1.readBigUInt64LE(i, j.ZIP64SIZE), t = X1.readBigUInt64LE(i, j.ZIP64OFF), d = 0);
+    loadFromBinary: function(data) {
+      if ((data.length !== Constants$1.ENDHDR || data.readUInt32LE(0) !== Constants$1.ENDSIG) && (data.length < Constants$1.ZIP64HDR || data.readUInt32LE(0) !== Constants$1.ZIP64SIG)) {
+        throw Utils$3.Errors.INVALID_END();
+      }
+      if (data.readUInt32LE(0) === Constants$1.ENDSIG) {
+        _volumeEntries = data.readUInt16LE(Constants$1.ENDSUB);
+        _totalEntries = data.readUInt16LE(Constants$1.ENDTOT);
+        _size = data.readUInt32LE(Constants$1.ENDSIZ);
+        _offset = data.readUInt32LE(Constants$1.ENDOFF);
+        _commentLength = data.readUInt16LE(Constants$1.ENDCOM);
+      } else {
+        _volumeEntries = Utils$3.readBigUInt64LE(data, Constants$1.ZIP64SUB);
+        _totalEntries = Utils$3.readBigUInt64LE(data, Constants$1.ZIP64TOT);
+        _size = Utils$3.readBigUInt64LE(data, Constants$1.ZIP64SIZE);
+        _offset = Utils$3.readBigUInt64LE(data, Constants$1.ZIP64OFF);
+        _commentLength = 0;
+      }
     },
     toBinary: function() {
-      var i = Buffer.alloc(j.ENDHDR + d);
-      return i.writeUInt32LE(j.ENDSIG, 0), i.writeUInt32LE(0, 4), i.writeUInt16LE(a, j.ENDSUB), i.writeUInt16LE(e, j.ENDTOT), i.writeUInt32LE(p, j.ENDSIZ), i.writeUInt32LE(t, j.ENDOFF), i.writeUInt16LE(d, j.ENDCOM), i.fill(" ", j.ENDHDR), i;
+      var b = Buffer.alloc(Constants$1.ENDHDR + _commentLength);
+      b.writeUInt32LE(Constants$1.ENDSIG, 0);
+      b.writeUInt32LE(0, 4);
+      b.writeUInt16LE(_volumeEntries, Constants$1.ENDSUB);
+      b.writeUInt16LE(_totalEntries, Constants$1.ENDTOT);
+      b.writeUInt32LE(_size, Constants$1.ENDSIZ);
+      b.writeUInt32LE(_offset, Constants$1.ENDOFF);
+      b.writeUInt16LE(_commentLength, Constants$1.ENDCOM);
+      b.fill(" ", Constants$1.ENDHDR);
+      return b;
     },
     toJSON: function() {
-      const i = function(l, m) {
-        let r = l.toString(16).toUpperCase();
-        for (; r.length < m; ) r = "0" + r;
-        return "0x" + r;
+      const offset = function(nr, len) {
+        let offs = nr.toString(16).toUpperCase();
+        while (offs.length < len) offs = "0" + offs;
+        return "0x" + offs;
       };
       return {
-        diskEntries: a,
-        totalEntries: e,
-        size: p + " bytes",
-        offset: i(t, 4),
-        commentLength: d
+        diskEntries: _volumeEntries,
+        totalEntries: _totalEntries,
+        size: _size + " bytes",
+        offset: offset(_offset, 4),
+        commentLength: _commentLength
       };
     },
     toString: function() {
@@ -81078,311 +82844,491 @@ var he = ae.exports, Me = {}, F1 = he, L = F1.Constants, Wd = function() {
     }
   };
 };
-Me.EntryHeader = Wd;
-Me.MainHeader = Xd;
-var $e = {}, Kd = function(a) {
-  var e = b1, p = { chunkSize: (parseInt(a.length / 1024) + 1) * 1024 };
+headers.EntryHeader = entryHeader;
+headers.MainHeader = mainHeader;
+var methods = {};
+var deflater = function(inbuf) {
+  var zlib$1 = zlib;
+  var opts = { chunkSize: (parseInt(inbuf.length / 1024) + 1) * 1024 };
   return {
     deflate: function() {
-      return e.deflateRawSync(a, p);
+      return zlib$1.deflateRawSync(inbuf, opts);
     },
-    deflateAsync: function(t) {
-      var d = e.createDeflateRaw(p), i = [], l = 0;
-      d.on("data", function(m) {
-        i.push(m), l += m.length;
-      }), d.on("end", function() {
-        var m = Buffer.alloc(l), r = 0;
-        m.fill(0);
-        for (var v = 0; v < i.length; v++) {
-          var N = i[v];
-          N.copy(m, r), r += N.length;
+    deflateAsync: function(callback) {
+      var tmp = zlib$1.createDeflateRaw(opts), parts = [], total = 0;
+      tmp.on("data", function(data) {
+        parts.push(data);
+        total += data.length;
+      });
+      tmp.on("end", function() {
+        var buf = Buffer.alloc(total), written = 0;
+        buf.fill(0);
+        for (var i = 0; i < parts.length; i++) {
+          var part = parts[i];
+          part.copy(buf, written);
+          written += part.length;
         }
-        t && t(m);
-      }), d.end(a);
+        callback && callback(buf);
+      });
+      tmp.end(inbuf);
     }
   };
 };
-const Yd = +(process.versions ? process.versions.node : "").split(".")[0] || 0;
-var Qd = function(a, e) {
-  var p = b1;
-  const t = Yd >= 15 && e > 0 ? { maxOutputLength: e } : {};
+const version = +(process.versions ? process.versions.node : "").split(".")[0] || 0;
+var inflater = function(inbuf, expectedLength) {
+  var zlib$1 = zlib;
+  const option = version >= 15 && expectedLength > 0 ? { maxOutputLength: expectedLength } : {};
   return {
     inflate: function() {
-      return p.inflateRawSync(a, t);
+      return zlib$1.inflateRawSync(inbuf, option);
     },
-    inflateAsync: function(d) {
-      var i = p.createInflateRaw(t), l = [], m = 0;
-      i.on("data", function(r) {
-        l.push(r), m += r.length;
-      }), i.on("end", function() {
-        var r = Buffer.alloc(m), v = 0;
-        r.fill(0);
-        for (var N = 0; N < l.length; N++) {
-          var D = l[N];
-          D.copy(r, v), v += D.length;
+    inflateAsync: function(callback) {
+      var tmp = zlib$1.createInflateRaw(option), parts = [], total = 0;
+      tmp.on("data", function(data) {
+        parts.push(data);
+        total += data.length;
+      });
+      tmp.on("end", function() {
+        var buf = Buffer.alloc(total), written = 0;
+        buf.fill(0);
+        for (var i = 0; i < parts.length; i++) {
+          var part = parts[i];
+          part.copy(buf, written);
+          written += part.length;
         }
-        d && d(r);
-      }), i.end(a);
+        callback && callback(buf);
+      });
+      tmp.end(inbuf);
     }
   };
 };
-const { randomFillSync: Ka } = sp, e6 = Be, a6 = new Uint32Array(256).map((a, e) => {
-  for (let p = 0; p < 8; p++)
-    e & 1 ? e = e >>> 1 ^ 3988292384 : e >>>= 1;
-  return e >>> 0;
-}), Rp = (a, e) => Math.imul(a, e) >>> 0, Ya = (a, e) => a6[(a ^ e) & 255] ^ a >>> 8, se = () => typeof Ka == "function" ? Ka(Buffer.alloc(12)) : se.node();
-se.node = () => {
-  const a = Buffer.alloc(12), e = a.length;
-  for (let p = 0; p < e; p++) a[p] = Math.random() * 256 & 255;
-  return a;
+const { randomFillSync } = require$$3;
+const Errors = errors;
+const crctable = new Uint32Array(256).map((t, crc) => {
+  for (let j = 0; j < 8; j++) {
+    if (0 !== (crc & 1)) {
+      crc = crc >>> 1 ^ 3988292384;
+    } else {
+      crc >>>= 1;
+    }
+  }
+  return crc >>> 0;
+});
+const uMul = (a, b) => Math.imul(a, b) >>> 0;
+const crc32update = (pCrc32, bval) => {
+  return crctable[(pCrc32 ^ bval) & 255] ^ pCrc32 >>> 8;
 };
-const Le = {
-  genSalt: se
+const genSalt = () => {
+  if ("function" === typeof randomFillSync) {
+    return randomFillSync(Buffer.alloc(12));
+  } else {
+    return genSalt.node();
+  }
 };
-function ze(a) {
-  const e = Buffer.isBuffer(a) ? a : Buffer.from(a);
+genSalt.node = () => {
+  const salt = Buffer.alloc(12);
+  const len = salt.length;
+  for (let i = 0; i < len; i++) salt[i] = Math.random() * 256 & 255;
+  return salt;
+};
+const config = {
+  genSalt
+};
+function Initkeys(pw) {
+  const pass = Buffer.isBuffer(pw) ? pw : Buffer.from(pw);
   this.keys = new Uint32Array([305419896, 591751049, 878082192]);
-  for (let p = 0; p < e.length; p++)
-    this.updateKeys(e[p]);
+  for (let i = 0; i < pass.length; i++) {
+    this.updateKeys(pass[i]);
+  }
 }
-ze.prototype.updateKeys = function(a) {
-  const e = this.keys;
-  return e[0] = Ya(e[0], a), e[1] += e[0] & 255, e[1] = Rp(e[1], 134775813) + 1, e[2] = Ya(e[2], e[1] >>> 24), a;
+Initkeys.prototype.updateKeys = function(byteValue) {
+  const keys = this.keys;
+  keys[0] = crc32update(keys[0], byteValue);
+  keys[1] += keys[0] & 255;
+  keys[1] = uMul(keys[1], 134775813) + 1;
+  keys[2] = crc32update(keys[2], keys[1] >>> 24);
+  return byteValue;
 };
-ze.prototype.next = function() {
-  const a = (this.keys[2] | 2) >>> 0;
-  return Rp(a, a ^ 1) >> 8 & 255;
+Initkeys.prototype.next = function() {
+  const k = (this.keys[2] | 2) >>> 0;
+  return uMul(k, k ^ 1) >> 8 & 255;
 };
-function p6(a) {
-  const e = new ze(a);
-  return function(p) {
-    const t = Buffer.alloc(p.length);
-    let d = 0;
-    for (let i of p)
-      t[d++] = e.updateKeys(i ^ e.next());
-    return t;
-  };
-}
-function d6(a) {
-  const e = new ze(a);
-  return function(p, t, d = 0) {
-    t || (t = Buffer.alloc(p.length));
-    for (let i of p) {
-      const l = e.next();
-      t[d++] = i ^ l, e.updateKeys(i);
+function make_decrypter(pwd) {
+  const keys = new Initkeys(pwd);
+  return function(data) {
+    const result = Buffer.alloc(data.length);
+    let pos = 0;
+    for (let c of data) {
+      result[pos++] = keys.updateKeys(c ^ keys.next());
     }
-    return t;
+    return result;
   };
 }
-function t6(a, e, p) {
-  if (!a || !Buffer.isBuffer(a) || a.length < 12)
+function make_encrypter(pwd) {
+  const keys = new Initkeys(pwd);
+  return function(data, result, pos = 0) {
+    if (!result) result = Buffer.alloc(data.length);
+    for (let c of data) {
+      const k = keys.next();
+      result[pos++] = c ^ k;
+      keys.updateKeys(c);
+    }
+    return result;
+  };
+}
+function decrypt(data, header, pwd) {
+  if (!data || !Buffer.isBuffer(data) || data.length < 12) {
     return Buffer.alloc(0);
-  const t = p6(p), d = t(a.slice(0, 12)), i = (e.flags & 8) === 8 ? e.timeHighByte : e.crc >>> 24;
-  if (d[11] !== i)
-    throw e6.WRONG_PASSWORD();
-  return t(a.slice(12));
-}
-function i6(a) {
-  Buffer.isBuffer(a) && a.length >= 12 ? Le.genSalt = function() {
-    return a.slice(0, 12);
-  } : a === "node" ? Le.genSalt = se.node : Le.genSalt = se;
-}
-function l6(a, e, p, t = !1) {
-  a == null && (a = Buffer.alloc(0)), Buffer.isBuffer(a) || (a = Buffer.from(a.toString()));
-  const d = d6(p), i = Le.genSalt();
-  i[11] = e.crc >>> 24 & 255, t && (i[10] = e.crc >>> 16 & 255);
-  const l = Buffer.alloc(a.length + 12);
-  return d(i, l), d(a, l, 12);
-}
-var r6 = { decrypt: t6, encrypt: l6, _salter: i6 };
-$e.Deflater = Kd;
-$e.Inflater = Qd;
-$e.ZipCrypto = r6;
-var P = he, m6 = Me, H = P.Constants, Ye = $e, xp = function(a, e) {
-  var p = new m6.EntryHeader(), t = Buffer.alloc(0), d = Buffer.alloc(0), i = !1, l = null, m = Buffer.alloc(0), r = Buffer.alloc(0), v = !0;
-  const N = a, D = typeof N.decoder == "object" ? N.decoder : P.decoder;
-  v = D.hasOwnProperty("efs") ? D.efs : !1;
-  function T() {
-    return !e || !(e instanceof Uint8Array) ? Buffer.alloc(0) : (r = p.loadLocalHeaderFromBinary(e), e.slice(p.realDataOffset, p.realDataOffset + p.compressedSize));
   }
-  function c(u) {
-    if (p.flags_desc) {
-      const _ = {}, g = p.realDataOffset + p.compressedSize;
-      if (e.readUInt32LE(g) == H.LOCSIG || e.readUInt32LE(g) == H.CENSIG)
-        throw P.Errors.DESCRIPTOR_NOT_EXIST();
-      if (e.readUInt32LE(g) == H.EXTSIG)
-        _.crc = e.readUInt32LE(g + H.EXTCRC), _.compressedSize = e.readUInt32LE(g + H.EXTSIZ), _.size = e.readUInt32LE(g + H.EXTLEN);
-      else if (e.readUInt16LE(g + 12) === 19280)
-        _.crc = e.readUInt32LE(g + H.EXTCRC - 4), _.compressedSize = e.readUInt32LE(g + H.EXTSIZ - 4), _.size = e.readUInt32LE(g + H.EXTLEN - 4);
-      else
-        throw P.Errors.DESCRIPTOR_UNKNOWN();
-      if (_.compressedSize !== p.compressedSize || _.size !== p.size || _.crc !== p.crc)
-        throw P.Errors.DESCRIPTOR_FAULTY();
-      if (P.crc32(u) !== _.crc)
-        return !1;
-    } else if (P.crc32(u) !== p.localHeader.crc)
-      return !1;
-    return !0;
+  const decrypter = make_decrypter(pwd);
+  const salt = decrypter(data.slice(0, 12));
+  const verifyByte = (header.flags & 8) === 8 ? header.timeHighByte : header.crc >>> 24;
+  if (salt[11] !== verifyByte) {
+    throw Errors.WRONG_PASSWORD();
   }
-  function h(u, _, g) {
-    if (typeof _ > "u" && typeof u == "string" && (g = u, u = void 0), i)
-      return u && _ && _(Buffer.alloc(0), P.Errors.DIRECTORY_CONTENT_ERROR()), Buffer.alloc(0);
-    var b = T();
-    if (b.length === 0)
-      return u && _ && _(b), b;
-    if (p.encrypted) {
-      if (typeof g != "string" && !Buffer.isBuffer(g))
-        throw P.Errors.INVALID_PASS_PARAM();
-      b = Ye.ZipCrypto.decrypt(b, p, g);
+  return decrypter(data.slice(12));
+}
+function _salter(data) {
+  if (Buffer.isBuffer(data) && data.length >= 12) {
+    config.genSalt = function() {
+      return data.slice(0, 12);
+    };
+  } else if (data === "node") {
+    config.genSalt = genSalt.node;
+  } else {
+    config.genSalt = genSalt;
+  }
+}
+function encrypt(data, header, pwd, oldlike = false) {
+  if (data == null) data = Buffer.alloc(0);
+  if (!Buffer.isBuffer(data)) data = Buffer.from(data.toString());
+  const encrypter = make_encrypter(pwd);
+  const salt = config.genSalt();
+  salt[11] = header.crc >>> 24 & 255;
+  if (oldlike) salt[10] = header.crc >>> 16 & 255;
+  const result = Buffer.alloc(data.length + 12);
+  encrypter(salt, result);
+  return encrypter(data, result, 12);
+}
+var zipcrypto = { decrypt, encrypt, _salter };
+methods.Deflater = deflater;
+methods.Inflater = inflater;
+methods.ZipCrypto = zipcrypto;
+var Utils$2 = utilExports, Headers$1 = headers, Constants = Utils$2.Constants, Methods = methods;
+var zipEntry = function(options, input) {
+  var _centralHeader = new Headers$1.EntryHeader(), _entryName = Buffer.alloc(0), _comment = Buffer.alloc(0), _isDirectory = false, uncompressedData = null, _extra = Buffer.alloc(0), _extralocal = Buffer.alloc(0), _efs = true;
+  const opts = options;
+  const decoder2 = typeof opts.decoder === "object" ? opts.decoder : Utils$2.decoder;
+  _efs = decoder2.hasOwnProperty("efs") ? decoder2.efs : false;
+  function getCompressedDataFromZip() {
+    if (!input || !(input instanceof Uint8Array)) {
+      return Buffer.alloc(0);
     }
-    var V = Buffer.alloc(p.size);
-    switch (p.method) {
-      case P.Constants.STORED:
-        if (b.copy(V), c(V))
-          return u && _ && _(V), V;
-        throw u && _ && _(V, P.Errors.BAD_CRC()), P.Errors.BAD_CRC();
-      case P.Constants.DEFLATED:
-        var x = new Ye.Inflater(b, p.size);
-        if (u)
-          x.inflateAsync(function(C) {
-            C.copy(C, 0), _ && (c(C) ? _(C) : _(C, P.Errors.BAD_CRC()));
+    _extralocal = _centralHeader.loadLocalHeaderFromBinary(input);
+    return input.slice(_centralHeader.realDataOffset, _centralHeader.realDataOffset + _centralHeader.compressedSize);
+  }
+  function crc32OK(data) {
+    if (!_centralHeader.flags_desc) {
+      if (Utils$2.crc32(data) !== _centralHeader.localHeader.crc) {
+        return false;
+      }
+    } else {
+      const descriptor = {};
+      const dataEndOffset = _centralHeader.realDataOffset + _centralHeader.compressedSize;
+      if (input.readUInt32LE(dataEndOffset) == Constants.LOCSIG || input.readUInt32LE(dataEndOffset) == Constants.CENSIG) {
+        throw Utils$2.Errors.DESCRIPTOR_NOT_EXIST();
+      }
+      if (input.readUInt32LE(dataEndOffset) == Constants.EXTSIG) {
+        descriptor.crc = input.readUInt32LE(dataEndOffset + Constants.EXTCRC);
+        descriptor.compressedSize = input.readUInt32LE(dataEndOffset + Constants.EXTSIZ);
+        descriptor.size = input.readUInt32LE(dataEndOffset + Constants.EXTLEN);
+      } else if (input.readUInt16LE(dataEndOffset + 12) === 19280) {
+        descriptor.crc = input.readUInt32LE(dataEndOffset + Constants.EXTCRC - 4);
+        descriptor.compressedSize = input.readUInt32LE(dataEndOffset + Constants.EXTSIZ - 4);
+        descriptor.size = input.readUInt32LE(dataEndOffset + Constants.EXTLEN - 4);
+      } else {
+        throw Utils$2.Errors.DESCRIPTOR_UNKNOWN();
+      }
+      if (descriptor.compressedSize !== _centralHeader.compressedSize || descriptor.size !== _centralHeader.size || descriptor.crc !== _centralHeader.crc) {
+        throw Utils$2.Errors.DESCRIPTOR_FAULTY();
+      }
+      if (Utils$2.crc32(data) !== descriptor.crc) {
+        return false;
+      }
+    }
+    return true;
+  }
+  function decompress(async, callback, pass) {
+    if (typeof callback === "undefined" && typeof async === "string") {
+      pass = async;
+      async = void 0;
+    }
+    if (_isDirectory) {
+      if (async && callback) {
+        callback(Buffer.alloc(0), Utils$2.Errors.DIRECTORY_CONTENT_ERROR());
+      }
+      return Buffer.alloc(0);
+    }
+    var compressedData = getCompressedDataFromZip();
+    if (compressedData.length === 0) {
+      if (async && callback) callback(compressedData);
+      return compressedData;
+    }
+    if (_centralHeader.encrypted) {
+      if ("string" !== typeof pass && !Buffer.isBuffer(pass)) {
+        throw Utils$2.Errors.INVALID_PASS_PARAM();
+      }
+      compressedData = Methods.ZipCrypto.decrypt(compressedData, _centralHeader, pass);
+    }
+    var data = Buffer.alloc(_centralHeader.size);
+    switch (_centralHeader.method) {
+      case Utils$2.Constants.STORED:
+        compressedData.copy(data);
+        if (!crc32OK(data)) {
+          if (async && callback) callback(data, Utils$2.Errors.BAD_CRC());
+          throw Utils$2.Errors.BAD_CRC();
+        } else {
+          if (async && callback) callback(data);
+          return data;
+        }
+      case Utils$2.Constants.DEFLATED:
+        var inflater2 = new Methods.Inflater(compressedData, _centralHeader.size);
+        if (!async) {
+          const result = inflater2.inflate(data);
+          result.copy(data, 0);
+          if (!crc32OK(data)) {
+            throw Utils$2.Errors.BAD_CRC(`"${decoder2.decode(_entryName)}"`);
+          }
+          return data;
+        } else {
+          inflater2.inflateAsync(function(result) {
+            result.copy(result, 0);
+            if (callback) {
+              if (!crc32OK(result)) {
+                callback(result, Utils$2.Errors.BAD_CRC());
+              } else {
+                callback(result);
+              }
+            }
           });
-        else {
-          if (x.inflate(V).copy(V, 0), !c(V))
-            throw P.Errors.BAD_CRC(`"${D.decode(t)}"`);
-          return V;
         }
         break;
       default:
-        throw u && _ && _(Buffer.alloc(0), P.Errors.UNKNOWN_METHOD()), P.Errors.UNKNOWN_METHOD();
+        if (async && callback) callback(Buffer.alloc(0), Utils$2.Errors.UNKNOWN_METHOD());
+        throw Utils$2.Errors.UNKNOWN_METHOD();
     }
   }
-  function f(u, _) {
-    if ((!l || !l.length) && Buffer.isBuffer(e))
-      return u && _ && _(T()), T();
-    if (l.length && !i) {
-      var g;
-      switch (p.method) {
-        case P.Constants.STORED:
-          return p.compressedSize = p.size, g = Buffer.alloc(l.length), l.copy(g), u && _ && _(g), g;
+  function compress(async, callback) {
+    if ((!uncompressedData || !uncompressedData.length) && Buffer.isBuffer(input)) {
+      if (async && callback) callback(getCompressedDataFromZip());
+      return getCompressedDataFromZip();
+    }
+    if (uncompressedData.length && !_isDirectory) {
+      var compressedData;
+      switch (_centralHeader.method) {
+        case Utils$2.Constants.STORED:
+          _centralHeader.compressedSize = _centralHeader.size;
+          compressedData = Buffer.alloc(uncompressedData.length);
+          uncompressedData.copy(compressedData);
+          if (async && callback) callback(compressedData);
+          return compressedData;
         default:
-        case P.Constants.DEFLATED:
-          var b = new Ye.Deflater(l);
-          if (u)
-            b.deflateAsync(function(x) {
-              g = Buffer.alloc(x.length), p.compressedSize = x.length, x.copy(g), _ && _(g);
+        case Utils$2.Constants.DEFLATED:
+          var deflater2 = new Methods.Deflater(uncompressedData);
+          if (!async) {
+            var deflated = deflater2.deflate();
+            _centralHeader.compressedSize = deflated.length;
+            return deflated;
+          } else {
+            deflater2.deflateAsync(function(data) {
+              compressedData = Buffer.alloc(data.length);
+              _centralHeader.compressedSize = data.length;
+              data.copy(compressedData);
+              callback && callback(compressedData);
             });
-          else {
-            var V = b.deflate();
-            return p.compressedSize = V.length, V;
           }
-          b = null;
+          deflater2 = null;
           break;
       }
-    } else if (u && _)
-      _(Buffer.alloc(0));
-    else
+    } else if (async && callback) {
+      callback(Buffer.alloc(0));
+    } else {
       return Buffer.alloc(0);
-  }
-  function w(u, _) {
-    return (u.readUInt32LE(_ + 4) << 4) + u.readUInt32LE(_);
-  }
-  function E(u) {
-    try {
-      for (var _ = 0, g, b, V; _ + 4 < u.length; )
-        g = u.readUInt16LE(_), _ += 2, b = u.readUInt16LE(_), _ += 2, V = u.slice(_, _ + b), _ += b, H.ID_ZIP64 === g && n(V);
-    } catch {
-      throw P.Errors.EXTRA_FIELD_PARSE_ERROR();
     }
   }
-  function n(u) {
-    var _, g, b, V;
-    u.length >= H.EF_ZIP64_SCOMP && (_ = w(u, H.EF_ZIP64_SUNCOMP), p.size === H.EF_ZIP64_OR_32 && (p.size = _)), u.length >= H.EF_ZIP64_RHO && (g = w(u, H.EF_ZIP64_SCOMP), p.compressedSize === H.EF_ZIP64_OR_32 && (p.compressedSize = g)), u.length >= H.EF_ZIP64_DSN && (b = w(u, H.EF_ZIP64_RHO), p.offset === H.EF_ZIP64_OR_32 && (p.offset = b)), u.length >= H.EF_ZIP64_DSN + 4 && (V = u.readUInt32LE(H.EF_ZIP64_DSN), p.diskNumStart === H.EF_ZIP64_OR_16 && (p.diskNumStart = V));
+  function readUInt64LE(buffer, offset) {
+    return (buffer.readUInt32LE(offset + 4) << 4) + buffer.readUInt32LE(offset);
+  }
+  function parseExtra(data) {
+    try {
+      var offset = 0;
+      var signature, size, part;
+      while (offset + 4 < data.length) {
+        signature = data.readUInt16LE(offset);
+        offset += 2;
+        size = data.readUInt16LE(offset);
+        offset += 2;
+        part = data.slice(offset, offset + size);
+        offset += size;
+        if (Constants.ID_ZIP64 === signature) {
+          parseZip64ExtendedInformation(part);
+        }
+      }
+    } catch (error) {
+      throw Utils$2.Errors.EXTRA_FIELD_PARSE_ERROR();
+    }
+  }
+  function parseZip64ExtendedInformation(data) {
+    var size, compressedSize, offset, diskNumStart;
+    if (data.length >= Constants.EF_ZIP64_SCOMP) {
+      size = readUInt64LE(data, Constants.EF_ZIP64_SUNCOMP);
+      if (_centralHeader.size === Constants.EF_ZIP64_OR_32) {
+        _centralHeader.size = size;
+      }
+    }
+    if (data.length >= Constants.EF_ZIP64_RHO) {
+      compressedSize = readUInt64LE(data, Constants.EF_ZIP64_SCOMP);
+      if (_centralHeader.compressedSize === Constants.EF_ZIP64_OR_32) {
+        _centralHeader.compressedSize = compressedSize;
+      }
+    }
+    if (data.length >= Constants.EF_ZIP64_DSN) {
+      offset = readUInt64LE(data, Constants.EF_ZIP64_RHO);
+      if (_centralHeader.offset === Constants.EF_ZIP64_OR_32) {
+        _centralHeader.offset = offset;
+      }
+    }
+    if (data.length >= Constants.EF_ZIP64_DSN + 4) {
+      diskNumStart = data.readUInt32LE(Constants.EF_ZIP64_DSN);
+      if (_centralHeader.diskNumStart === Constants.EF_ZIP64_OR_16) {
+        _centralHeader.diskNumStart = diskNumStart;
+      }
+    }
   }
   return {
     get entryName() {
-      return D.decode(t);
+      return decoder2.decode(_entryName);
     },
     get rawEntryName() {
-      return t;
+      return _entryName;
     },
-    set entryName(u) {
-      t = P.toBuffer(u, D.encode);
-      var _ = t[t.length - 1];
-      i = _ === 47 || _ === 92, p.fileNameLength = t.length;
+    set entryName(val) {
+      _entryName = Utils$2.toBuffer(val, decoder2.encode);
+      var lastChar = _entryName[_entryName.length - 1];
+      _isDirectory = lastChar === 47 || lastChar === 92;
+      _centralHeader.fileNameLength = _entryName.length;
     },
     get efs() {
-      return typeof v == "function" ? v(this.entryName) : v;
+      if (typeof _efs === "function") {
+        return _efs(this.entryName);
+      } else {
+        return _efs;
+      }
     },
     get extra() {
-      return m;
+      return _extra;
     },
-    set extra(u) {
-      m = u, p.extraLength = u.length, E(u);
+    set extra(val) {
+      _extra = val;
+      _centralHeader.extraLength = val.length;
+      parseExtra(val);
     },
     get comment() {
-      return D.decode(d);
+      return decoder2.decode(_comment);
     },
-    set comment(u) {
-      if (d = P.toBuffer(u, D.encode), p.commentLength = d.length, d.length > 65535) throw P.Errors.COMMENT_TOO_LONG();
+    set comment(val) {
+      _comment = Utils$2.toBuffer(val, decoder2.encode);
+      _centralHeader.commentLength = _comment.length;
+      if (_comment.length > 65535) throw Utils$2.Errors.COMMENT_TOO_LONG();
     },
     get name() {
-      var u = D.decode(t);
-      return i ? u.substr(u.length - 1).split("/").pop() : u.split("/").pop();
+      var n = decoder2.decode(_entryName);
+      return _isDirectory ? n.substr(n.length - 1).split("/").pop() : n.split("/").pop();
     },
     get isDirectory() {
-      return i;
+      return _isDirectory;
     },
     getCompressedData: function() {
-      return f(!1, null);
+      return compress(false, null);
     },
-    getCompressedDataAsync: function(u) {
-      f(!0, u);
+    getCompressedDataAsync: function(callback) {
+      compress(true, callback);
     },
-    setData: function(u) {
-      l = P.toBuffer(u, P.decoder.encode), !i && l.length ? (p.size = l.length, p.method = P.Constants.DEFLATED, p.crc = P.crc32(u), p.changed = !0) : p.method = P.Constants.STORED;
+    setData: function(value) {
+      uncompressedData = Utils$2.toBuffer(value, Utils$2.decoder.encode);
+      if (!_isDirectory && uncompressedData.length) {
+        _centralHeader.size = uncompressedData.length;
+        _centralHeader.method = Utils$2.Constants.DEFLATED;
+        _centralHeader.crc = Utils$2.crc32(value);
+        _centralHeader.changed = true;
+      } else {
+        _centralHeader.method = Utils$2.Constants.STORED;
+      }
     },
-    getData: function(u) {
-      return p.changed ? l : h(!1, null, u);
+    getData: function(pass) {
+      if (_centralHeader.changed) {
+        return uncompressedData;
+      } else {
+        return decompress(false, null, pass);
+      }
     },
-    getDataAsync: function(u, _) {
-      p.changed ? u(l) : h(!0, u, _);
+    getDataAsync: function(callback, pass) {
+      if (_centralHeader.changed) {
+        callback(uncompressedData);
+      } else {
+        decompress(true, callback, pass);
+      }
     },
-    set attr(u) {
-      p.attr = u;
+    set attr(attr) {
+      _centralHeader.attr = attr;
     },
     get attr() {
-      return p.attr;
+      return _centralHeader.attr;
     },
-    set header(u) {
-      p.loadFromBinary(u);
+    set header(data) {
+      _centralHeader.loadFromBinary(data);
     },
     get header() {
-      return p;
+      return _centralHeader;
     },
     packCentralHeader: function() {
-      p.flags_efs = this.efs, p.extraLength = m.length;
-      var u = p.centralHeaderToBinary(), _ = P.Constants.CENHDR;
-      return t.copy(u, _), _ += t.length, m.copy(u, _), _ += p.extraLength, d.copy(u, _), u;
+      _centralHeader.flags_efs = this.efs;
+      _centralHeader.extraLength = _extra.length;
+      var header = _centralHeader.centralHeaderToBinary();
+      var addpos = Utils$2.Constants.CENHDR;
+      _entryName.copy(header, addpos);
+      addpos += _entryName.length;
+      _extra.copy(header, addpos);
+      addpos += _centralHeader.extraLength;
+      _comment.copy(header, addpos);
+      return header;
     },
     packLocalHeader: function() {
-      let u = 0;
-      p.flags_efs = this.efs, p.extraLocalLength = r.length;
-      const _ = p.localHeaderToBinary(), g = Buffer.alloc(_.length + t.length + p.extraLocalLength);
-      return _.copy(g, u), u += _.length, t.copy(g, u), u += t.length, r.copy(g, u), u += r.length, g;
+      let addpos = 0;
+      _centralHeader.flags_efs = this.efs;
+      _centralHeader.extraLocalLength = _extralocal.length;
+      const localHeaderBuf = _centralHeader.localHeaderToBinary();
+      const localHeader = Buffer.alloc(localHeaderBuf.length + _entryName.length + _centralHeader.extraLocalLength);
+      localHeaderBuf.copy(localHeader, addpos);
+      addpos += localHeaderBuf.length;
+      _entryName.copy(localHeader, addpos);
+      addpos += _entryName.length;
+      _extralocal.copy(localHeader, addpos);
+      addpos += _extralocal.length;
+      return localHeader;
     },
     toJSON: function() {
-      const u = function(_) {
-        return "<" + (_ && _.length + " bytes buffer" || "null") + ">";
+      const bytes = function(nr) {
+        return "<" + (nr && nr.length + " bytes buffer" || "null") + ">";
       };
       return {
         entryName: this.entryName,
         name: this.name,
         comment: this.comment,
         isDirectory: this.isDirectory,
-        header: p.toJSON(),
-        compressedData: u(e),
-        data: u(l)
+        header: _centralHeader.toJSON(),
+        compressedData: bytes(input),
+        data: bytes(uncompressedData)
       };
     },
     toString: function() {
@@ -81390,59 +83336,99 @@ var P = he, m6 = Me, H = P.Constants, Ye = $e, xp = function(a, e) {
     }
   };
 };
-const Qa = xp, s6 = Me, p1 = he;
-var o6 = function(a, e) {
-  var p = [], t = {}, d = Buffer.alloc(0), i = new s6.MainHeader(), l = !1;
-  const m = /* @__PURE__ */ new Set(), r = e, { noSort: v, decoder: N } = r;
-  a ? c(r.readEntries) : l = !0;
-  function D() {
-    const f = /* @__PURE__ */ new Set();
-    for (const w of Object.keys(t)) {
-      const E = w.split("/");
-      if (E.pop(), !!E.length)
-        for (let n = 0; n < E.length; n++) {
-          const u = E.slice(0, n + 1).join("/") + "/";
-          f.add(u);
-        }
-    }
-    for (const w of f)
-      if (!(w in t)) {
-        const E = new Qa(r);
-        E.entryName = w, E.attr = 16, E.temporary = !0, p.push(E), t[E.entryName] = E, m.add(E);
+const ZipEntry$1 = zipEntry;
+const Headers2 = headers;
+const Utils$1 = utilExports;
+var zipFile = function(inBuffer, options) {
+  var entryList = [], entryTable = {}, _comment = Buffer.alloc(0), mainHeader2 = new Headers2.MainHeader(), loadedEntries = false;
+  const temporary = /* @__PURE__ */ new Set();
+  const opts = options;
+  const { noSort, decoder: decoder2 } = opts;
+  if (inBuffer) {
+    readMainHeader(opts.readEntries);
+  } else {
+    loadedEntries = true;
+  }
+  function makeTemporaryFolders() {
+    const foldersList = /* @__PURE__ */ new Set();
+    for (const elem of Object.keys(entryTable)) {
+      const elements = elem.split("/");
+      elements.pop();
+      if (!elements.length) continue;
+      for (let i = 0; i < elements.length; i++) {
+        const sub = elements.slice(0, i + 1).join("/") + "/";
+        foldersList.add(sub);
       }
-  }
-  function T() {
-    if (l = !0, t = {}, i.diskEntries > (a.length - i.offset) / p1.Constants.CENHDR)
-      throw p1.Errors.DISK_ENTRY_TOO_LARGE();
-    p = new Array(i.diskEntries);
-    for (var f = i.offset, w = 0; w < p.length; w++) {
-      var E = f, n = new Qa(r, a);
-      n.header = a.slice(E, E += p1.Constants.CENHDR), n.entryName = a.slice(E, E += n.header.fileNameLength), n.header.extraLength && (n.extra = a.slice(E, E += n.header.extraLength)), n.header.commentLength && (n.comment = a.slice(E, E + n.header.commentLength)), f += n.header.centralHeaderSize, p[w] = n, t[n.entryName] = n;
     }
-    m.clear(), D();
-  }
-  function c(f) {
-    var w = a.length - p1.Constants.ENDHDR, E = Math.max(0, w - 65535), n = E, u = a.length, _ = -1, g = 0;
-    for ((typeof r.trailingSpace == "boolean" ? r.trailingSpace : !1) && (E = 0), w; w >= n; w--)
-      if (a[w] === 80) {
-        if (a.readUInt32LE(w) === p1.Constants.ENDSIG) {
-          _ = w, g = w, u = w + p1.Constants.ENDHDR, n = w - p1.Constants.END64HDR;
-          continue;
-        }
-        if (a.readUInt32LE(w) === p1.Constants.END64SIG) {
-          n = E;
-          continue;
-        }
-        if (a.readUInt32LE(w) === p1.Constants.ZIP64SIG) {
-          _ = w, u = w + p1.readBigUInt64LE(a, w + p1.Constants.ZIP64SIZE) + p1.Constants.ZIP64LEAD;
-          break;
-        }
+    for (const elem of foldersList) {
+      if (!(elem in entryTable)) {
+        const tempfolder = new ZipEntry$1(opts);
+        tempfolder.entryName = elem;
+        tempfolder.attr = 16;
+        tempfolder.temporary = true;
+        entryList.push(tempfolder);
+        entryTable[tempfolder.entryName] = tempfolder;
+        temporary.add(tempfolder);
       }
-    if (_ == -1) throw p1.Errors.INVALID_FORMAT();
-    i.loadFromBinary(a.slice(_, u)), i.commentLength && (d = a.slice(g + p1.Constants.ENDHDR)), f && T();
+    }
   }
-  function h() {
-    p.length > 1 && !v && p.sort((f, w) => f.entryName.toLowerCase().localeCompare(w.entryName.toLowerCase()));
+  function readEntries() {
+    loadedEntries = true;
+    entryTable = {};
+    if (mainHeader2.diskEntries > (inBuffer.length - mainHeader2.offset) / Utils$1.Constants.CENHDR) {
+      throw Utils$1.Errors.DISK_ENTRY_TOO_LARGE();
+    }
+    entryList = new Array(mainHeader2.diskEntries);
+    var index = mainHeader2.offset;
+    for (var i = 0; i < entryList.length; i++) {
+      var tmp = index, entry = new ZipEntry$1(opts, inBuffer);
+      entry.header = inBuffer.slice(tmp, tmp += Utils$1.Constants.CENHDR);
+      entry.entryName = inBuffer.slice(tmp, tmp += entry.header.fileNameLength);
+      if (entry.header.extraLength) {
+        entry.extra = inBuffer.slice(tmp, tmp += entry.header.extraLength);
+      }
+      if (entry.header.commentLength) entry.comment = inBuffer.slice(tmp, tmp + entry.header.commentLength);
+      index += entry.header.centralHeaderSize;
+      entryList[i] = entry;
+      entryTable[entry.entryName] = entry;
+    }
+    temporary.clear();
+    makeTemporaryFolders();
+  }
+  function readMainHeader(readNow) {
+    var i = inBuffer.length - Utils$1.Constants.ENDHDR, max2 = Math.max(0, i - 65535), n = max2, endStart = inBuffer.length, endOffset = -1, commentEnd = 0;
+    const trailingSpace = typeof opts.trailingSpace === "boolean" ? opts.trailingSpace : false;
+    if (trailingSpace) max2 = 0;
+    for (i; i >= n; i--) {
+      if (inBuffer[i] !== 80) continue;
+      if (inBuffer.readUInt32LE(i) === Utils$1.Constants.ENDSIG) {
+        endOffset = i;
+        commentEnd = i;
+        endStart = i + Utils$1.Constants.ENDHDR;
+        n = i - Utils$1.Constants.END64HDR;
+        continue;
+      }
+      if (inBuffer.readUInt32LE(i) === Utils$1.Constants.END64SIG) {
+        n = max2;
+        continue;
+      }
+      if (inBuffer.readUInt32LE(i) === Utils$1.Constants.ZIP64SIG) {
+        endOffset = i;
+        endStart = i + Utils$1.readBigUInt64LE(inBuffer, i + Utils$1.Constants.ZIP64SIZE) + Utils$1.Constants.ZIP64LEAD;
+        break;
+      }
+    }
+    if (endOffset == -1) throw Utils$1.Errors.INVALID_FORMAT();
+    mainHeader2.loadFromBinary(inBuffer.slice(endOffset, endStart));
+    if (mainHeader2.commentLength) {
+      _comment = inBuffer.slice(commentEnd + Utils$1.Constants.ENDHDR);
+    }
+    if (readNow) readEntries();
+  }
+  function sortEntries() {
+    if (entryList.length > 1 && !noSort) {
+      entryList.sort((a, b) => a.entryName.toLowerCase().localeCompare(b.entryName.toLowerCase()));
+    }
   }
   return {
     /**
@@ -81450,23 +83436,30 @@ var o6 = function(a, e) {
      * @return Array
      */
     get entries() {
-      return l || T(), p.filter((f) => !m.has(f));
+      if (!loadedEntries) {
+        readEntries();
+      }
+      return entryList.filter((e) => !temporary.has(e));
     },
     /**
      * Archive comment
      * @return {String}
      */
     get comment() {
-      return N.decode(d);
+      return decoder2.decode(_comment);
     },
-    set comment(f) {
-      d = p1.toBuffer(f, N.encode), i.commentLength = d.length;
+    set comment(val) {
+      _comment = Utils$1.toBuffer(val, decoder2.encode);
+      mainHeader2.commentLength = _comment.length;
     },
     getEntryCount: function() {
-      return l ? p.length : i.diskEntries;
+      if (!loadedEntries) {
+        return mainHeader2.diskEntries;
+      }
+      return entryList.length;
     },
-    forEach: function(f) {
-      this.entries.forEach(f);
+    forEach: function(callback) {
+      this.entries.forEach(callback);
     },
     /**
      * Returns a reference to the entry with the given name or null if entry is inexistent
@@ -81474,16 +83467,24 @@ var o6 = function(a, e) {
      * @param entryName
      * @return ZipEntry
      */
-    getEntry: function(f) {
-      return l || T(), t[f] || null;
+    getEntry: function(entryName) {
+      if (!loadedEntries) {
+        readEntries();
+      }
+      return entryTable[entryName] || null;
     },
     /**
      * Adds the given entry to the entry list
      *
      * @param entry
      */
-    setEntry: function(f) {
-      l || T(), p.push(f), t[f.entryName] = f, i.totalEntries = p.length;
+    setEntry: function(entry) {
+      if (!loadedEntries) {
+        readEntries();
+      }
+      entryList.push(entry);
+      entryTable[entry.entryName] = entry;
+      mainHeader2.totalEntries = entryList.length;
     },
     /**
      * Removes the file with the given name from the entry list.
@@ -81492,10 +83493,13 @@ var o6 = function(a, e) {
      * @param entryName
      * @returns {void}
      */
-    deleteFile: function(f, w = !0) {
-      l || T();
-      const E = t[f];
-      this.getEntryChildren(E, w).map((u) => u.entryName).forEach(this.deleteEntry);
+    deleteFile: function(entryName, withsubfolders = true) {
+      if (!loadedEntries) {
+        readEntries();
+      }
+      const entry = entryTable[entryName];
+      const list = this.getEntryChildren(entry, withsubfolders).map((child) => child.entryName);
+      list.forEach(this.deleteEntry);
     },
     /**
      * Removes the entry with the given name from the entry list.
@@ -81503,10 +83507,17 @@ var o6 = function(a, e) {
      * @param {string} entryName
      * @returns {void}
      */
-    deleteEntry: function(f) {
-      l || T();
-      const w = t[f], E = p.indexOf(w);
-      E >= 0 && (p.splice(E, 1), delete t[f], i.totalEntries = p.length);
+    deleteEntry: function(entryName) {
+      if (!loadedEntries) {
+        readEntries();
+      }
+      const entry = entryTable[entryName];
+      const index = entryList.indexOf(entry);
+      if (index >= 0) {
+        entryList.splice(index, 1);
+        delete entryTable[entryName];
+        mainHeader2.totalEntries = entryList.length;
+      }
     },
     /**
      *  Iterates and returns all nested files and directories of the given entry
@@ -81514,15 +83525,24 @@ var o6 = function(a, e) {
      * @param entry
      * @return Array
      */
-    getEntryChildren: function(f, w = !0) {
-      if (l || T(), typeof f == "object")
-        if (f.isDirectory && w) {
-          const E = [], n = f.entryName;
-          for (const u of p)
-            u.entryName.startsWith(n) && E.push(u);
-          return E;
-        } else
-          return [f];
+    getEntryChildren: function(entry, subfolders = true) {
+      if (!loadedEntries) {
+        readEntries();
+      }
+      if (typeof entry === "object") {
+        if (entry.isDirectory && subfolders) {
+          const list = [];
+          const name = entry.entryName;
+          for (const zipEntry2 of entryList) {
+            if (zipEntry2.entryName.startsWith(name)) {
+              list.push(zipEntry2);
+            }
+          }
+          return list;
+        } else {
+          return [entry];
+        }
+      }
       return [];
     },
     /**
@@ -81531,10 +83551,10 @@ var o6 = function(a, e) {
      * @param {ZipEntry} entry
      * @return {integer}
      */
-    getChildCount: function(f) {
-      if (f && f.isDirectory) {
-        const w = this.getEntryChildren(f);
-        return w.includes(f) ? w.length - 1 : w.length;
+    getChildCount: function(entry) {
+      if (entry && entry.isDirectory) {
+        const list = this.getEntryChildren(entry);
+        return list.includes(entry) ? list.length - 1 : list.length;
       }
       return 0;
     },
@@ -81544,106 +83564,196 @@ var o6 = function(a, e) {
      * @return Buffer
      */
     compressToBuffer: function() {
-      l || T(), h();
-      const f = [], w = [];
-      let E = 0, n = 0;
-      i.size = 0, i.offset = 0;
-      let u = 0;
-      for (const b of this.entries) {
-        const V = b.getCompressedData();
-        b.header.offset = n;
-        const x = b.packLocalHeader(), C = x.length + V.length;
-        n += C, f.push(x), f.push(V);
-        const O = b.packCentralHeader();
-        w.push(O), i.size += O.length, E += C + O.length, u++;
+      if (!loadedEntries) {
+        readEntries();
       }
-      E += i.mainHeaderSize, i.offset = n, i.totalEntries = u, n = 0;
-      const _ = Buffer.alloc(E);
-      for (const b of f)
-        b.copy(_, n), n += b.length;
-      for (const b of w)
-        b.copy(_, n), n += b.length;
-      const g = i.toBinary();
-      return d && d.copy(g, p1.Constants.ENDHDR), g.copy(_, n), a = _, l = !1, _;
+      sortEntries();
+      const dataBlock = [];
+      const headerBlocks = [];
+      let totalSize = 0;
+      let dindex = 0;
+      mainHeader2.size = 0;
+      mainHeader2.offset = 0;
+      let totalEntries = 0;
+      for (const entry of this.entries) {
+        const compressedData = entry.getCompressedData();
+        entry.header.offset = dindex;
+        const localHeader = entry.packLocalHeader();
+        const dataLength = localHeader.length + compressedData.length;
+        dindex += dataLength;
+        dataBlock.push(localHeader);
+        dataBlock.push(compressedData);
+        const centralHeader = entry.packCentralHeader();
+        headerBlocks.push(centralHeader);
+        mainHeader2.size += centralHeader.length;
+        totalSize += dataLength + centralHeader.length;
+        totalEntries++;
+      }
+      totalSize += mainHeader2.mainHeaderSize;
+      mainHeader2.offset = dindex;
+      mainHeader2.totalEntries = totalEntries;
+      dindex = 0;
+      const outBuffer = Buffer.alloc(totalSize);
+      for (const content of dataBlock) {
+        content.copy(outBuffer, dindex);
+        dindex += content.length;
+      }
+      for (const content of headerBlocks) {
+        content.copy(outBuffer, dindex);
+        dindex += content.length;
+      }
+      const mh = mainHeader2.toBinary();
+      if (_comment) {
+        _comment.copy(mh, Utils$1.Constants.ENDHDR);
+      }
+      mh.copy(outBuffer, dindex);
+      inBuffer = outBuffer;
+      loadedEntries = false;
+      return outBuffer;
     },
-    toAsyncBuffer: function(f, w, E, n) {
+    toAsyncBuffer: function(onSuccess, onFail, onItemStart, onItemEnd) {
       try {
-        l || T(), h();
-        const u = [], _ = [];
-        let g = 0, b = 0, V = 0;
-        i.size = 0, i.offset = 0;
-        const x = function(C) {
-          if (C.length > 0) {
-            const O = C.shift(), W = O.entryName + O.extra.toString();
-            E && E(W), O.getCompressedDataAsync(function(M) {
-              n && n(W), O.header.offset = b;
-              const Y = O.packLocalHeader(), C1 = Y.length + M.length;
-              b += C1, u.push(Y), u.push(M);
-              const de = O.packCentralHeader();
-              _.push(de), i.size += de.length, g += C1 + de.length, V++, x(C);
+        if (!loadedEntries) {
+          readEntries();
+        }
+        sortEntries();
+        const dataBlock = [];
+        const centralHeaders = [];
+        let totalSize = 0;
+        let dindex = 0;
+        let totalEntries = 0;
+        mainHeader2.size = 0;
+        mainHeader2.offset = 0;
+        const compress2Buffer = function(entryLists) {
+          if (entryLists.length > 0) {
+            const entry = entryLists.shift();
+            const name = entry.entryName + entry.extra.toString();
+            if (onItemStart) onItemStart(name);
+            entry.getCompressedDataAsync(function(compressedData) {
+              if (onItemEnd) onItemEnd(name);
+              entry.header.offset = dindex;
+              const localHeader = entry.packLocalHeader();
+              const dataLength = localHeader.length + compressedData.length;
+              dindex += dataLength;
+              dataBlock.push(localHeader);
+              dataBlock.push(compressedData);
+              const centalHeader = entry.packCentralHeader();
+              centralHeaders.push(centalHeader);
+              mainHeader2.size += centalHeader.length;
+              totalSize += dataLength + centalHeader.length;
+              totalEntries++;
+              compress2Buffer(entryLists);
             });
           } else {
-            g += i.mainHeaderSize, i.offset = b, i.totalEntries = V, b = 0;
-            const O = Buffer.alloc(g);
-            u.forEach(function(M) {
-              M.copy(O, b), b += M.length;
-            }), _.forEach(function(M) {
-              M.copy(O, b), b += M.length;
+            totalSize += mainHeader2.mainHeaderSize;
+            mainHeader2.offset = dindex;
+            mainHeader2.totalEntries = totalEntries;
+            dindex = 0;
+            const outBuffer = Buffer.alloc(totalSize);
+            dataBlock.forEach(function(content) {
+              content.copy(outBuffer, dindex);
+              dindex += content.length;
             });
-            const W = i.toBinary();
-            d && d.copy(W, p1.Constants.ENDHDR), W.copy(O, b), a = O, l = !1, f(O);
+            centralHeaders.forEach(function(content) {
+              content.copy(outBuffer, dindex);
+              dindex += content.length;
+            });
+            const mh = mainHeader2.toBinary();
+            if (_comment) {
+              _comment.copy(mh, Utils$1.Constants.ENDHDR);
+            }
+            mh.copy(outBuffer, dindex);
+            inBuffer = outBuffer;
+            loadedEntries = false;
+            onSuccess(outBuffer);
           }
         };
-        x(Array.from(this.entries));
-      } catch (u) {
-        w(u);
+        compress2Buffer(Array.from(this.entries));
+      } catch (e) {
+        onFail(e);
       }
     }
   };
 };
-const B = he, k = n1, n6 = xp, u6 = o6, z1 = (...a) => B.findLast(a, (e) => typeof e == "boolean"), ep = (...a) => B.findLast(a, (e) => typeof e == "string"), f6 = (...a) => B.findLast(a, (e) => typeof e == "function"), c6 = {
+const Utils2 = utilExports;
+const pth = require$$1$2;
+const ZipEntry = zipEntry;
+const ZipFile = zipFile;
+const get_Bool = (...val) => Utils2.findLast(val, (c) => typeof c === "boolean");
+const get_Str = (...val) => Utils2.findLast(val, (c) => typeof c === "string");
+const get_Fun = (...val) => Utils2.findLast(val, (c) => typeof c === "function");
+const defaultOptions = {
   // option "noSort" : if true it disables files sorting
-  noSort: !1,
+  noSort: false,
   // read entries during load (initial loading may be slower)
-  readEntries: !1,
+  readEntries: false,
   // default method is none
-  method: B.Constants.NONE,
+  method: Utils2.Constants.NONE,
   // file system
   fs: null
 };
-var Na = function(a, e) {
-  let p = null;
-  const t = Object.assign(/* @__PURE__ */ Object.create(null), c6);
-  a && typeof a == "object" && (a instanceof Uint8Array || (Object.assign(t, a), a = t.input ? t.input : void 0, t.input && delete t.input), Buffer.isBuffer(a) && (p = a, t.method = B.Constants.BUFFER, a = void 0)), Object.assign(t, e);
-  const d = new B(t);
-  if ((typeof t.decoder != "object" || typeof t.decoder.encode != "function" || typeof t.decoder.decode != "function") && (t.decoder = B.decoder), a && typeof a == "string")
-    if (d.fs.existsSync(a))
-      t.method = B.Constants.FILE, t.filename = a, p = d.fs.readFileSync(a);
-    else
-      throw B.Errors.INVALID_FILENAME();
-  const i = new u6(p, t), { canonical: l, sanitize: m, zipnamefix: r } = B;
-  function v(c) {
-    if (c && i) {
-      var h;
-      if (typeof c == "string" && (h = i.getEntry(k.posix.normalize(c))), typeof c == "object" && typeof c.entryName < "u" && typeof c.header < "u" && (h = i.getEntry(c.entryName)), h)
-        return h;
+var admZip = function(input, options) {
+  let inBuffer = null;
+  const opts = Object.assign(/* @__PURE__ */ Object.create(null), defaultOptions);
+  if (input && "object" === typeof input) {
+    if (!(input instanceof Uint8Array)) {
+      Object.assign(opts, input);
+      input = opts.input ? opts.input : void 0;
+      if (opts.input) delete opts.input;
+    }
+    if (Buffer.isBuffer(input)) {
+      inBuffer = input;
+      opts.method = Utils2.Constants.BUFFER;
+      input = void 0;
+    }
+  }
+  Object.assign(opts, options);
+  const filetools = new Utils2(opts);
+  if (typeof opts.decoder !== "object" || typeof opts.decoder.encode !== "function" || typeof opts.decoder.decode !== "function") {
+    opts.decoder = Utils2.decoder;
+  }
+  if (input && "string" === typeof input) {
+    if (filetools.fs.existsSync(input)) {
+      opts.method = Utils2.Constants.FILE;
+      opts.filename = input;
+      inBuffer = filetools.fs.readFileSync(input);
+    } else {
+      throw Utils2.Errors.INVALID_FILENAME();
+    }
+  }
+  const _zip = new ZipFile(inBuffer, opts);
+  const { canonical, sanitize, zipnamefix } = Utils2;
+  function getEntry(entry) {
+    if (entry && _zip) {
+      var item;
+      if (typeof entry === "string") item = _zip.getEntry(pth.posix.normalize(entry));
+      if (typeof entry === "object" && typeof entry.entryName !== "undefined" && typeof entry.header !== "undefined") item = _zip.getEntry(entry.entryName);
+      if (item) {
+        return item;
+      }
     }
     return null;
   }
-  function N(c) {
-    const { join: h, normalize: f, sep: w } = k.posix;
-    return h(".", f(w + c.split("\\").join(w) + w));
+  function fixPath(zipPath) {
+    const { join, normalize: normalize2, sep } = pth.posix;
+    return join(".", normalize2(sep + zipPath.split("\\").join(sep) + sep));
   }
-  function D(c) {
-    return c instanceof RegExp ? /* @__PURE__ */ function(h) {
-      return function(f) {
-        return h.test(f);
-      };
-    }(c) : typeof c != "function" ? () => !0 : c;
+  function filenameFilter(filterfn) {
+    if (filterfn instanceof RegExp) {
+      return /* @__PURE__ */ function(rx) {
+        return function(filename) {
+          return rx.test(filename);
+        };
+      }(filterfn);
+    } else if ("function" !== typeof filterfn) {
+      return () => true;
+    }
+    return filterfn;
   }
-  const T = (c, h) => {
-    let f = h.slice(-1);
-    return f = f === d.sep ? d.sep : "", k.relative(c, h) + f;
+  const relativePath = (local, entry) => {
+    let lastChar = entry.slice(-1);
+    lastChar = lastChar === filetools.sep ? filetools.sep : "";
+    return pth.relative(local, entry) + lastChar;
   };
   return {
     /**
@@ -81652,19 +83762,20 @@ var Na = function(a, e) {
      * @param {Buffer|string} [pass] - password
      * @return Buffer or Null in case of error
      */
-    readFile: function(c, h) {
-      var f = v(c);
-      return f && f.getData(h) || null;
+    readFile: function(entry, pass) {
+      var item = getEntry(entry);
+      return item && item.getData(pass) || null;
     },
     /**
      * Returns how many child elements has on entry (directories) on files it is always 0
      * @param {ZipEntry|string} entry ZipEntry object or String with the full path of the entry
      * @returns {integer}
      */
-    childCount: function(c) {
-      const h = v(c);
-      if (h)
-        return i.getChildCount(h);
+    childCount: function(entry) {
+      const item = getEntry(entry);
+      if (item) {
+        return _zip.getChildCount(item);
+      }
     },
     /**
      * Asynchronous readFile
@@ -81673,9 +83784,13 @@ var Na = function(a, e) {
      *
      * @return Buffer or Null in case of error
      */
-    readFileAsync: function(c, h) {
-      var f = v(c);
-      f ? f.getDataAsync(h) : h(null, "getEntry failed for:" + c);
+    readFileAsync: function(entry, callback) {
+      var item = getEntry(entry);
+      if (item) {
+        item.getDataAsync(callback);
+      } else {
+        callback(null, "getEntry failed for:" + entry);
+      }
     },
     /**
      * Extracts the given entry from the archive and returns the content as plain text in the given encoding
@@ -81684,12 +83799,13 @@ var Na = function(a, e) {
      *
      * @return String
      */
-    readAsText: function(c, h) {
-      var f = v(c);
-      if (f) {
-        var w = f.getData();
-        if (w && w.length)
-          return w.toString(h || "utf8");
+    readAsText: function(entry, encoding) {
+      var item = getEntry(entry);
+      if (item) {
+        var data = item.getData();
+        if (data && data.length) {
+          return data.toString(encoding || "utf8");
+        }
       }
       return "";
     },
@@ -81701,15 +83817,23 @@ var Na = function(a, e) {
      *
      * @return String
      */
-    readAsTextAsync: function(c, h, f) {
-      var w = v(c);
-      w ? w.getDataAsync(function(E, n) {
-        if (n) {
-          h(E, n);
-          return;
-        }
-        E && E.length ? h(E.toString(f || "utf8")) : h("");
-      }) : h("");
+    readAsTextAsync: function(entry, callback, encoding) {
+      var item = getEntry(entry);
+      if (item) {
+        item.getDataAsync(function(data, err) {
+          if (err) {
+            callback(data, err);
+            return;
+          }
+          if (data && data.length) {
+            callback(data.toString(encoding || "utf8"));
+          } else {
+            callback("");
+          }
+        });
+      } else {
+        callback("");
+      }
     },
     /**
      * Remove the entry from the file or the entry and all it's nested directories and files if the given entry is a directory
@@ -81717,9 +83841,11 @@ var Na = function(a, e) {
      * @param {ZipEntry|string} entry
      * @returns {void}
      */
-    deleteFile: function(c, h = !0) {
-      var f = v(c);
-      f && i.deleteFile(f.entryName, h);
+    deleteFile: function(entry, withsubfolders = true) {
+      var item = getEntry(entry);
+      if (item) {
+        _zip.deleteFile(item.entryName, withsubfolders);
+      }
     },
     /**
      * Remove the entry from the file or directory without affecting any nested entries
@@ -81727,17 +83853,19 @@ var Na = function(a, e) {
      * @param {ZipEntry|string} entry
      * @returns {void}
      */
-    deleteEntry: function(c) {
-      var h = v(c);
-      h && i.deleteEntry(h.entryName);
+    deleteEntry: function(entry) {
+      var item = getEntry(entry);
+      if (item) {
+        _zip.deleteEntry(item.entryName);
+      }
     },
     /**
      * Adds a comment to the zip. The zip must be rewritten after adding the comment.
      *
      * @param {string} comment
      */
-    addZipComment: function(c) {
-      i.comment = c;
+    addZipComment: function(comment) {
+      _zip.comment = comment;
     },
     /**
      * Returns the zip comment
@@ -81745,7 +83873,7 @@ var Na = function(a, e) {
      * @return String
      */
     getZipComment: function() {
-      return i.comment || "";
+      return _zip.comment || "";
     },
     /**
      * Adds a comment to a specified zipEntry. The zip must be rewritten after adding the comment
@@ -81754,9 +83882,11 @@ var Na = function(a, e) {
      * @param {ZipEntry} entry
      * @param {string} comment
      */
-    addZipEntryComment: function(c, h) {
-      var f = v(c);
-      f && (f.comment = h);
+    addZipEntryComment: function(entry, comment) {
+      var item = getEntry(entry);
+      if (item) {
+        item.comment = comment;
+      }
     },
     /**
      * Returns the comment of the specified entry
@@ -81764,9 +83894,12 @@ var Na = function(a, e) {
      * @param {ZipEntry} entry
      * @return String
      */
-    getZipEntryComment: function(c) {
-      var h = v(c);
-      return h && h.comment || "";
+    getZipEntryComment: function(entry) {
+      var item = getEntry(entry);
+      if (item) {
+        return item.comment || "";
+      }
+      return "";
     },
     /**
      * Updates the content of an existing entry inside the archive. The zip must be rewritten after updating the content
@@ -81774,9 +83907,11 @@ var Na = function(a, e) {
      * @param {ZipEntry} entry
      * @param {Buffer} content
      */
-    updateFile: function(c, h) {
-      var f = v(c);
-      f && f.setData(h);
+    updateFile: function(entry, content) {
+      var item = getEntry(entry);
+      if (item) {
+        item.setData(content);
+      }
     },
     /**
      * Adds a file from the disk to the archive
@@ -81786,15 +83921,18 @@ var Na = function(a, e) {
      * @param {string} [zipName] Optional name for the file
      * @param {string} [comment] Optional file comment
      */
-    addLocalFile: function(c, h, f, w) {
-      if (d.fs.existsSync(c)) {
-        h = h ? N(h) : "";
-        const E = k.win32.basename(k.win32.normalize(c));
-        h += f || E;
-        const n = d.fs.statSync(c), u = n.isFile() ? d.fs.readFileSync(c) : Buffer.alloc(0);
-        n.isDirectory() && (h += d.sep), this.addFile(h, u, w, n);
-      } else
-        throw B.Errors.FILE_NOT_FOUND(c);
+    addLocalFile: function(localPath2, zipPath, zipName, comment) {
+      if (filetools.fs.existsSync(localPath2)) {
+        zipPath = zipPath ? fixPath(zipPath) : "";
+        const p = pth.win32.basename(pth.win32.normalize(localPath2));
+        zipPath += zipName ? zipName : p;
+        const _attr = filetools.fs.statSync(localPath2);
+        const data = _attr.isFile() ? filetools.fs.readFileSync(localPath2) : Buffer.alloc(0);
+        if (_attr.isDirectory()) zipPath += filetools.sep;
+        this.addFile(zipPath, data, comment, _attr);
+      } else {
+        throw Utils2.Errors.FILE_NOT_FOUND(localPath2);
+      }
     },
     /**
      * Callback for showing if everything was done.
@@ -81813,21 +83951,28 @@ var Na = function(a, e) {
      * @param {string} [options.zipName] - Optional name for the file
      * @param {doneCallback} callback - The callback that handles the response.
      */
-    addLocalFileAsync: function(c, h) {
-      c = typeof c == "object" ? c : { localPath: c };
-      const f = k.resolve(c.localPath), { comment: w } = c;
-      let { zipPath: E, zipName: n } = c;
-      const u = this;
-      d.fs.stat(f, function(_, g) {
-        if (_) return h(_, !1);
-        E = E ? N(E) : "";
-        const b = k.win32.basename(k.win32.normalize(f));
-        if (E += n || b, g.isFile())
-          d.fs.readFile(f, function(V, x) {
-            return V ? h(V, !1) : (u.addFile(E, x, w, g), setImmediate(h, void 0, !0));
+    addLocalFileAsync: function(options2, callback) {
+      options2 = typeof options2 === "object" ? options2 : { localPath: options2 };
+      const localPath2 = pth.resolve(options2.localPath);
+      const { comment } = options2;
+      let { zipPath, zipName } = options2;
+      const self2 = this;
+      filetools.fs.stat(localPath2, function(err, stats) {
+        if (err) return callback(err, false);
+        zipPath = zipPath ? fixPath(zipPath) : "";
+        const p = pth.win32.basename(pth.win32.normalize(localPath2));
+        zipPath += zipName ? zipName : p;
+        if (stats.isFile()) {
+          filetools.fs.readFile(localPath2, function(err2, data) {
+            if (err2) return callback(err2, false);
+            self2.addFile(zipPath, data, comment, stats);
+            return setImmediate(callback, void 0, true);
           });
-        else if (g.isDirectory())
-          return E += d.sep, u.addFile(E, Buffer.alloc(0), w, g), setImmediate(h, void 0, !0);
+        } else if (stats.isDirectory()) {
+          zipPath += filetools.sep;
+          self2.addFile(zipPath, Buffer.alloc(0), comment, stats);
+          return setImmediate(callback, void 0, true);
+        }
       });
     },
     /**
@@ -81837,16 +83982,24 @@ var Na = function(a, e) {
      * @param {string} [zipPath] - optional path inside zip
      * @param {(RegExp|function)} [filter] - optional RegExp or Function if files match will be included.
      */
-    addLocalFolder: function(c, h, f) {
-      if (f = D(f), h = h ? N(h) : "", c = k.normalize(c), d.fs.existsSync(c)) {
-        const w = d.findFiles(c), E = this;
-        if (w.length)
-          for (const n of w) {
-            const u = k.join(h, T(c, n));
-            f(u) && E.addLocalFile(n, k.dirname(u));
+    addLocalFolder: function(localPath2, zipPath, filter) {
+      filter = filenameFilter(filter);
+      zipPath = zipPath ? fixPath(zipPath) : "";
+      localPath2 = pth.normalize(localPath2);
+      if (filetools.fs.existsSync(localPath2)) {
+        const items = filetools.findFiles(localPath2);
+        const self2 = this;
+        if (items.length) {
+          for (const filepath of items) {
+            const p = pth.join(zipPath, relativePath(localPath2, filepath));
+            if (filter(p)) {
+              self2.addLocalFile(filepath, pth.dirname(p));
+            }
           }
-      } else
-        throw B.Errors.FILE_NOT_FOUND(c);
+        }
+      } else {
+        throw Utils2.Errors.FILE_NOT_FOUND(localPath2);
+      }
     },
     /**
      * Asynchronous addLocalFolder
@@ -81856,29 +84009,52 @@ var Na = function(a, e) {
      * @param {RegExp|function} [filter] optional RegExp or Function if files match will
      *               be included.
      */
-    addLocalFolderAsync: function(c, h, f, w) {
-      w = D(w), f = f ? N(f) : "", c = k.normalize(c);
-      var E = this;
-      d.fs.open(c, "r", function(n) {
-        if (n && n.code === "ENOENT")
-          h(void 0, B.Errors.FILE_NOT_FOUND(c));
-        else if (n)
-          h(void 0, n);
-        else {
-          var u = d.findFiles(c), _ = -1, g = function() {
-            if (_ += 1, _ < u.length) {
-              var b = u[_], V = T(c, b).split("\\").join("/");
-              V = V.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\x20-\x7E]/g, ""), w(V) ? d.fs.stat(b, function(x, C) {
-                x && h(void 0, x), C.isFile() ? d.fs.readFile(b, function(O, W) {
-                  O ? h(void 0, O) : (E.addFile(f + V, W, "", C), g());
-                }) : (E.addFile(f + V + "/", Buffer.alloc(0), "", C), g());
-              }) : process.nextTick(() => {
-                g();
-              });
-            } else
-              h(!0, void 0);
+    addLocalFolderAsync: function(localPath2, callback, zipPath, filter) {
+      filter = filenameFilter(filter);
+      zipPath = zipPath ? fixPath(zipPath) : "";
+      localPath2 = pth.normalize(localPath2);
+      var self2 = this;
+      filetools.fs.open(localPath2, "r", function(err) {
+        if (err && err.code === "ENOENT") {
+          callback(void 0, Utils2.Errors.FILE_NOT_FOUND(localPath2));
+        } else if (err) {
+          callback(void 0, err);
+        } else {
+          var items = filetools.findFiles(localPath2);
+          var i = -1;
+          var next = function() {
+            i += 1;
+            if (i < items.length) {
+              var filepath = items[i];
+              var p = relativePath(localPath2, filepath).split("\\").join("/");
+              p = p.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\x20-\x7E]/g, "");
+              if (filter(p)) {
+                filetools.fs.stat(filepath, function(er0, stats) {
+                  if (er0) callback(void 0, er0);
+                  if (stats.isFile()) {
+                    filetools.fs.readFile(filepath, function(er1, data) {
+                      if (er1) {
+                        callback(void 0, er1);
+                      } else {
+                        self2.addFile(zipPath + p, data, "", stats);
+                        next();
+                      }
+                    });
+                  } else {
+                    self2.addFile(zipPath + p + "/", Buffer.alloc(0), "", stats);
+                    next();
+                  }
+                });
+              } else {
+                process.nextTick(() => {
+                  next();
+                });
+              }
+            } else {
+              callback(true, void 0);
+            }
           };
-          g();
+          next();
         }
       });
     },
@@ -81893,37 +84069,56 @@ var Na = function(a, e) {
      * @param {doneCallback} callback - The callback that handles the response.
      *
      */
-    addLocalFolderAsync2: function(c, h) {
-      const f = this;
-      c = typeof c == "object" ? c : { localPath: c }, localPath = k.resolve(N(c.localPath));
-      let { zipPath: w, filter: E, namefix: n } = c;
-      E instanceof RegExp ? E = /* @__PURE__ */ function(g) {
-        return function(b) {
-          return g.test(b);
+    addLocalFolderAsync2: function(options2, callback) {
+      const self2 = this;
+      options2 = typeof options2 === "object" ? options2 : { localPath: options2 };
+      localPath = pth.resolve(fixPath(options2.localPath));
+      let { zipPath, filter, namefix } = options2;
+      if (filter instanceof RegExp) {
+        filter = /* @__PURE__ */ function(rx) {
+          return function(filename) {
+            return rx.test(filename);
+          };
+        }(filter);
+      } else if ("function" !== typeof filter) {
+        filter = function() {
+          return true;
         };
-      }(E) : typeof E != "function" && (E = function() {
-        return !0;
-      }), w = w ? N(w) : "", n == "latin1" && (n = (g) => g.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\x20-\x7E]/g, "")), typeof n != "function" && (n = (g) => g);
-      const u = (g) => k.join(w, n(T(localPath, g))), _ = (g) => k.win32.basename(k.win32.normalize(n(g)));
-      d.fs.open(localPath, "r", function(g) {
-        g && g.code === "ENOENT" ? h(void 0, B.Errors.FILE_NOT_FOUND(localPath)) : g ? h(void 0, g) : d.findFilesAsync(localPath, function(b, V) {
-          if (b) return h(b);
-          V = V.filter((x) => E(u(x))), V.length || h(void 0, !1), setImmediate(
-            V.reverse().reduce(function(x, C) {
-              return function(O, W) {
-                if (O || W === !1) return setImmediate(x, O, !1);
-                f.addLocalFileAsync(
-                  {
-                    localPath: C,
-                    zipPath: k.dirname(u(C)),
-                    zipName: _(C)
-                  },
-                  x
-                );
-              };
-            }, h)
-          );
-        });
+      }
+      zipPath = zipPath ? fixPath(zipPath) : "";
+      if (namefix == "latin1") {
+        namefix = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\x20-\x7E]/g, "");
+      }
+      if (typeof namefix !== "function") namefix = (str) => str;
+      const relPathFix = (entry) => pth.join(zipPath, namefix(relativePath(localPath, entry)));
+      const fileNameFix = (entry) => pth.win32.basename(pth.win32.normalize(namefix(entry)));
+      filetools.fs.open(localPath, "r", function(err) {
+        if (err && err.code === "ENOENT") {
+          callback(void 0, Utils2.Errors.FILE_NOT_FOUND(localPath));
+        } else if (err) {
+          callback(void 0, err);
+        } else {
+          filetools.findFilesAsync(localPath, function(err2, fileEntries) {
+            if (err2) return callback(err2);
+            fileEntries = fileEntries.filter((dir) => filter(relPathFix(dir)));
+            if (!fileEntries.length) callback(void 0, false);
+            setImmediate(
+              fileEntries.reverse().reduce(function(next, entry) {
+                return function(err3, done) {
+                  if (err3 || done === false) return setImmediate(next, err3, false);
+                  self2.addLocalFileAsync(
+                    {
+                      localPath: entry,
+                      zipPath: pth.dirname(relPathFix(entry)),
+                      zipName: fileNameFix(entry)
+                    },
+                    next
+                  );
+                };
+              }, callback)
+            );
+          });
+        }
       });
     },
     /**
@@ -81935,10 +84130,11 @@ var Na = function(a, e) {
      * @param {RegExp|function} [props.filter] - optional RegExp or Function if files match will be included.
      * @param {function|string} [props.namefix] - optional function to help fix filename
      */
-    addLocalFolderPromise: function(c, h) {
-      return new Promise((f, w) => {
-        this.addLocalFolderAsync2(Object.assign({ localPath: c }, h), (E, n) => {
-          E && w(E), n && f(this);
+    addLocalFolderPromise: function(localPath2, props) {
+      return new Promise((resolve, reject) => {
+        this.addLocalFolderAsync2(Object.assign({ localPath: localPath2 }, props), (err, done) => {
+          if (err) reject(err);
+          if (done) resolve(this);
         });
       });
     },
@@ -81952,16 +84148,33 @@ var Na = function(a, e) {
      * @param {string} [comment] - file comment
      * @param {number | object} [attr] - number as unix file permissions, object as filesystem Stats object
      */
-    addFile: function(c, h, f, w) {
-      c = r(c);
-      let E = v(c);
-      const n = E != null;
-      n || (E = new n6(t), E.entryName = c), E.comment = f || "";
-      const u = typeof w == "object" && w instanceof d.fs.Stats;
-      u && (E.header.time = w.mtime);
-      var _ = E.isDirectory ? 16 : 0;
-      let g = E.isDirectory ? 16384 : 32768;
-      return u ? g |= 4095 & w.mode : typeof w == "number" ? g |= 4095 & w : g |= E.isDirectory ? 493 : 420, _ = (_ | g << 16) >>> 0, E.attr = _, E.setData(h), n || i.setEntry(E), E;
+    addFile: function(entryName, content, comment, attr) {
+      entryName = zipnamefix(entryName);
+      let entry = getEntry(entryName);
+      const update = entry != null;
+      if (!update) {
+        entry = new ZipEntry(opts);
+        entry.entryName = entryName;
+      }
+      entry.comment = comment || "";
+      const isStat = "object" === typeof attr && attr instanceof filetools.fs.Stats;
+      if (isStat) {
+        entry.header.time = attr.mtime;
+      }
+      var fileattr = entry.isDirectory ? 16 : 0;
+      let unix = entry.isDirectory ? 16384 : 32768;
+      if (isStat) {
+        unix |= 4095 & attr.mode;
+      } else if ("number" === typeof attr) {
+        unix |= 4095 & attr;
+      } else {
+        unix |= entry.isDirectory ? 493 : 420;
+      }
+      fileattr = (fileattr | unix << 16) >>> 0;
+      entry.attr = fileattr;
+      entry.setData(content);
+      if (!update) _zip.setEntry(entry);
+      return entry;
     },
     /**
      * Returns an array of ZipEntry objects representing the files and folders inside the archive
@@ -81969,8 +84182,9 @@ var Na = function(a, e) {
      * @param {string} [password]
      * @returns Array
      */
-    getEntries: function(c) {
-      return i.password = c, i ? i.entries : [];
+    getEntries: function(password) {
+      _zip.password = password;
+      return _zip ? _zip.entries : [];
     },
     /**
      * Returns a ZipEntry object representing the file or folder specified by ``name``.
@@ -81978,14 +84192,14 @@ var Na = function(a, e) {
      * @param {string} name
      * @return ZipEntry
      */
-    getEntry: function(c) {
-      return v(c);
+    getEntry: function(name) {
+      return getEntry(name);
     },
     getEntryCount: function() {
-      return i.getEntryCount();
+      return _zip.getEntryCount();
     },
-    forEach: function(c) {
-      return i.forEach(c);
+    forEach: function(callback) {
+      return _zip.forEach(callback);
     },
     /**
      * Extracts the given entry to the given targetPath
@@ -82000,49 +84214,63 @@ var Na = function(a, e) {
      *
      * @return Boolean
      */
-    extractEntryTo: function(c, h, f, w, E, n) {
-      w = z1(!1, w), E = z1(!1, E), f = z1(!0, f), n = ep(E, n);
-      var u = v(c);
-      if (!u)
-        throw B.Errors.NO_ENTRY();
-      var _ = l(u.entryName), g = m(h, n && !u.isDirectory ? n : f ? _ : k.basename(_));
-      if (u.isDirectory) {
-        var b = i.getEntryChildren(u);
-        return b.forEach(function(C) {
-          if (C.isDirectory) return;
-          var O = C.getData();
-          if (!O)
-            throw B.Errors.CANT_EXTRACT_FILE();
-          var W = l(C.entryName), M = m(h, f ? W : k.basename(W));
-          const Y = E ? C.header.fileAttr : void 0;
-          d.writeFileTo(M, O, w, Y);
-        }), !0;
+    extractEntryTo: function(entry, targetPath, maintainEntryPath, overwrite, keepOriginalPermission, outFileName) {
+      overwrite = get_Bool(false, overwrite);
+      keepOriginalPermission = get_Bool(false, keepOriginalPermission);
+      maintainEntryPath = get_Bool(true, maintainEntryPath);
+      outFileName = get_Str(keepOriginalPermission, outFileName);
+      var item = getEntry(entry);
+      if (!item) {
+        throw Utils2.Errors.NO_ENTRY();
       }
-      var V = u.getData(i.password);
-      if (!V) throw B.Errors.CANT_EXTRACT_FILE();
-      if (d.fs.existsSync(g) && !w)
-        throw B.Errors.CANT_OVERRIDE();
-      const x = E ? c.header.fileAttr : void 0;
-      return d.writeFileTo(g, V, w, x), !0;
+      var entryName = canonical(item.entryName);
+      var target = sanitize(targetPath, outFileName && !item.isDirectory ? outFileName : maintainEntryPath ? entryName : pth.basename(entryName));
+      if (item.isDirectory) {
+        var children = _zip.getEntryChildren(item);
+        children.forEach(function(child) {
+          if (child.isDirectory) return;
+          var content2 = child.getData();
+          if (!content2) {
+            throw Utils2.Errors.CANT_EXTRACT_FILE();
+          }
+          var name = canonical(child.entryName);
+          var childName = sanitize(targetPath, maintainEntryPath ? name : pth.basename(name));
+          const fileAttr2 = keepOriginalPermission ? child.header.fileAttr : void 0;
+          filetools.writeFileTo(childName, content2, overwrite, fileAttr2);
+        });
+        return true;
+      }
+      var content = item.getData(_zip.password);
+      if (!content) throw Utils2.Errors.CANT_EXTRACT_FILE();
+      if (filetools.fs.existsSync(target) && !overwrite) {
+        throw Utils2.Errors.CANT_OVERRIDE();
+      }
+      const fileAttr = keepOriginalPermission ? entry.header.fileAttr : void 0;
+      filetools.writeFileTo(target, content, overwrite, fileAttr);
+      return true;
     },
     /**
      * Test the archive
      * @param {string} [pass]
      */
-    test: function(c) {
-      if (!i)
-        return !1;
-      for (var h in i.entries)
+    test: function(pass) {
+      if (!_zip) {
+        return false;
+      }
+      for (var entry in _zip.entries) {
         try {
-          if (h.isDirectory)
+          if (entry.isDirectory) {
             continue;
-          var f = i.entries[h].getData(c);
-          if (!f)
-            return !1;
-        } catch {
-          return !1;
+          }
+          var content = _zip.entries[entry].getData(pass);
+          if (!content) {
+            return false;
+          }
+        } catch (err) {
+          return false;
         }
-      return !0;
+      }
+      return true;
     },
     /**
      * Extracts the entire archive to the given location
@@ -82054,23 +84282,27 @@ var Na = function(a, e) {
      *                  Default is FALSE
      * @param {string|Buffer} [pass] password
      */
-    extractAllTo: function(c, h, f, w) {
-      if (f = z1(!1, f), w = ep(f, w), h = z1(!1, h), !i) throw B.Errors.NO_ZIP();
-      i.entries.forEach(function(E) {
-        var n = m(c, l(E.entryName));
-        if (E.isDirectory) {
-          d.makeDir(n);
+    extractAllTo: function(targetPath, overwrite, keepOriginalPermission, pass) {
+      keepOriginalPermission = get_Bool(false, keepOriginalPermission);
+      pass = get_Str(keepOriginalPermission, pass);
+      overwrite = get_Bool(false, overwrite);
+      if (!_zip) throw Utils2.Errors.NO_ZIP();
+      _zip.entries.forEach(function(entry) {
+        var entryName = sanitize(targetPath, canonical(entry.entryName));
+        if (entry.isDirectory) {
+          filetools.makeDir(entryName);
           return;
         }
-        var u = E.getData(w);
-        if (!u)
-          throw B.Errors.CANT_EXTRACT_FILE();
-        const _ = f ? E.header.fileAttr : void 0;
-        d.writeFileTo(n, u, h, _);
+        var content = entry.getData(pass);
+        if (!content) {
+          throw Utils2.Errors.CANT_EXTRACT_FILE();
+        }
+        const fileAttr = keepOriginalPermission ? entry.header.fileAttr : void 0;
+        filetools.writeFileTo(entryName, content, overwrite, fileAttr);
         try {
-          d.fs.utimesSync(n, E.header.time, E.header.time);
-        } catch {
-          throw B.Errors.CANT_EXTRACT_FILE();
+          filetools.fs.utimesSync(entryName, entry.header.time, entry.header.time);
+        } catch (err) {
+          throw Utils2.Errors.CANT_EXTRACT_FILE();
         }
       });
     },
@@ -82084,53 +84316,79 @@ var Na = function(a, e) {
      *                  Default is FALSE
      * @param {function} callback The callback will be executed when all entries are extracted successfully or any error is thrown.
      */
-    extractAllToAsync: function(c, h, f, w) {
-      if (w = f6(h, f, w), f = z1(!1, f), h = z1(!1, h), !w)
-        return new Promise((g, b) => {
-          this.extractAllToAsync(c, h, f, function(V) {
-            V ? b(V) : g(this);
+    extractAllToAsync: function(targetPath, overwrite, keepOriginalPermission, callback) {
+      callback = get_Fun(overwrite, keepOriginalPermission, callback);
+      keepOriginalPermission = get_Bool(false, keepOriginalPermission);
+      overwrite = get_Bool(false, overwrite);
+      if (!callback) {
+        return new Promise((resolve, reject) => {
+          this.extractAllToAsync(targetPath, overwrite, keepOriginalPermission, function(err) {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(this);
+            }
           });
         });
-      if (!i) {
-        w(B.Errors.NO_ZIP());
+      }
+      if (!_zip) {
+        callback(Utils2.Errors.NO_ZIP());
         return;
       }
-      c = k.resolve(c);
-      const E = (g) => m(c, k.normalize(l(g.entryName))), n = (g, b) => new Error(g + ': "' + b + '"'), u = [], _ = [];
-      i.entries.forEach((g) => {
-        g.isDirectory ? u.push(g) : _.push(g);
+      targetPath = pth.resolve(targetPath);
+      const getPath = (entry) => sanitize(targetPath, pth.normalize(canonical(entry.entryName)));
+      const getError = (msg, file) => new Error(msg + ': "' + file + '"');
+      const dirEntries = [];
+      const fileEntries = [];
+      _zip.entries.forEach((e) => {
+        if (e.isDirectory) {
+          dirEntries.push(e);
+        } else {
+          fileEntries.push(e);
+        }
       });
-      for (const g of u) {
-        const b = E(g), V = f ? g.header.fileAttr : void 0;
+      for (const entry of dirEntries) {
+        const dirPath = getPath(entry);
+        const dirAttr = keepOriginalPermission ? entry.header.fileAttr : void 0;
         try {
-          d.makeDir(b), V && d.fs.chmodSync(b, V), d.fs.utimesSync(b, g.header.time, g.header.time);
-        } catch {
-          w(n("Unable to create folder", b));
+          filetools.makeDir(dirPath);
+          if (dirAttr) filetools.fs.chmodSync(dirPath, dirAttr);
+          filetools.fs.utimesSync(dirPath, entry.header.time, entry.header.time);
+        } catch (er) {
+          callback(getError("Unable to create folder", dirPath));
         }
       }
-      _.reverse().reduce(function(g, b) {
-        return function(V) {
-          if (V)
-            g(V);
-          else {
-            const x = k.normalize(l(b.entryName)), C = m(c, x);
-            b.getDataAsync(function(O, W) {
-              if (W)
-                g(W);
-              else if (!O)
-                g(B.Errors.CANT_EXTRACT_FILE());
-              else {
-                const M = f ? b.header.fileAttr : void 0;
-                d.writeFileToAsync(C, O, h, M, function(Y) {
-                  Y || g(n("Unable to write file", C)), d.fs.utimes(C, b.header.time, b.header.time, function(C1) {
-                    C1 ? g(n("Unable to set times", C)) : g();
+      fileEntries.reverse().reduce(function(next, entry) {
+        return function(err) {
+          if (err) {
+            next(err);
+          } else {
+            const entryName = pth.normalize(canonical(entry.entryName));
+            const filePath = sanitize(targetPath, entryName);
+            entry.getDataAsync(function(content, err_1) {
+              if (err_1) {
+                next(err_1);
+              } else if (!content) {
+                next(Utils2.Errors.CANT_EXTRACT_FILE());
+              } else {
+                const fileAttr = keepOriginalPermission ? entry.header.fileAttr : void 0;
+                filetools.writeFileToAsync(filePath, content, overwrite, fileAttr, function(succ) {
+                  if (!succ) {
+                    next(getError("Unable to write file", filePath));
+                  }
+                  filetools.fs.utimes(filePath, entry.header.time, entry.header.time, function(err_2) {
+                    if (err_2) {
+                      next(getError("Unable to set times", filePath));
+                    } else {
+                      next();
+                    }
                   });
                 });
               }
             });
           }
         };
-      }, w)();
+      }, callback)();
     },
     /**
      * Writes the newly created zip file to disk at the specified location or if a zip was opened and no ``targetFileName`` is provided, it will overwrite the opened zip
@@ -82138,13 +84396,21 @@ var Na = function(a, e) {
      * @param {string} targetFileName
      * @param {function} callback
      */
-    writeZip: function(c, h) {
-      if (arguments.length === 1 && typeof c == "function" && (h = c, c = ""), !c && t.filename && (c = t.filename), !!c) {
-        var f = i.compressToBuffer();
-        if (f) {
-          var w = d.writeFileTo(c, f, !0);
-          typeof h == "function" && h(w ? null : new Error("failed"), "");
+    writeZip: function(targetFileName, callback) {
+      if (arguments.length === 1) {
+        if (typeof targetFileName === "function") {
+          callback = targetFileName;
+          targetFileName = "";
         }
+      }
+      if (!targetFileName && opts.filename) {
+        targetFileName = opts.filename;
+      }
+      if (!targetFileName) return;
+      var zipData = _zip.compressToBuffer();
+      if (zipData) {
+        var ok = filetools.writeFileTo(targetFileName, zipData, true);
+        if (typeof callback === "function") callback(!ok ? new Error("failed") : null, "");
       }
     },
     /**
@@ -82156,21 +84422,23 @@ var Na = function(a, e) {
     
              * @returns {Promise<void>}
              */
-    writeZipPromise: function(c, h) {
-      const { overwrite: f, perm: w } = Object.assign({ overwrite: !0 }, h);
-      return new Promise((E, n) => {
-        !c && t.filename && (c = t.filename), c || n("ADM-ZIP: ZIP File Name Missing"), this.toBufferPromise().then((u) => {
-          const _ = (g) => g ? E(g) : n("ADM-ZIP: Wasn't able to write zip file");
-          d.writeFileToAsync(c, u, f, w, _);
-        }, n);
+    writeZipPromise: function(targetFileName, props) {
+      const { overwrite, perm } = Object.assign({ overwrite: true }, props);
+      return new Promise((resolve, reject) => {
+        if (!targetFileName && opts.filename) targetFileName = opts.filename;
+        if (!targetFileName) reject("ADM-ZIP: ZIP File Name Missing");
+        this.toBufferPromise().then((zipData) => {
+          const ret = (done) => done ? resolve(done) : reject("ADM-ZIP: Wasn't able to write zip file");
+          filetools.writeFileToAsync(targetFileName, zipData, overwrite, perm, ret);
+        }, reject);
       });
     },
     /**
      * @returns {Promise<Buffer>} A promise to the Buffer.
      */
     toBufferPromise: function() {
-      return new Promise((c, h) => {
-        i.toAsyncBuffer(c, h);
+      return new Promise((resolve, reject) => {
+        _zip.toAsyncBuffer(resolve, reject);
       });
     },
     /**
@@ -82182,8 +84450,12 @@ var Na = function(a, e) {
      * @prop {function} [onItemEnd]
      * @returns {Buffer}
      */
-    toBuffer: function(c, h, f, w) {
-      return typeof c == "function" ? (i.toAsyncBuffer(c, h, f, w), null) : i.compressToBuffer();
+    toBuffer: function(onSuccess, onFail, onItemStart, onItemEnd) {
+      if (typeof onSuccess === "function") {
+        _zip.toAsyncBuffer(onSuccess, onFail, onItemStart, onItemEnd);
+        return null;
+      }
+      return _zip.compressToBuffer();
     }
   };
 };
@@ -82192,14 +84464,23 @@ var Na = function(a, e) {
  * @copyright Copyright (c) 2024, GoldFrite
  * @copyright Copyright (c) 2019, Pierce Harriz, from [Minecraft Launcher Core](https://github.com/Pierce01/MinecraftLauncher-core)
  */
-var pe = I && I.__importDefault || function(a) {
-  return a && a.__esModule ? a : { default: a };
+var __importDefault$7 = commonjsGlobal && commonjsGlobal.__importDefault || function(mod) {
+  return mod && mod.__esModule ? mod : { "default": mod };
 };
-Object.defineProperty(Ea, "__esModule", { value: !0 });
-const Se = l1, re = pe(N1), F = pe(n1), d1 = pe(H1), h6 = pe(Na), v6 = pe(_1), w6 = pe(fe);
-class _6 extends v6.default {
-  constructor(e, p, t) {
-    super(), this.config = e, this.manifest = p, this.loader = t;
+Object.defineProperty(filesmanager, "__esModule", { value: true });
+const errors_1 = errors$1;
+const utils_1$4 = __importDefault$7(utils$1);
+const path_1$5 = __importDefault$7(require$$1$2);
+const fs_1$3 = __importDefault$7(require$$2$1);
+const adm_zip_1$2 = __importDefault$7(admZip);
+const events_1$5 = __importDefault$7(events);
+const java_1$2 = __importDefault$7(java);
+class FilesManager extends events_1$5.default {
+  constructor(config2, manifest, loader) {
+    super();
+    this.config = config2;
+    this.manifest = manifest;
+    this.loader = loader;
   }
   /**
    * Get Java files.
@@ -82208,10 +84489,11 @@ class _6 extends v6.default {
    */
   async getJava() {
     if (this.config.java.install === "auto") {
-      const e = await new w6.default(this.manifest.id, this.config.serverId).getFiles(this.manifest);
-      return { java: e, files: e };
-    } else
+      const java2 = await new java_1$2.default(this.manifest.id, this.config.serverId).getFiles(this.manifest);
+      return { java: java2, files: java2 };
+    } else {
       return { java: [], files: [] };
+    }
   }
   /**
    * Get modpack files.
@@ -82221,10 +84503,10 @@ class _6 extends v6.default {
   async getModpack() {
     if (!this.config.url)
       return { modpack: [], files: [] };
-    const e = await fetch(`${this.config.url}/api/files-updater`).then((p) => p.json()).then((p) => p.data).catch((p) => {
-      throw new Se.EMLLibError(Se.ErrorType.FETCH_ERROR, `Failed to fetch modpack files: ${p}`);
+    const modpack = await fetch(`${this.config.url}/api/files-updater`).then((res) => res.json()).then((res) => res.data).catch((err) => {
+      throw new errors_1.EMLLibError(errors_1.ErrorType.FETCH_ERROR, `Failed to fetch modpack files: ${err}`);
     });
-    return { modpack: e, files: e };
+    return { modpack, files: modpack };
   }
   /**
    * Get libraries files.
@@ -82232,39 +84514,64 @@ class _6 extends v6.default {
    * be created (including `libraries`).
    */
   async getLibraries() {
-    let e = [], p = [];
-    return d1.default.existsSync(F.default.join(this.config.root, "versions", this.manifest.id)) || d1.default.mkdirSync(F.default.join(this.config.root, "versions", this.manifest.id), { recursive: !0 }), e.push({ name: `${this.manifest.id}.json`, path: F.default.join("versions", this.manifest.id, "/"), url: "", type: "OTHER" }), d1.default.writeFileSync(F.default.join(this.config.root, "versions", this.manifest.id, `${this.manifest.id}.json`), JSON.stringify(this.manifest, null, 2)), this.manifest.libraries.forEach((t) => {
-      let d, i;
-      if (t.natives) {
-        d = "NATIVE";
-        const r = t.downloads.classifiers, v = t.natives[re.default.getOS_MCCode()];
-        if (!v)
+    let files = [];
+    let libraries = [];
+    if (!fs_1$3.default.existsSync(path_1$5.default.join(this.config.root, "versions", this.manifest.id))) {
+      fs_1$3.default.mkdirSync(path_1$5.default.join(this.config.root, "versions", this.manifest.id), { recursive: true });
+    }
+    files.push({ name: `${this.manifest.id}.json`, path: path_1$5.default.join("versions", this.manifest.id, "/"), url: "", type: "OTHER" });
+    fs_1$3.default.writeFileSync(path_1$5.default.join(this.config.root, "versions", this.manifest.id, `${this.manifest.id}.json`), JSON.stringify(this.manifest, null, 2));
+    this.manifest.libraries.forEach((lib2) => {
+      let type;
+      let artifact;
+      if (lib2.natives) {
+        type = "NATIVE";
+        const classifiers = lib2.downloads.classifiers;
+        const native2 = lib2.natives[utils_1$4.default.getOS_MCCode()];
+        if (!native2)
           return;
-        i = r ? r[v.replace("${arch}", re.default.getArch())] : void 0;
+        artifact = classifiers ? classifiers[native2.replace("${arch}", utils_1$4.default.getArch())] : void 0;
       } else {
-        if (!re.default.isLibAllowed(t))
+        if (!utils_1$4.default.isLibAllowed(lib2))
           return;
-        d = "LIBRARY", i = t.downloads.artifact;
+        type = "LIBRARY";
+        artifact = lib2.downloads.artifact;
       }
-      let l, m;
-      i && (i.path ? (l = F.default.basename(i.path), m = F.default.join("libraries", F.default.dirname(i.path), "/")) : (l = re.default.getLibraryName(t.name), m = re.default.getLibraryPath(t.name, "libraries")), p.push({
-        name: l,
-        path: m,
-        url: i.url,
-        sha1: i.sha1,
-        size: i.size,
-        type: d,
-        extra: "MINECRAFT"
-      }));
-    }), p.push({
+      let name;
+      let path2;
+      if (artifact) {
+        if (artifact.path) {
+          name = path_1$5.default.basename(artifact.path);
+          path2 = path_1$5.default.join("libraries", path_1$5.default.dirname(artifact.path), "/");
+        } else {
+          name = utils_1$4.default.getLibraryName(lib2.name);
+          path2 = utils_1$4.default.getLibraryPath(lib2.name, "libraries");
+        }
+        libraries.push({
+          name,
+          path: path2,
+          url: artifact.url,
+          sha1: artifact.sha1,
+          size: artifact.size,
+          type,
+          extra: "MINECRAFT"
+        });
+      }
+    });
+    libraries.push({
       name: `${this.manifest.id}.jar`,
-      path: F.default.join("versions", this.manifest.id, "/"),
+      path: path_1$5.default.join("versions", this.manifest.id, "/"),
       url: this.manifest.downloads.client.url,
       sha1: this.manifest.downloads.client.sha1,
       size: this.manifest.downloads.client.size,
       type: "LIBRARY",
       extra: "MINECRAFT"
-    }), this.loader.file && p.push({ ...this.loader.file, extra: "LOADER" }), e.push(...p), { libraries: p, files: e };
+    });
+    if (this.loader.file) {
+      libraries.push({ ...this.loader.file, extra: "LOADER" });
+    }
+    files.push(...libraries);
+    return { libraries, files };
   }
   /**
    * Get assets files.
@@ -82272,20 +84579,28 @@ class _6 extends v6.default {
    * created (including `assets`).
    */
   async getAssets() {
-    let e = [], p = [];
-    const t = await fetch(this.manifest.assetIndex.url).then((d) => d.json()).catch((d) => {
-      throw new Se.EMLLibError(Se.ErrorType.FETCH_ERROR, `Failed to fetch assets: ${d}`);
+    let files = [];
+    let assets = [];
+    const res = await fetch(this.manifest.assetIndex.url).then((res2) => res2.json()).catch((err) => {
+      throw new errors_1.EMLLibError(errors_1.ErrorType.FETCH_ERROR, `Failed to fetch assets: ${err}`);
     });
-    return d1.default.existsSync(F.default.join(this.config.root, "assets", "indexes")) || d1.default.mkdirSync(F.default.join(this.config.root, "assets", "indexes"), { recursive: !0 }), e.push({ name: `${this.manifest.assets}.json`, path: F.default.join("assets", "indexes", "/"), url: "", type: "OTHER" }), d1.default.writeFileSync(F.default.join(this.config.root, "assets", "indexes", `${this.manifest.assets}.json`), JSON.stringify(t, null, 2)), Object.values(t.objects).forEach((d) => {
-      p.push({
-        name: d.hash,
-        path: F.default.join("assets", "objects", d.hash.substring(0, 2), "/"),
-        url: `https://resources.download.minecraft.net/${d.hash.substring(0, 2)}/${d.hash}`,
-        sha1: d.hash,
-        size: d.size,
+    if (!fs_1$3.default.existsSync(path_1$5.default.join(this.config.root, "assets", "indexes"))) {
+      fs_1$3.default.mkdirSync(path_1$5.default.join(this.config.root, "assets", "indexes"), { recursive: true });
+    }
+    files.push({ name: `${this.manifest.assets}.json`, path: path_1$5.default.join("assets", "indexes", "/"), url: "", type: "OTHER" });
+    fs_1$3.default.writeFileSync(path_1$5.default.join(this.config.root, "assets", "indexes", `${this.manifest.assets}.json`), JSON.stringify(res, null, 2));
+    Object.values(res.objects).forEach((asset) => {
+      assets.push({
+        name: asset.hash,
+        path: path_1$5.default.join("assets", "objects", asset.hash.substring(0, 2), "/"),
+        url: `https://resources.download.minecraft.net/${asset.hash.substring(0, 2)}/${asset.hash}`,
+        sha1: asset.hash,
+        size: asset.size,
         type: "ASSET"
       });
-    }), e.push(...p), { assets: p, files: e };
+    });
+    files.push(...assets);
+    return { assets, files };
   }
   /**
    * Get Log4j files to patch the Log4shell.
@@ -82294,88 +84609,123 @@ class _6 extends v6.default {
    * @see [help.minecraft.net](https://help.minecraft.net/hc/en-us/articles/4416199399693-Security-Vulnerability-in-Minecraft-Java-Edition)
    */
   async getLog4j() {
-    let e = [];
-    return +this.manifest.id.split(".")[1] <= 16 && +this.manifest.id.split(".")[1] >= 12 ? e.push({
-      name: "log4j2_112-116.xml",
-      path: "",
-      url: "https://launcher.mojang.com/v1/objects/02937d122c86ce73319ef9975b58896fc1b491d1/log4j2_112-116.xml",
-      sha1: "02937d122c86ce73319ef9975b58896fc1b491d1",
-      size: 4096,
-      type: "CONFIG"
-    }) : +this.manifest.id.split(".")[1] <= 11 && +this.manifest.id.split(".")[1] >= 7 && e.push({
-      name: "log4j2_17-111.xml",
-      path: "",
-      url: "https://launcher.mojang.com/v1/objects/4bb89a97a66f350bc9f73b3ca8509632682aea2e/log4j2_17-111.xml",
-      sha1: "4bb89a97a66f350bc9f73b3ca8509632682aea2e",
-      size: 4096,
-      type: "CONFIG"
-    }), { log4j: e, files: e };
+    let log4j = [];
+    if (+this.manifest.id.split(".")[1] <= 16 && +this.manifest.id.split(".")[1] >= 12) {
+      log4j.push({
+        name: "log4j2_112-116.xml",
+        path: "",
+        url: "https://launcher.mojang.com/v1/objects/02937d122c86ce73319ef9975b58896fc1b491d1/log4j2_112-116.xml",
+        sha1: "02937d122c86ce73319ef9975b58896fc1b491d1",
+        size: 4096,
+        type: "CONFIG"
+      });
+    } else if (+this.manifest.id.split(".")[1] <= 11 && +this.manifest.id.split(".")[1] >= 7) {
+      log4j.push({
+        name: "log4j2_17-111.xml",
+        path: "",
+        url: "https://launcher.mojang.com/v1/objects/4bb89a97a66f350bc9f73b3ca8509632682aea2e/log4j2_17-111.xml",
+        sha1: "4bb89a97a66f350bc9f73b3ca8509632682aea2e",
+        size: 4096,
+        type: "CONFIG"
+      });
+    }
+    return { log4j, files: log4j };
   }
   /**
    * Extract natives from libraries.
    * @param libraries Libraries to extract natives from.
    * @returns `files`: all files created by this method.
    */
-  extractNatives(e) {
-    const p = e.filter((i) => i.type === "NATIVE"), t = F.default.join(this.config.root, "bin", "natives");
-    let d = [];
-    return d1.default.existsSync(t) || d1.default.mkdirSync(t, { recursive: !0 }), p.forEach((i) => {
-      if (!d1.default.existsSync(F.default.join(this.config.root, i.path, i.name)))
+  extractNatives(libraries) {
+    const natives = libraries.filter((lib2) => lib2.type === "NATIVE");
+    const nativesFolder = path_1$5.default.join(this.config.root, "bin", "natives");
+    let files = [];
+    if (!fs_1$3.default.existsSync(nativesFolder)) {
+      fs_1$3.default.mkdirSync(nativesFolder, { recursive: true });
+    }
+    natives.forEach((native2) => {
+      if (!fs_1$3.default.existsSync(path_1$5.default.join(this.config.root, native2.path, native2.name)))
         return;
-      const l = new h6.default(F.default.join(this.config.root, i.path, i.name));
-      l.getEntries().forEach((m) => {
-        m.entryName.startsWith("META-INF") || (m.isDirectory ? d1.default.mkdirSync(F.default.join(t, m.entryName), { recursive: !0 }) : d1.default.writeFileSync(F.default.join(t, m.entryName), l.readFile(m)), d.push({
-          name: F.default.basename(m.entryName),
-          path: F.default.join("bin", "natives", F.default.dirname(m.entryName), "/"),
-          url: "",
-          sha1: "",
-          size: m.header.size,
-          type: m.isDirectory ? "FOLDER" : "NATIVE"
-        }));
-      }), this.emit("extract_progress", { filename: i.name });
-    }), this.emit("extract_end", { amount: d.length }), { files: d };
+      const zip = new adm_zip_1$2.default(path_1$5.default.join(this.config.root, native2.path, native2.name));
+      zip.getEntries().forEach((entry) => {
+        if (!entry.entryName.startsWith("META-INF")) {
+          if (entry.isDirectory) {
+            fs_1$3.default.mkdirSync(path_1$5.default.join(nativesFolder, entry.entryName), { recursive: true });
+          } else {
+            fs_1$3.default.writeFileSync(path_1$5.default.join(nativesFolder, entry.entryName), zip.readFile(entry));
+          }
+          files.push({
+            name: path_1$5.default.basename(entry.entryName),
+            path: path_1$5.default.join("bin", "natives", path_1$5.default.dirname(entry.entryName), "/"),
+            url: "",
+            sha1: "",
+            size: entry.header.size,
+            type: entry.isDirectory ? "FOLDER" : "NATIVE"
+          });
+        }
+      });
+      this.emit("extract_progress", { filename: native2.name });
+    });
+    this.emit("extract_end", { amount: files.length });
+    return { files };
   }
   /**
    * Copy assets from the assets folder to the resources folder.
    * @returns `files`: all files created by this method.
    */
   copyAssets() {
-    let e = [];
+    let files = [];
     if (this.manifest.assets === "legacy" || this.manifest.assets === "pre-1.6") {
-      d1.default.existsSync(F.default.join(this.config.root, "assets", "legacy")) && this.emit("copy_debug", "The 'assets/legacy' directory is no longer used. You can safely remove it from your server's root directory.");
-      const p = JSON.parse(d1.default.readFileSync(F.default.join(this.config.root, "assets", "indexes", `${this.manifest.assets}.json`), "utf-8"));
-      Object.entries(p.objects).forEach(([t, { hash: d, size: i }]) => {
-        const l = F.default.join("resources", F.default.dirname(t)), m = F.default.basename(t);
-        d1.default.existsSync(F.default.join(this.config.root, l)) || d1.default.mkdirSync(F.default.join(this.config.root, l), { recursive: !0 }), d1.default.existsSync(F.default.join(l, m)) || d1.default.copyFileSync(F.default.join(this.config.root, "assets", "objects", d.substring(0, 2), d), F.default.join(this.config.root, l, m)), e.push({
-          name: m,
-          path: l,
+      if (fs_1$3.default.existsSync(path_1$5.default.join(this.config.root, "assets", "legacy"))) {
+        this.emit("copy_debug", "The 'assets/legacy' directory is no longer used. You can safely remove it from your server's root directory.");
+      }
+      const assets = JSON.parse(fs_1$3.default.readFileSync(path_1$5.default.join(this.config.root, "assets", "indexes", `${this.manifest.assets}.json`), "utf-8"));
+      Object.entries(assets.objects).forEach(([path2, { hash, size }]) => {
+        const assetLegacyPath = path_1$5.default.join("resources", path_1$5.default.dirname(path2));
+        const assetLegacyName = path_1$5.default.basename(path2);
+        if (!fs_1$3.default.existsSync(path_1$5.default.join(this.config.root, assetLegacyPath))) {
+          fs_1$3.default.mkdirSync(path_1$5.default.join(this.config.root, assetLegacyPath), { recursive: true });
+        }
+        if (!fs_1$3.default.existsSync(path_1$5.default.join(assetLegacyPath, assetLegacyName))) {
+          fs_1$3.default.copyFileSync(path_1$5.default.join(this.config.root, "assets", "objects", hash.substring(0, 2), hash), path_1$5.default.join(this.config.root, assetLegacyPath, assetLegacyName));
+        }
+        files.push({
+          name: assetLegacyName,
+          path: assetLegacyPath,
           url: "",
-          sha1: d,
-          size: i,
+          sha1: hash,
+          size,
           type: "ASSET"
-        }), this.emit("copy_progress", { filename: d, dest: F.default.join(l, m) });
+        });
+        this.emit("copy_progress", { filename: hash, dest: path_1$5.default.join(assetLegacyPath, assetLegacyName) });
       });
     }
-    return this.emit("copy_end", { amount: e.length }), { files: e };
+    this.emit("copy_end", { amount: files.length });
+    return { files };
   }
 }
-Ea.default = _6;
-var ya = {};
+filesmanager.default = FilesManager;
+var cleaner = {};
 /**
  * @license MIT
  * @copyright Copyright (c) 2024, GoldFrite
  */
-var Da = I && I.__importDefault || function(a) {
-  return a && a.__esModule ? a : { default: a };
+var __importDefault$6 = commonjsGlobal && commonjsGlobal.__importDefault || function(mod) {
+  return mod && mod.__esModule ? mod : { "default": mod };
 };
-Object.defineProperty(ya, "__esModule", { value: !0 });
-const g6 = Da(_1), J1 = Da(n1), Te = Da(H1);
-class E6 extends g6.default {
+Object.defineProperty(cleaner, "__esModule", { value: true });
+const events_1$4 = __importDefault$6(events);
+const path_1$4 = __importDefault$6(require$$1$2);
+const fs_1$2 = __importDefault$6(require$$2$1);
+class Cleaner extends events_1$4.default {
   /**
    * @param dest Destination folder.
    */
-  constructor(e) {
-    super(), this.dest = "", this.browsed = [], this.dest = J1.default.join(e);
+  constructor(dest) {
+    super();
+    this.dest = "";
+    this.browsed = [];
+    this.dest = path_1$4.default.join(dest);
   }
   /**
    * Clean the destination folder by removing files that are not in the list.
@@ -82383,40 +84733,60 @@ class E6 extends g6.default {
    * @param ignore List of files to ignore (don't delete them).
    * @param skipClean [Optional: default is `false`] Skip the cleaning process (skip this method).
    */
-  clean(e, p = [], t = !1) {
-    if (t)
+  clean(files, ignore = [], skipClean = false) {
+    if (skipClean)
       return;
-    let d = 0;
-    this.browsed = [], this.browse(this.dest), this.browsed.forEach((i) => {
-      const l = J1.default.join(i.path, i.name);
-      !e.find((m) => J1.default.join(this.dest, m.path, m.name) === l) && !p.find((m) => l.startsWith(J1.default.join(this.dest, m))) && (Te.default.unlinkSync(l), d++, this.emit("clean_progress", { filename: i.name }));
-    }), this.emit("clean_end", { amount: d });
+    let i = 0;
+    this.browsed = [];
+    this.browse(this.dest);
+    this.browsed.forEach((file) => {
+      const fullPath = path_1$4.default.join(file.path, file.name);
+      if (!files.find((f) => path_1$4.default.join(this.dest, f.path, f.name) === fullPath) && !ignore.find((ig) => fullPath.startsWith(path_1$4.default.join(this.dest, ig)))) {
+        fs_1$2.default.unlinkSync(fullPath);
+        i++;
+        this.emit("clean_progress", { filename: file.name });
+      }
+    });
+    this.emit("clean_end", { amount: i });
   }
-  browse(e) {
-    if (!Te.default.existsSync(e))
+  browse(dir) {
+    if (!fs_1$2.default.existsSync(dir))
       return;
-    Te.default.readdirSync(e).forEach((t) => {
-      Te.default.statSync(J1.default.join(e, t)).isDirectory() ? this.browse(J1.default.join(e, t)) : this.browsed.push({
-        name: t,
-        path: `${e}/`.split("\\").join("/").replace(/^\/+/, "")
-      });
+    const files = fs_1$2.default.readdirSync(dir);
+    files.forEach((file) => {
+      if (fs_1$2.default.statSync(path_1$4.default.join(dir, file)).isDirectory()) {
+        this.browse(path_1$4.default.join(dir, file));
+      } else {
+        this.browsed.push({
+          name: file,
+          path: `${dir}/`.split("\\").join("/").replace(/^\/+/, "")
+        });
+      }
     });
   }
 }
-ya.default = E6;
-var Sa = {}, Ta = {};
+cleaner.default = Cleaner;
+var loadermanager = {};
+var forgeloader = {};
 /**
  * @license MIT
  * @copyright Copyright (c) 2024, GoldFrite
  */
-var ve = I && I.__importDefault || function(a) {
-  return a && a.__esModule ? a : { default: a };
+var __importDefault$5 = commonjsGlobal && commonjsGlobal.__importDefault || function(mod) {
+  return mod && mod.__esModule ? mod : { "default": mod };
 };
-Object.defineProperty(Ta, "__esModule", { value: !0 });
-const ap = ve(Na), m1 = ve(H1), U = ve(n1), s1 = ve(N1), N6 = ve(_1);
-class y6 extends N6.default {
-  constructor(e, p, t) {
-    super(), this.config = e, this.manifest = p, this.loader = t;
+Object.defineProperty(forgeloader, "__esModule", { value: true });
+const adm_zip_1$1 = __importDefault$5(admZip);
+const fs_1$1 = __importDefault$5(require$$2$1);
+const path_1$3 = __importDefault$5(require$$1$2);
+const utils_1$3 = __importDefault$5(utils$1);
+const events_1$3 = __importDefault$5(events);
+class ForgeLoader extends events_1$3.default {
+  constructor(config2, manifest, loader) {
+    super();
+    this.config = config2;
+    this.manifest = manifest;
+    this.loader = loader;
   }
   /**
    * Setup Forge loader.
@@ -82424,174 +84794,294 @@ class y6 extends N6.default {
    * to download; `files`: all files created by this method or that will be created (including `libraries`)
    */
   async setup() {
-    const e = U.default.join(this.config.root, this.loader.file.path), p = U.default.join(this.config.root, "versions", this.manifest.id), t = new ap.default(U.default.join(e, this.loader.file.name)), d = new ap.default(U.default.join(p, `${this.manifest.id}.jar`));
-    return m1.default.existsSync(e) || m1.default.mkdirSync(e, { recursive: !0 }), this.loader.loader_type !== "installer" ? this.extractZip(e, p, t, d) : await this.extractJar(e, t);
+    const forgePath = path_1$3.default.join(this.config.root, this.loader.file.path);
+    const minecraftPath = path_1$3.default.join(this.config.root, "versions", this.manifest.id);
+    const zip = new adm_zip_1$1.default(path_1$3.default.join(forgePath, this.loader.file.name));
+    const jar = new adm_zip_1$1.default(path_1$3.default.join(minecraftPath, `${this.manifest.id}.jar`));
+    if (!fs_1$1.default.existsSync(forgePath))
+      fs_1$1.default.mkdirSync(forgePath, { recursive: true });
+    return this.loader.loader_type !== "installer" ? this.extractZip(forgePath, minecraftPath, zip, jar) : await this.extractJar(forgePath, zip);
   }
-  extractZip(e, p, t, d) {
-    let i = [], l = 0;
-    d.deleteFile("META-INF/"), t.getEntries().forEach((r) => {
-      r.isDirectory || d.addFile(r.entryName, r.getData()), l++, this.emit("extract_progress", { filename: U.default.basename(r.entryName) });
-    }), d.writeZip(U.default.join(p, `${this.manifest.id}.jar`));
-    const m = { ...this.manifest, id: `forge-${this.loader.loader_version}`, libraries: [] };
-    return i.push({ name: `${m.id}.json`, path: this.loader.file.path, url: "", type: "OTHER" }), m1.default.writeFileSync(U.default.join(e, `${m.id}.json`), JSON.stringify(m, null, 2)), this.emit("extract_end", { amount: l }), { loaderManifest: m, installProfile: null, libraries: [], files: i };
+  extractZip(forgePath, minecraftPath, zip, jar) {
+    let files = [];
+    let i = 0;
+    jar.deleteFile("META-INF/");
+    zip.getEntries().forEach((entry) => {
+      if (!entry.isDirectory)
+        jar.addFile(entry.entryName, entry.getData());
+      i++;
+      this.emit("extract_progress", { filename: path_1$3.default.basename(entry.entryName) });
+    });
+    jar.writeZip(path_1$3.default.join(minecraftPath, `${this.manifest.id}.jar`));
+    const forgeManifest = { ...this.manifest, id: `forge-${this.loader.loader_version}`, libraries: [] };
+    files.push({ name: `${forgeManifest.id}.json`, path: this.loader.file.path, url: "", type: "OTHER" });
+    fs_1$1.default.writeFileSync(path_1$3.default.join(forgePath, `${forgeManifest.id}.json`), JSON.stringify(forgeManifest, null, 2));
+    this.emit("extract_end", { amount: i });
+    return { loaderManifest: forgeManifest, installProfile: null, libraries: [], files };
   }
-  async extractJar(e, p) {
-    var r, v;
-    let t = [], d = [], i = 0, l = JSON.parse(((r = p.getEntry("install_profile.json")) == null ? void 0 : r.getData().toString("utf8")) + ""), m;
-    if (l.install ? (m = l.versionInfo, l = l.install) : m = JSON.parse(((v = p.getEntry(U.default.basename(l.json))) == null ? void 0 : v.getData().toString("utf8")) + ""), m1.default.writeFileSync(U.default.join(e, `forge-${this.loader.loader_version}.json`), JSON.stringify(m, null, 2)), t.push({ name: `forge-${this.loader.loader_version}.json`, path: this.loader.file.path, url: "", type: "OTHER" }), i++, this.emit("extract_progress", { filename: "install_profile.json" }), l.filePath) {
-      const N = s1.default.getLibraryName(l.path), D = s1.default.getLibraryPath(l.path), T = U.default.join(this.config.root, "libraries", D);
-      m1.default.existsSync(T) || m1.default.mkdirSync(T, { recursive: !0 }), m1.default.writeFileSync(U.default.join(T, N), p.getEntry(l.filePath).getData()), d.push({ name: N, path: U.default.join("libraries", D), url: "", type: "LIBRARY", extra: "INSTALL" }), i++, this.emit("extract_progress", { filename: l.filePath });
-    } else if (l.path) {
-      const N = s1.default.getLibraryPath(l.path), D = U.default.join(this.config.root, "libraries", N);
-      m1.default.existsSync(D) || m1.default.mkdirSync(D, { recursive: !0 }), p.getEntries().filter((T) => U.default.join(T.entryName).includes(U.default.join("maven", N))).forEach((T) => {
-        T.entryName.endsWith(".jar") && (m1.default.writeFileSync(U.default.join(D, U.default.basename(T.entryName)), T.getData()), d.push({
-          name: U.default.basename(T.entryName),
-          path: U.default.join("libraries", N),
+  async extractJar(forgePath, zip) {
+    var _a, _b;
+    let files = [];
+    let libraries = [];
+    let i = 0;
+    let installProfile = JSON.parse(((_a = zip.getEntry("install_profile.json")) == null ? void 0 : _a.getData().toString("utf8")) + "");
+    let forgeManifest;
+    if (installProfile.install) {
+      forgeManifest = installProfile.versionInfo;
+      installProfile = installProfile.install;
+    } else {
+      forgeManifest = JSON.parse(((_b = zip.getEntry(path_1$3.default.basename(installProfile.json))) == null ? void 0 : _b.getData().toString("utf8")) + "");
+    }
+    fs_1$1.default.writeFileSync(path_1$3.default.join(forgePath, `forge-${this.loader.loader_version}.json`), JSON.stringify(forgeManifest, null, 2));
+    files.push({ name: `forge-${this.loader.loader_version}.json`, path: this.loader.file.path, url: "", type: "OTHER" });
+    i++;
+    this.emit("extract_progress", { filename: "install_profile.json" });
+    if (installProfile.filePath) {
+      const universalName = utils_1$3.default.getLibraryName(installProfile.path);
+      const universalPath = utils_1$3.default.getLibraryPath(installProfile.path);
+      const universalExtractPath = path_1$3.default.join(this.config.root, "libraries", universalPath);
+      if (!fs_1$1.default.existsSync(universalExtractPath))
+        fs_1$1.default.mkdirSync(universalExtractPath, { recursive: true });
+      fs_1$1.default.writeFileSync(path_1$3.default.join(universalExtractPath, universalName), zip.getEntry(installProfile.filePath).getData());
+      libraries.push({ name: universalName, path: path_1$3.default.join("libraries", universalPath), url: "", type: "LIBRARY", extra: "INSTALL" });
+      i++;
+      this.emit("extract_progress", { filename: installProfile.filePath });
+    } else if (installProfile.path) {
+      const universalPath = utils_1$3.default.getLibraryPath(installProfile.path);
+      const universalExtractPath = path_1$3.default.join(this.config.root, "libraries", universalPath);
+      if (!fs_1$1.default.existsSync(universalExtractPath))
+        fs_1$1.default.mkdirSync(universalExtractPath, { recursive: true });
+      zip.getEntries().filter((entry) => path_1$3.default.join(entry.entryName).includes(path_1$3.default.join("maven", universalPath))).forEach((entry) => {
+        if (!entry.entryName.endsWith(".jar"))
+          return;
+        fs_1$1.default.writeFileSync(path_1$3.default.join(universalExtractPath, path_1$3.default.basename(entry.entryName)), entry.getData());
+        libraries.push({
+          name: path_1$3.default.basename(entry.entryName),
+          path: path_1$3.default.join("libraries", universalPath),
           url: "",
           type: "LIBRARY",
           extra: "INSTALL"
-        }), i++, this.emit("extract_progress", { filename: U.default.basename(T.entryName) }));
+        });
+        i++;
+        this.emit("extract_progress", { filename: path_1$3.default.basename(entry.entryName) });
       });
     }
-    if (l.processors && l.processors.length > 0) {
-      const N = l.libraries.find((f) => (f.name + "").startsWith("net.minecraftforge:forge:")), D = s1.default.getLibraryName(l.path || N.name).replace(".jar", "-clientdata.lzma"), T = s1.default.getLibraryPath(l.path || N.name), c = U.default.join(this.config.root, "libraries", T), h = p.getEntry("data/client.lzma").getData();
-      m1.default.existsSync(c) || m1.default.mkdirSync(c, { recursive: !0 }), m1.default.writeFileSync(U.default.join(c, D), h), t.push({ name: D, path: U.default.join("libraries", T), url: "", type: "LIBRARY" }), i++, this.emit("extract_progress", { filename: D });
+    if (installProfile.processors && installProfile.processors.length > 0) {
+      const universalMaven = installProfile.libraries.find((lib2) => (lib2.name + "").startsWith("net.minecraftforge:forge:"));
+      const clientDataName = utils_1$3.default.getLibraryName(installProfile.path || universalMaven.name).replace(".jar", "-clientdata.lzma");
+      const clientDataPath = utils_1$3.default.getLibraryPath(installProfile.path || universalMaven.name);
+      const clientDataExtractPath = path_1$3.default.join(this.config.root, "libraries", clientDataPath);
+      const clientData = zip.getEntry("data/client.lzma").getData();
+      if (!fs_1$1.default.existsSync(clientDataExtractPath))
+        fs_1$1.default.mkdirSync(clientDataExtractPath, { recursive: true });
+      fs_1$1.default.writeFileSync(path_1$3.default.join(clientDataExtractPath, clientDataName), clientData);
+      files.push({ name: clientDataName, path: path_1$3.default.join("libraries", clientDataPath), url: "", type: "LIBRARY" });
+      i++;
+      this.emit("extract_progress", { filename: clientDataName });
     }
-    return d.push(...await this.formatLibraries(m.libraries, "LOADER", l)), l.libraries && d.push(...await this.formatLibraries(l.libraries, "INSTALL", l)), t.push(...d), this.emit("extract_end", { amount: i }), { loaderManifest: m, installProfile: l, libraries: d, files: t };
+    libraries.push(...await this.formatLibraries(forgeManifest.libraries, "LOADER", installProfile));
+    if (installProfile.libraries)
+      libraries.push(...await this.formatLibraries(installProfile.libraries, "INSTALL", installProfile));
+    files.push(...libraries);
+    this.emit("extract_end", { amount: i });
+    return { loaderManifest: forgeManifest, installProfile, libraries, files };
   }
-  async getMirrorUrl(e) {
-    const p = e.url ? [e.url] : ["https://libraries.minecraft.net", "https://maven.minecraftforge.net/", "https://maven.creeperhost.net/"];
-    for (const t of p) {
-      const d = `${t}${s1.default.getLibraryPath(e.name).replaceAll("\\", "/")}${s1.default.getLibraryName(e.name)}`, i = await fetch(d).then((m) => m.headers.get("Content-Length") || 0).catch(() => !1);
-      if (!i)
+  async getMirrorUrl(lib2) {
+    const mirrors = lib2.url ? [lib2.url] : ["https://libraries.minecraft.net", "https://maven.minecraftforge.net/", "https://maven.creeperhost.net/"];
+    for (const mirror of mirrors) {
+      const url = `${mirror}${utils_1$3.default.getLibraryPath(lib2.name).replaceAll("\\", "/")}${utils_1$3.default.getLibraryName(lib2.name)}`;
+      const res1 = await fetch(url).then((res) => res.headers.get("Content-Length") || 0).catch(() => false);
+      if (!res1)
         continue;
-      const l = await fetch(`${d}.sha1`).then((m) => m.text()).catch(() => !1);
-      if (l)
-        return { url: d, size: +i, sha1: l };
+      const res2 = await fetch(`${url}.sha1`).then((res) => res.text()).catch(() => false);
+      if (!res2)
+        continue;
+      return { url, size: +res1, sha1: res2 };
     }
     return { url: "", size: 0, sha1: "" };
   }
-  async formatLibraries(e, p, t) {
-    var i;
-    let d = [];
-    for (const l of e) {
-      let m, r, v;
-      if (l.natives) {
-        if (v = l.natives[s1.default.getOS_MCCode()], !v)
+  async formatLibraries(libs, extra, installProfile) {
+    var _a;
+    let libraries = [];
+    for (const lib2 of libs) {
+      let type;
+      let artifact;
+      let native2;
+      if (lib2.natives) {
+        native2 = lib2.natives[utils_1$3.default.getOS_MCCode()];
+        if (!native2)
           continue;
-        m = "NATIVE";
+        type = "NATIVE";
       } else {
-        if (!s1.default.isLibAllowed(l) || !l.serverreq && !l.clientreq && !l.url && !l.downloads)
+        if (!utils_1$3.default.isLibAllowed(lib2) || !lib2.serverreq && !lib2.clientreq && !lib2.url && !lib2.downloads)
           continue;
-        m = "LIBRARY";
+        type = "LIBRARY";
       }
-      r = (i = l.downloads) == null ? void 0 : i.artifact;
-      let N = "", D = "";
-      r ? r.path ? (N = r.path.split("/").pop(), D = U.default.join("libraries", r.path.split("/").slice(0, -1).join("/"), "/")) : (N = s1.default.getLibraryName(l.name), m === "NATIVE" && (N = N.replace(".jar", `-${v}.jar`)), D = s1.default.getLibraryPath(l.name, "libraries")) : (r = await this.getMirrorUrl(l), N = s1.default.getLibraryName(l.name), m === "NATIVE" && (N = N.replace(".jar", `-${v}.jar`)), D = s1.default.getLibraryPath(l.name, "libraries")), d.push({
-        name: N,
-        path: D,
-        url: r.url,
-        sha1: r.sha1,
-        size: r.size,
-        type: m,
-        extra: p
+      artifact = (_a = lib2.downloads) == null ? void 0 : _a.artifact;
+      let name = "";
+      let path2 = "";
+      if (artifact) {
+        if (artifact.path) {
+          name = artifact.path.split("/").pop();
+          path2 = path_1$3.default.join("libraries", artifact.path.split("/").slice(0, -1).join("/"), "/");
+        } else {
+          name = utils_1$3.default.getLibraryName(lib2.name);
+          if (type === "NATIVE")
+            name = name.replace(".jar", `-${native2}.jar`);
+          path2 = utils_1$3.default.getLibraryPath(lib2.name, "libraries");
+        }
+      } else {
+        artifact = await this.getMirrorUrl(lib2);
+        name = utils_1$3.default.getLibraryName(lib2.name);
+        if (type === "NATIVE")
+          name = name.replace(".jar", `-${native2}.jar`);
+        path2 = utils_1$3.default.getLibraryPath(lib2.name, "libraries");
+      }
+      libraries.push({
+        name,
+        path: path2,
+        url: artifact.url,
+        sha1: artifact.sha1,
+        size: artifact.size,
+        type,
+        extra
       });
     }
-    return d;
+    return libraries;
   }
 }
-Ta.default = y6;
-var ba = {};
+forgeloader.default = ForgeLoader;
+var patcher = {};
 /**
  * @license MIT
  * @copyright Copyright (c) 2024, GoldFrite
  */
-var we = I && I.__importDefault || function(a) {
-  return a && a.__esModule ? a : { default: a };
+var __importDefault$4 = commonjsGlobal && commonjsGlobal.__importDefault || function(mod) {
+  return mod && mod.__esModule ? mod : { "default": mod };
 };
-Object.defineProperty(ba, "__esModule", { value: !0 });
-const D6 = we(Na), h1 = we(N1), pp = we(H1), u1 = we(n1), S6 = xe, T6 = we(_1);
-class b6 extends T6.default {
-  constructor(e, p, t, d) {
-    super(), this.config = e, this.manifest = p, this.loader = t, this.installProfile = d;
+Object.defineProperty(patcher, "__esModule", { value: true });
+const adm_zip_1 = __importDefault$4(admZip);
+const utils_1$2 = __importDefault$4(utils$1);
+const fs_1 = __importDefault$4(require$$2$1);
+const path_1$2 = __importDefault$4(require$$1$2);
+const child_process_1$1 = require$$4$1;
+const events_1$2 = __importDefault$4(events);
+class Patcher extends events_1$2.default {
+  constructor(config2, manifest, loader, installProfile) {
+    super();
+    this.config = config2;
+    this.manifest = manifest;
+    this.loader = loader;
+    this.installProfile = installProfile;
   }
   async patch() {
-    const e = this.isPatched();
-    let p = 0;
-    if (!this.installProfile.processors || this.installProfile.processors.length === 0 || e.patched)
-      return this.emit("patch_end", { amount: p }), e.files;
-    const t = this.installProfile.processors;
-    for (const d of t) {
-      if (d != null && d.sides && !d.sides.includes("client"))
+    const files = this.isPatched();
+    let i = 0;
+    if (!this.installProfile.processors || this.installProfile.processors.length === 0 || files.patched) {
+      this.emit("patch_end", { amount: i });
+      return files.files;
+    }
+    const processors = this.installProfile.processors;
+    for (const processor of processors) {
+      if ((processor == null ? void 0 : processor.sides) && !processor.sides.includes("client"))
         continue;
-      const i = u1.default.join(this.config.root, "libraries", h1.default.getLibraryPath(d.jar), h1.default.getLibraryName(d.jar)), l = d.args.map((v) => this.mapArg(v)).map((v) => this.mapPath(v)), m = d.classpath.map((v) => `"${u1.default.join(this.config.root, "libraries", h1.default.getLibraryPath(v), h1.default.getLibraryName(v))}"`), r = this.getJarMain(i);
-      await new Promise((v, N) => {
-        var T;
-        const D = (0, S6.spawn)(`"${this.config.java.absolutePath.replace("${X}", ((T = this.manifest.javaVersion) == null ? void 0 : T.majorVersion) + "" || "8")}"`, ["-classpath", [`"${i}"`, ...m].join(u1.default.delimiter), r, ...l], { shell: !0 });
-        D.stdout.on("data", (c) => this.emit("patch_debug", c.toString("utf8").replace(/\n$/, ""))), D.stderr.on("data", (c) => this.emit("patch_debug", c.toString("utf8").replace(/\n$/, ""))), D.on("close", (c) => {
-          this.emit("patch_progress", { filename: h1.default.getLibraryName(d.jar) }), p++, v(c);
+      const jarExtractPathName = path_1$2.default.join(this.config.root, "libraries", utils_1$2.default.getLibraryPath(processor.jar), utils_1$2.default.getLibraryName(processor.jar));
+      const args = processor.args.map((arg) => this.mapArg(arg)).map((arg) => this.mapPath(arg));
+      const classpath = processor.classpath.map((cp) => `"${path_1$2.default.join(this.config.root, "libraries", utils_1$2.default.getLibraryPath(cp), utils_1$2.default.getLibraryName(cp))}"`);
+      const mainClass = this.getJarMain(jarExtractPathName);
+      await new Promise((resolve, reject) => {
+        var _a;
+        const patch = (0, child_process_1$1.spawn)(`"${this.config.java.absolutePath.replace("${X}", ((_a = this.manifest.javaVersion) == null ? void 0 : _a.majorVersion) + "" || "8")}"`, ["-classpath", [`"${jarExtractPathName}"`, ...classpath].join(path_1$2.default.delimiter), mainClass, ...args], { shell: true });
+        patch.stdout.on("data", (data) => this.emit("patch_debug", data.toString("utf8").replace(/\n$/, "")));
+        patch.stderr.on("data", (data) => this.emit("patch_debug", data.toString("utf8").replace(/\n$/, "")));
+        patch.on("close", (code) => {
+          this.emit("patch_progress", { filename: utils_1$2.default.getLibraryName(processor.jar) });
+          i++;
+          resolve(code);
         });
       });
     }
-    return this.emit("patch_end", { amount: p }), e.files;
+    this.emit("patch_end", { amount: i });
+    return files.files;
   }
   isPatched() {
-    const e = this.installProfile.processors;
-    let p = !0, t = [], d = [];
-    e == null || e.forEach((i) => {
-      i != null && i.sides && !i.sides.includes("client") || i.args.forEach((l) => {
-        if (l = l.replace("{", "").replace("}", ""), this.installProfile.data[l]) {
-          if (l === "BINPATCH")
+    const processors = this.installProfile.processors;
+    let patched = true;
+    let files = [];
+    let libraries = [];
+    processors == null ? void 0 : processors.forEach((processor) => {
+      if ((processor == null ? void 0 : processor.sides) && !processor.sides.includes("client"))
+        return;
+      processor.args.forEach((arg) => {
+        arg = arg.replace("{", "").replace("}", "");
+        if (this.installProfile.data[arg]) {
+          if (arg === "BINPATCH")
             return;
-          d.push(this.installProfile.data[l].client);
+          libraries.push(this.installProfile.data[arg].client);
         }
       });
-    }), d = [...new Set(d)];
-    for (let i of d) {
-      const l = h1.default.getLibraryName(i.replace("[", "").replace("]", "")), m = h1.default.getLibraryPath(i.replace("[", "").replace("]", "")), r = u1.default.join(this.config.root, "libraries", m);
-      t.push({ name: l, path: u1.default.join("libraries", m), url: "", type: "LIBRARY" }), pp.default.existsSync(u1.default.join(r, l)) || (p = !1);
-    }
-    return { patched: p, files: t };
-  }
-  getJarMain(e) {
-    var t;
-    if (!pp.default.existsSync(e))
-      return null;
-    const p = (t = new D6.default(e).getEntry("META-INF/MANIFEST.MF")) == null ? void 0 : t.getData();
-    return p ? p.toString("utf8").split("Main-Class: ")[1].split(`\r
-`)[0] : null;
-  }
-  mapArg(e) {
-    const p = e.replace("{", "").replace("}", ""), t = this.installProfile.libraries.find((d) => {
-      if (this.loader.loader === "forge")
-        return d.name.startsWith("net.minecraftforge:forge");
     });
-    if (this.installProfile.data[p]) {
-      if (p === "BINPATCH") {
-        const d = h1.default.getLibraryName(this.installProfile.path || t.name).replace(".jar", "-clientdata.lzma"), i = h1.default.getLibraryPath(this.installProfile.path || t.name, this.config.root, "libraries");
-        return `"${u1.default.join(i, d).replace(".jar", "-clientdata.lzma")}"`;
-      }
-      return this.installProfile.data[p].client;
+    libraries = [...new Set(libraries)];
+    for (let lib2 of libraries) {
+      const libName = utils_1$2.default.getLibraryName(lib2.replace("[", "").replace("]", ""));
+      const libPath = utils_1$2.default.getLibraryPath(lib2.replace("[", "").replace("]", ""));
+      const libExtractPath = path_1$2.default.join(this.config.root, "libraries", libPath);
+      files.push({ name: libName, path: path_1$2.default.join("libraries", libPath), url: "", type: "LIBRARY" });
+      if (!fs_1.default.existsSync(path_1$2.default.join(libExtractPath, libName)))
+        patched = false;
     }
-    return e.replace("{SIDE}", "client").replace("{ROOT}", `"${this.config.root}}"`).replace("{MINECRAFT_JAR}", `"${u1.default.join(this.config.root, "versions", this.manifest.id, `${this.manifest.id}.jar`)}"`).replace("{MINECRAFT_VERSION}", `"${u1.default.join(this.config.root, "versions", this.manifest.id, `${this.manifest.id}.json`)}"`).replace("{INSTALLER}", `"${u1.default.join(this.config.root, "libraries")}"`).replace("{LIBRARY_DIR}", `"${u1.default.join(this.config.root, "libraries")}"`);
+    return { patched, files };
   }
-  mapPath(e) {
-    return e.startsWith("[") ? `"${u1.default.join(this.config.root, "libraries", h1.default.getLibraryPath(e.replace("[", "").replace("]", "")), h1.default.getLibraryName(e.replace("[", "").replace("]", "")))}"` : e;
+  getJarMain(jarPath) {
+    var _a;
+    if (!fs_1.default.existsSync(jarPath))
+      return null;
+    const manifest = (_a = new adm_zip_1.default(jarPath).getEntry("META-INF/MANIFEST.MF")) == null ? void 0 : _a.getData();
+    if (!manifest)
+      return null;
+    return manifest.toString("utf8").split("Main-Class: ")[1].split("\r\n")[0];
+  }
+  mapArg(arg) {
+    const argType = arg.replace("{", "").replace("}", "");
+    const universalMaven = this.installProfile.libraries.find((v) => {
+      if (this.loader.loader === "forge")
+        return v.name.startsWith("net.minecraftforge:forge");
+    });
+    if (this.installProfile.data[argType]) {
+      if (argType === "BINPATCH") {
+        const clientDataName = utils_1$2.default.getLibraryName(this.installProfile.path || universalMaven.name).replace(".jar", "-clientdata.lzma");
+        const clientDataExtractPath = utils_1$2.default.getLibraryPath(this.installProfile.path || universalMaven.name, this.config.root, "libraries");
+        return `"${path_1$2.default.join(clientDataExtractPath, clientDataName).replace(".jar", "-clientdata.lzma")}"`;
+      }
+      return this.installProfile.data[argType].client;
+    }
+    return arg.replace("{SIDE}", `client`).replace("{ROOT}", `"${this.config.root}}"`).replace("{MINECRAFT_JAR}", `"${path_1$2.default.join(this.config.root, "versions", this.manifest.id, `${this.manifest.id}.jar`)}"`).replace("{MINECRAFT_VERSION}", `"${path_1$2.default.join(this.config.root, "versions", this.manifest.id, `${this.manifest.id}.json`)}"`).replace("{INSTALLER}", `"${path_1$2.default.join(this.config.root, "libraries")}"`).replace("{LIBRARY_DIR}", `"${path_1$2.default.join(this.config.root, "libraries")}"`);
+  }
+  mapPath(arg) {
+    if (arg.startsWith("[")) {
+      return `"${path_1$2.default.join(this.config.root, "libraries", utils_1$2.default.getLibraryPath(arg.replace("[", "").replace("]", "")), utils_1$2.default.getLibraryName(arg.replace("[", "").replace("]", "")))}"`;
+    }
+    return arg;
   }
 }
-ba.default = b6;
+patcher.default = Patcher;
 /**
  * @license MIT
  * @copyright Copyright (c) 2024, GoldFrite
  */
-var La = I && I.__importDefault || function(a) {
-  return a && a.__esModule ? a : { default: a };
+var __importDefault$3 = commonjsGlobal && commonjsGlobal.__importDefault || function(mod) {
+  return mod && mod.__esModule ? mod : { "default": mod };
 };
-Object.defineProperty(Sa, "__esModule", { value: !0 });
-const L6 = La(_1), A6 = La(Ta), V6 = La(ba);
-class C6 extends L6.default {
-  constructor(e, p, t) {
-    super(), this.config = e, this.manifest = p, this.loader = t;
+Object.defineProperty(loadermanager, "__esModule", { value: true });
+const events_1$1 = __importDefault$3(events);
+const forgeloader_1 = __importDefault$3(forgeloader);
+const patcher_1 = __importDefault$3(patcher);
+class LoaderManager extends events_1$1.default {
+  constructor(config2, manifest, loader) {
+    super();
+    this.config = config2;
+    this.manifest = manifest;
+    this.loader = loader;
   }
   /**
    * Setup the loader.
@@ -82599,119 +85089,203 @@ class C6 extends L6.default {
    * files; `files`: all files created by the method or that will be created (including `libraries`).
    */
   async setupLoader() {
-    let e = { loaderManifest: null, installProfile: null, libraries: [], files: [] };
+    let setup = { loaderManifest: null, installProfile: null, libraries: [], files: [] };
     if (this.loader.loader === "forge") {
-      const p = new A6.default(this.config, this.manifest, this.loader);
-      p.forwardEvents(this), e = await p.setup();
+      const forgeLoader = new forgeloader_1.default(this.config, this.manifest, this.loader);
+      forgeLoader.forwardEvents(this);
+      setup = await forgeLoader.setup();
     }
-    return e;
+    return setup;
   }
   /**
    * Patch the loader.
    * @param installProfile The install profile from `LoaderManager.setupLoader()`.
    * @returns `files`: all files created by the method.
    */
-  async patchLoader(e) {
-    if (this.loader.loader === "forge" && e) {
-      const p = new V6.default(this.config, this.manifest, this.loader, e);
-      return p.forwardEvents(this), { files: await p.patch() };
+  async patchLoader(installProfile) {
+    if (this.loader.loader === "forge" && installProfile) {
+      const patcher2 = new patcher_1.default(this.config, this.manifest, this.loader, installProfile);
+      patcher2.forwardEvents(this);
+      return { files: await patcher2.patch() };
     }
     return { files: [] };
   }
 }
-Sa.default = C6;
-var Aa = {};
+loadermanager.default = LoaderManager;
+var argumentsmanager = {};
 /**
  * @license MIT
  * @copyright Copyright (c) 2024, GoldFrite
  */
-var Op = I && I.__importDefault || function(a) {
-  return a && a.__esModule ? a : { default: a };
+var __importDefault$2 = commonjsGlobal && commonjsGlobal.__importDefault || function(mod) {
+  return mod && mod.__esModule ? mod : { "default": mod };
 };
-Object.defineProperty(Aa, "__esModule", { value: !0 });
-const I1 = Op(N1), S1 = Op(n1);
-class R6 {
-  constructor(e, p) {
-    this.config = e, this.manifest = p, this.loaderManifest = null, this.loader = null;
+Object.defineProperty(argumentsmanager, "__esModule", { value: true });
+const utils_1$1 = __importDefault$2(utils$1);
+const path_1$1 = __importDefault$2(require$$1$2);
+class ArgumentsManager {
+  constructor(config2, manifest) {
+    this.config = config2;
+    this.manifest = manifest;
+    this.loaderManifest = null;
+    this.loader = null;
   }
   /**
    * Get the arguments to launch the game.
    * @param libraries The libraries of the game (including loader libraries).
    * @returns The arguments to launch the game.
    */
-  getArgs(e, p, t = null) {
-    this.loaderManifest = t, this.loader = p;
-    const d = this.getJvmArgs(e), i = this.getMainClass(), l = this.getMinecraftArgs();
-    return [...d, i, ...l];
+  getArgs(libraries, loader, loaderManifest = null) {
+    this.loaderManifest = loaderManifest;
+    this.loader = loader;
+    const jvmArgs = this.getJvmArgs(libraries);
+    const mainClass = this.getMainClass();
+    const minecraftArgs = this.getMinecraftArgs();
+    return [...jvmArgs, mainClass, ...minecraftArgs];
   }
-  getJvmArgs(e) {
-    var l, m, r;
-    const p = S1.default.join(this.config.root, "bin", "natives").replaceAll("\\", "/"), t = S1.default.join(this.config.root, "libraries").replaceAll("\\", "/"), d = this.getClasspath(e);
-    let i = ((l = this.config.java) == null ? void 0 : l.args) || [];
-    return (m = this.manifest.arguments) != null && m.jvm ? [...this.manifest.arguments.jvm, ...((r = this.loaderManifest) == null ? void 0 : r.arguments.jvm) || []].forEach((v) => {
-      typeof v == "string" ? i.push(v) : v.rules && I1.default.isArgAllowed(v) && (typeof v.value == "string" ? i.push(v.value) : i.push(...v.value));
-    }) : (i.push("-Djava.library.path=${natives_directory}"), i.push("-Dminecraft.launcher.brand=${launcher_name}"), i.push("-Dminecraft.launcher.version=${launcher_version}"), i.push("-Dminecraft.client.jar=${jar_path}"), i.push("-cp"), i.push("${classpath}"), I1.default.getOS() === "win" && +I1.default.getOSVersion().split(".")[0] >= 10 && i.push("-Dos.name=Windows 10 -Dos.version=10.0"), I1.default.getOS() === "win" && i.push("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump"), I1.default.getOS() === "mac" && i.push("-XstartOnFirstThread"), I1.default.getArch() === "32" && i.push("-Xss1M")), i.push(...this.getLog4jArgs()), i.push("-Xmx${max_memory}M"), i.push("-Xms${min_memory}M"), i.push("-Dfml.ignoreInvalidMinecraftCertificates=true"), i.map((v) => v.replaceAll("${natives_directory}", p).replaceAll("${library_directory}", t).replaceAll("${launcher_name}", `${this.config.serverId}-launcher`).replaceAll("${launcher_version}", "2").replaceAll("${version_name}", this.manifest.id).replaceAll("${jar_path}", S1.default.join(this.config.root, "versions", this.manifest.id, `${this.manifest.id}.jar`).replaceAll("\\", "/")).replaceAll("${classpath}", d).replaceAll("${max_memory}", this.config.memory.max + "").replaceAll("${min_memory}", this.config.memory.min + "").replaceAll("${classpath_separator}", S1.default.delimiter));
+  getJvmArgs(libraries) {
+    var _a, _b, _c;
+    const nativeDirectory = path_1$1.default.join(this.config.root, "bin", "natives").replaceAll("\\", "/");
+    const libraryDirectory = path_1$1.default.join(this.config.root, "libraries").replaceAll("\\", "/");
+    const classpath = this.getClasspath(libraries);
+    let args = ((_a = this.config.java) == null ? void 0 : _a.args) || [];
+    if ((_b = this.manifest.arguments) == null ? void 0 : _b.jvm) {
+      [...this.manifest.arguments.jvm, ...((_c = this.loaderManifest) == null ? void 0 : _c.arguments.jvm) || []].forEach((arg) => {
+        if (typeof arg === "string") {
+          args.push(arg);
+        } else if (arg.rules && utils_1$1.default.isArgAllowed(arg)) {
+          if (typeof arg.value === "string") {
+            args.push(arg.value);
+          } else {
+            args.push(...arg.value);
+          }
+        }
+      });
+    } else {
+      args.push("-Djava.library.path=${natives_directory}");
+      args.push("-Dminecraft.launcher.brand=${launcher_name}");
+      args.push("-Dminecraft.launcher.version=${launcher_version}");
+      args.push("-Dminecraft.client.jar=${jar_path}");
+      args.push("-cp");
+      args.push("${classpath}");
+      if (utils_1$1.default.getOS() === "win" && +utils_1$1.default.getOSVersion().split(".")[0] >= 10)
+        args.push("-Dos.name=Windows 10 -Dos.version=10.0");
+      if (utils_1$1.default.getOS() === "win")
+        args.push("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
+      if (utils_1$1.default.getOS() === "mac")
+        args.push("-XstartOnFirstThread");
+      if (utils_1$1.default.getArch() === "32")
+        args.push("-Xss1M");
+    }
+    args.push(...this.getLog4jArgs());
+    args.push("-Xmx${max_memory}M");
+    args.push("-Xms${min_memory}M");
+    args.push("-Dfml.ignoreInvalidMinecraftCertificates=true");
+    return args.map((arg) => arg.replaceAll("${natives_directory}", nativeDirectory).replaceAll("${library_directory}", libraryDirectory).replaceAll("${launcher_name}", `${this.config.serverId}-launcher`).replaceAll("${launcher_version}", "2").replaceAll("${version_name}", this.manifest.id).replaceAll("${jar_path}", path_1$1.default.join(this.config.root, "versions", this.manifest.id, `${this.manifest.id}.jar`).replaceAll("\\", "/")).replaceAll("${classpath}", classpath).replaceAll("${max_memory}", this.config.memory.max + "").replaceAll("${min_memory}", this.config.memory.min + "").replaceAll("${classpath_separator}", path_1$1.default.delimiter));
   }
   /**
    * Patch Log4j vulnerability.
    * @see [help.minecraft.net](https://help.minecraft.net/hc/en-us/articles/4416199399693-Security-Vulnerability-in-Minecraft-Java-Edition)
    */
   getLog4jArgs() {
-    let e = [];
-    return this.manifest.id === "1.18" || this.manifest.id.startsWith("1.17") ? e.push("-Dlog4j2.formatMsgNoLookups=true") : +this.manifest.id.split(".")[1] <= 16 && +this.manifest.id.split(".")[1] >= 12 ? e.push("-Dlog4j.configurationFile=log4j2_112-116.xml") : +this.manifest.id.split(".")[1] <= 11 && +this.manifest.id.split(".")[1] >= 7 && e.push("-Dlog4j.configurationFile=log4j2_17-111.xml"), e;
+    let args = [];
+    if (this.manifest.id === "1.18" || this.manifest.id.startsWith("1.17")) {
+      args.push("-Dlog4j2.formatMsgNoLookups=true");
+    } else if (+this.manifest.id.split(".")[1] <= 16 && +this.manifest.id.split(".")[1] >= 12) {
+      args.push("-Dlog4j.configurationFile=log4j2_112-116.xml");
+    } else if (+this.manifest.id.split(".")[1] <= 11 && +this.manifest.id.split(".")[1] >= 7) {
+      args.push("-Dlog4j.configurationFile=log4j2_17-111.xml");
+    }
+    return args;
   }
   getMinecraftArgs() {
-    var d, i, l, m;
-    const e = S1.default.join(this.config.root).replaceAll("\\", "/"), p = this.manifest.assets === "legacy" || this.manifest.assets === "pre-1.6" ? S1.default.join(this.config.root, "ressources").replaceAll("\\", "/") : S1.default.join(this.config.root, "assets").replaceAll("\\", "/");
-    let t = ((d = this.config.minecraft) == null ? void 0 : d.args) || [];
-    return (i = this.manifest.arguments) != null && i.game ? [...this.manifest.arguments.game, ...((l = this.loaderManifest) == null ? void 0 : l.arguments.game) || []].forEach((r) => {
-      typeof r == "string" ? t.push(r) : r.rules && I1.default.isArgAllowed(r) && (typeof r.value == "string" ? t.push(r.value) : t.push(...r.value));
-    }) : this.manifest.minecraftArguments && t.push(...(((m = this.loaderManifest) == null ? void 0 : m.minecraftArguments) || this.manifest.minecraftArguments).split(" ")), this.config.window.fullscreen ? t.push("--fullscreen") : (t.push("--width"), t.push("${resolution_width}"), t.push("--height"), t.push("${resolution_height}")), [...new Set(t)].map(
-      (r) => {
-        var v;
-        return r.replaceAll("${clientid}", this.config.account.clientToken || this.config.account.accessToken).replaceAll("${auth_xuid}", ((v = this.config.account.xbox) == null ? void 0 : v.xuid) || this.config.account.accessToken).replaceAll("${auth_player_name}", this.config.account.name).replaceAll("${auth_uuid}", this.config.account.uuid).replaceAll("${auth_access_token}", this.config.account.accessToken).replaceAll("${user_type}", this.manifest.id.startsWith("1.16") && this.config.account.meta.type === "msa" ? "Xbox" : this.config.account.meta.type).replaceAll("${version_name}", this.manifest.id).replaceAll("${game_directory}", e).replaceAll("${assets_root}", p).replaceAll("${assets_index_name}", this.manifest.assetIndex.id).replaceAll("${version_type}", this.manifest.type).replaceAll("${resolution_width}", this.config.window.width + "").replaceAll("${resolution_height}", this.config.window.height + "").replaceAll("${auth_session}", this.config.account.accessToken).replaceAll("${user_properties}", JSON.stringify(this.config.account.userProperties || {})).replaceAll("${game_assets}", p);
+    var _a, _b, _c, _d;
+    const gameDirectory = path_1$1.default.join(this.config.root).replaceAll("\\", "/");
+    const assetsDirectory = this.manifest.assets === "legacy" || this.manifest.assets === "pre-1.6" ? path_1$1.default.join(this.config.root, "ressources").replaceAll("\\", "/") : path_1$1.default.join(this.config.root, "assets").replaceAll("\\", "/");
+    let args = ((_a = this.config.minecraft) == null ? void 0 : _a.args) || [];
+    if ((_b = this.manifest.arguments) == null ? void 0 : _b.game) {
+      [...this.manifest.arguments.game, ...((_c = this.loaderManifest) == null ? void 0 : _c.arguments.game) || []].forEach((arg) => {
+        if (typeof arg === "string") {
+          args.push(arg);
+        } else if (arg.rules && utils_1$1.default.isArgAllowed(arg)) {
+          if (typeof arg.value === "string") {
+            args.push(arg.value);
+          } else {
+            args.push(...arg.value);
+          }
+        }
+      });
+    } else if (this.manifest.minecraftArguments) {
+      args.push(...(((_d = this.loaderManifest) == null ? void 0 : _d.minecraftArguments) || this.manifest.minecraftArguments).split(" "));
+    }
+    if (this.config.window.fullscreen) {
+      args.push("--fullscreen");
+    } else {
+      args.push("--width");
+      args.push("${resolution_width}");
+      args.push("--height");
+      args.push("${resolution_height}");
+    }
+    return [...new Set(args)].map(
+      (arg) => {
+        var _a2;
+        return arg.replaceAll("${clientid}", this.config.account.clientToken || this.config.account.accessToken).replaceAll("${auth_xuid}", ((_a2 = this.config.account.xbox) == null ? void 0 : _a2.xuid) || this.config.account.accessToken).replaceAll("${auth_player_name}", this.config.account.name).replaceAll("${auth_uuid}", this.config.account.uuid).replaceAll("${auth_access_token}", this.config.account.accessToken).replaceAll("${user_type}", this.manifest.id.startsWith("1.16") && this.config.account.meta.type === "msa" ? "Xbox" : this.config.account.meta.type).replaceAll("${version_name}", this.manifest.id).replaceAll("${game_directory}", gameDirectory).replaceAll("${assets_root}", assetsDirectory).replaceAll("${assets_index_name}", this.manifest.assetIndex.id).replaceAll("${version_type}", this.manifest.type).replaceAll("${resolution_width}", this.config.window.width + "").replaceAll("${resolution_height}", this.config.window.height + "").replaceAll("${auth_session}", this.config.account.accessToken).replaceAll("${user_properties}", JSON.stringify(this.config.account.userProperties || {})).replaceAll("${game_assets}", assetsDirectory);
       }
       // legacy
     );
   }
-  getClasspath(e) {
-    let p = [];
-    e = [...new Set(e)];
-    for (let t = 0; t < e.length; t++) {
-      const d = e[t];
-      if (d.extra !== "INSTALL" && d.type === "LIBRARY") {
-        const i = S1.default.join(this.config.root, d.path, d.name).replaceAll("\\", "/"), l = e.find((m, r) => m.path.replaceAll("/", "\\").split("\\").slice(0, -2).join("/") === d.path.replaceAll("/", "\\").split("\\").slice(0, -2).join("/") && !m.path.startsWith("versions") && t !== r && m.extra !== "INSTALL");
-        if (l && I1.default.isNewer(d, l))
+  getClasspath(libraries) {
+    let classpath = [];
+    libraries = [...new Set(libraries)];
+    for (let i = 0; i < libraries.length; i++) {
+      const lib2 = libraries[i];
+      if (lib2.extra === "INSTALL")
+        continue;
+      if (lib2.type === "LIBRARY") {
+        const path2 = path_1$1.default.join(this.config.root, lib2.path, lib2.name).replaceAll("\\", "/");
+        const check = libraries.find((l, j) => l.path.replaceAll("/", "\\").split("\\").slice(0, -2).join("/") === lib2.path.replaceAll("/", "\\").split("\\").slice(0, -2).join("/") && !l.path.startsWith("versions") && i !== j && l.extra !== "INSTALL");
+        if (check && utils_1$1.default.isNewer(lib2, check))
           continue;
-        p.push(i);
+        classpath.push(path2);
       }
     }
-    return [.../* @__PURE__ */ new Set([...p])].join(S1.default.delimiter);
+    return [.../* @__PURE__ */ new Set([...classpath])].join(path_1$1.default.delimiter);
   }
   getMainClass() {
-    var e;
-    return ((e = this.loaderManifest) == null ? void 0 : e.mainClass) || this.manifest.mainClass;
+    var _a;
+    return ((_a = this.loaderManifest) == null ? void 0 : _a.mainClass) || this.manifest.mainClass;
   }
 }
-Aa.default = R6;
+argumentsmanager.default = ArgumentsManager;
 /**
  * @license MIT
  * @copyright Copyright (c) 2024, GoldFrite
  */
-var y1 = I && I.__importDefault || function(a) {
-  return a && a.__esModule ? a : { default: a };
+var __importDefault$1 = commonjsGlobal && commonjsGlobal.__importDefault || function(mod) {
+  return mod && mod.__esModule ? mod : { "default": mod };
 };
-Object.defineProperty(ga, "__esModule", { value: !0 });
-const x6 = y1(_1), dp = y1(je), Qe = y1(N1), tp = y1(n1), O6 = y1(Ea), I6 = y1(oe), F6 = y1(ya), P6 = y1(fe), U6 = y1(Sa), j6 = y1(Aa), B6 = xe;
-class M6 extends x6.default {
+Object.defineProperty(launcher, "__esModule", { value: true });
+const events_1 = __importDefault$1(events);
+const manifests_1 = __importDefault$1(manifests);
+const utils_1 = __importDefault$1(utils$1);
+const path_1 = __importDefault$1(require$$1$2);
+const filesmanager_1 = __importDefault$1(filesmanager);
+const downloader_1 = __importDefault$1(downloader);
+const cleaner_1 = __importDefault$1(cleaner);
+const java_1$1 = __importDefault$1(java);
+const loadermanager_1 = __importDefault$1(loadermanager);
+const argumentsmanager_1 = __importDefault$1(argumentsmanager);
+const child_process_1 = require$$4$1;
+class Launcher extends events_1.default {
   /**
    * @param config The configuration of the launcher.
    */
-  constructor(e) {
-    var p, t, d, i, l, m, r, v, N, D, T, c, h, f;
-    super(), e.cleaning = {
-      clean: ((p = e.cleaning) == null ? void 0 : p.clean) === !0,
-      ignored: ((t = e.cleaning) == null ? void 0 : t.ignored) || [
+  constructor(config2) {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n;
+    super();
+    config2.cleaning = {
+      clean: ((_a = config2.cleaning) == null ? void 0 : _a.clean) === true,
+      ignored: ((_b = config2.cleaning) == null ? void 0 : _b.ignored) || [
         "runtime/",
         "crash-reports/",
         "logs/",
@@ -82722,21 +85296,26 @@ class M6 extends x6.default {
         "options.txt",
         "optionsof.txt"
       ]
-    }, e.minecraft = {
-      version: (d = e.minecraft) != null && d.version ? (i = e.minecraft) == null ? void 0 : i.version : e.url ? null : "latest_release",
-      args: ((l = e.minecraft) == null ? void 0 : l.args) || []
-    }, e.java = {
-      install: ((m = e.java) == null ? void 0 : m.install) || "auto",
-      absolutePath: (r = e.java) != null && r.absolutePath ? e.java.absolutePath : (v = e.java) != null && v.relativePath ? tp.default.join(Qe.default.getServerFolder(e.serverId), e.java.relativePath, "/") : tp.default.join(Qe.default.getServerFolder(e.serverId), "runtime", "jre-${X}", "bin", "java"),
-      args: ((N = e.java) == null ? void 0 : N.args) || []
-    }, e.window = {
-      width: ((D = e.window) == null ? void 0 : D.width) || 854,
-      height: ((T = e.window) == null ? void 0 : T.height) || 480,
-      fullscreen: ((c = e.window) == null ? void 0 : c.fullscreen) || !1
-    }, e.memory = {
-      min: ((h = e.memory) == null ? void 0 : h.min) || 512,
-      max: (f = e.memory) != null && f.max && e.memory.max > (e.memory.min || 512) ? e.memory.max : 1023
-    }, this.config = { ...e, root: Qe.default.getServerFolder(e.serverId) };
+    };
+    config2.minecraft = {
+      version: ((_c = config2.minecraft) == null ? void 0 : _c.version) ? (_d = config2.minecraft) == null ? void 0 : _d.version : config2.url ? null : "latest_release",
+      args: ((_e = config2.minecraft) == null ? void 0 : _e.args) || []
+    };
+    config2.java = {
+      install: ((_f = config2.java) == null ? void 0 : _f.install) || "auto",
+      absolutePath: ((_g = config2.java) == null ? void 0 : _g.absolutePath) ? config2.java.absolutePath : ((_h = config2.java) == null ? void 0 : _h.relativePath) ? path_1.default.join(utils_1.default.getServerFolder(config2.serverId), config2.java.relativePath, "/") : path_1.default.join(utils_1.default.getServerFolder(config2.serverId), "runtime", "jre-${X}", "bin", "java"),
+      args: ((_i = config2.java) == null ? void 0 : _i.args) || []
+    };
+    config2.window = {
+      width: ((_j = config2.window) == null ? void 0 : _j.width) || 854,
+      height: ((_k = config2.window) == null ? void 0 : _k.height) || 480,
+      fullscreen: ((_l = config2.window) == null ? void 0 : _l.fullscreen) || false
+    };
+    config2.memory = {
+      min: ((_m = config2.memory) == null ? void 0 : _m.min) || 512,
+      max: ((_n = config2.memory) == null ? void 0 : _n.max) && config2.memory.max > (config2.memory.min || 512) ? config2.memory.max : 1023
+    };
+    this.config = { ...config2, root: utils_1.default.getServerFolder(config2.serverId) };
   }
   /**
    * Launch Minecraft.
@@ -82744,115 +85323,169 @@ class M6 extends x6.default {
    * This method will patch the [Log4j vulnerability](https://help.minecraft.net/hc/en-us/articles/4416199399693-Security-Vulnerability-in-Minecraft-Java-Edition).
    */
   async launch() {
-    var O, W;
-    const e = await dp.default.getMinecraftManifest(this.config.minecraft.version, this.config.url), p = await dp.default.getLoaderInfo(this.config.minecraft.version, this.config.url);
-    this.config.minecraft.version = e.id;
-    const t = new O6.default(this.config, e, p), d = new U6.default(this.config, e, p), i = new j6.default(this.config, e), l = new I6.default(this.config.root), m = new F6.default(this.config.root), r = new P6.default(e.id, this.config.serverId);
-    t.forwardEvents(this), d.forwardEvents(this), l.forwardEvents(this), m.forwardEvents(this), r.forwardEvents(this), this.emit("launch_compute_download");
-    const v = await t.getJava(), N = await t.getModpack(), D = await t.getLibraries(), T = await t.getAssets(), c = await t.getLog4j(), h = l.getFilesToDownload(v.java), f = l.getFilesToDownload(N.modpack), w = l.getFilesToDownload(D.libraries), E = l.getFilesToDownload(T.assets), n = l.getFilesToDownload(c.log4j), u = [
-      ...h,
-      ...f,
-      ...w,
-      ...E,
-      ...n
+    var _a, _b;
+    const manifest = await manifests_1.default.getMinecraftManifest(this.config.minecraft.version, this.config.url);
+    const loader = await manifests_1.default.getLoaderInfo(this.config.minecraft.version, this.config.url);
+    this.config.minecraft.version = manifest.id;
+    const filesManager = new filesmanager_1.default(this.config, manifest, loader);
+    const loaderManager = new loadermanager_1.default(this.config, manifest, loader);
+    const argumentsManager = new argumentsmanager_1.default(this.config, manifest);
+    const downloader2 = new downloader_1.default(this.config.root);
+    const cleaner2 = new cleaner_1.default(this.config.root);
+    const java2 = new java_1$1.default(manifest.id, this.config.serverId);
+    filesManager.forwardEvents(this);
+    loaderManager.forwardEvents(this);
+    downloader2.forwardEvents(this);
+    cleaner2.forwardEvents(this);
+    java2.forwardEvents(this);
+    this.emit("launch_compute_download");
+    const javaFiles = await filesManager.getJava();
+    const modpackFiles = await filesManager.getModpack();
+    const librariesFiles = await filesManager.getLibraries();
+    const assetsFiles = await filesManager.getAssets();
+    const log4jFiles = await filesManager.getLog4j();
+    const javaFilesToDownload = downloader2.getFilesToDownload(javaFiles.java);
+    const modpackFilesToDownload = downloader2.getFilesToDownload(modpackFiles.modpack);
+    const librariesFilesToDownload = downloader2.getFilesToDownload(librariesFiles.libraries);
+    const assetsFilesToDownload = downloader2.getFilesToDownload(assetsFiles.assets);
+    const log4jFilesToDownload = downloader2.getFilesToDownload(log4jFiles.log4j);
+    const filesToDownload = [
+      ...javaFilesToDownload,
+      ...modpackFilesToDownload,
+      ...librariesFilesToDownload,
+      ...assetsFilesToDownload,
+      ...log4jFilesToDownload
     ];
-    this.emit("launch_download", { total: { amount: u.length, size: u.reduce((M, Y) => M + Y.size, 0) } }), await l.download(h, !0), await l.download(f, !0), await l.download(w, !0), await l.download(E, !0), await l.download(n, !0), this.emit("launch_install_loader", p), await new Promise((M) => setTimeout(M, 1e3));
-    const _ = await d.setupLoader();
-    await l.download(_.libraries), this.emit("launch_extract_natives");
-    const g = t.extractNatives([...D.libraries, ..._.libraries]);
+    this.emit("launch_download", { total: { amount: filesToDownload.length, size: filesToDownload.reduce((acc, file) => acc + file.size, 0) } });
+    await downloader2.download(javaFilesToDownload, true);
+    await downloader2.download(modpackFilesToDownload, true);
+    await downloader2.download(librariesFilesToDownload, true);
+    await downloader2.download(assetsFilesToDownload, true);
+    await downloader2.download(log4jFilesToDownload, true);
+    this.emit("launch_install_loader", loader);
+    await new Promise((resolve) => setTimeout(resolve, 1e3));
+    const loaderFiles = await loaderManager.setupLoader();
+    await downloader2.download(loaderFiles.libraries);
+    this.emit("launch_extract_natives");
+    const extractedNatives = filesManager.extractNatives([...librariesFiles.libraries, ...loaderFiles.libraries]);
     this.emit("launch_copy_assets");
-    const b = t.copyAssets();
-    this.emit("launch_check_java"), r.check(this.config.java.absolutePath, ((O = e.javaVersion) == null ? void 0 : O.majorVersion) || 8), this.emit("launch_patch_loader");
-    const V = await d.patchLoader(_.installProfile);
+    const copiedAssets = filesManager.copyAssets();
+    this.emit("launch_check_java");
+    java2.check(this.config.java.absolutePath, ((_a = manifest.javaVersion) == null ? void 0 : _a.majorVersion) || 8);
+    this.emit("launch_patch_loader");
+    const patchedFiles = await loaderManager.patchLoader(loaderFiles.installProfile);
     this.emit("launch_clean");
-    const x = [
-      ...v.files,
-      ...N.files,
-      ...D.files,
-      ...T.files,
-      ...c.files,
-      ...g.files,
-      ...b.files,
-      ..._.files,
-      ...V.files
+    const files = [
+      ...javaFiles.files,
+      ...modpackFiles.files,
+      ...librariesFiles.files,
+      ...assetsFiles.files,
+      ...log4jFiles.files,
+      ...extractedNatives.files,
+      ...copiedAssets.files,
+      ...loaderFiles.files,
+      ...patchedFiles.files
     ];
-    m.clean(x, this.config.cleaning.ignored, !this.config.cleaning.clean), this.emit("launch_launch", { version: e.id, loader: p.loader, loaderVersion: p.loader_version });
-    const C = i.getArgs([..._.libraries, ...D.libraries], p, _.loaderManifest);
-    C.map((M, Y) => Y === C.findIndex((C1) => C1 === "--accessToken") + 1 ? "**********" : M), this.emit("launch_debug", `Launching Minecraft with args: ${C.join(" ")}`), this.run(this.config.java.absolutePath.replace("${X}", ((W = e.javaVersion) == null ? void 0 : W.majorVersion.toString()) || "8"), C);
+    cleaner2.clean(files, this.config.cleaning.ignored, !this.config.cleaning.clean);
+    this.emit("launch_launch", { version: manifest.id, loader: loader.loader, loaderVersion: loader.loader_version });
+    const args = argumentsManager.getArgs([...loaderFiles.libraries, ...librariesFiles.libraries], loader, loaderFiles.loaderManifest);
+    args.map((arg, i) => i === args.findIndex((p) => p === "--accessToken") + 1 ? "**********" : arg);
+    this.emit("launch_debug", `Launching Minecraft with args: ${args.join(" ")}`);
+    this.run(this.config.java.absolutePath.replace("${X}", ((_b = manifest.javaVersion) == null ? void 0 : _b.majorVersion.toString()) || "8"), args);
   }
-  async run(e, p) {
-    const t = (0, B6.spawn)(e, p, { cwd: this.config.root, detached: !0 });
-    t.stdout.on("data", (d) => this.emit("launch_data", d.toString("utf8").replace(/\n$/, ""))), t.stderr.on("data", (d) => this.emit("launch_data", d.toString("utf8").replace(/\n$/, ""))), t.on("close", (d) => this.emit("launch_close", d || 0));
+  async run(javaPath, args) {
+    const minecraft = (0, child_process_1.spawn)(javaPath, args, { cwd: this.config.root, detached: true });
+    minecraft.stdout.on("data", (data) => this.emit("launch_data", data.toString("utf8").replace(/\n$/, "")));
+    minecraft.stderr.on("data", (data) => this.emit("launch_data", data.toString("utf8").replace(/\n$/, "")));
+    minecraft.on("close", (code) => this.emit("launch_close", code || 0));
   }
 }
-ga.default = M6;
+launcher.default = Launcher;
 /**
  * @license MIT
  * @copyright Copyright (c) 2024, GoldFrite
  */
-var D1 = I && I.__importDefault || function(a) {
-  return a && a.__esModule ? a : { default: a };
+var __importDefault = commonjsGlobal && commonjsGlobal.__importDefault || function(mod) {
+  return mod && mod.__esModule ? mod : { "default": mod };
 };
-Object.defineProperty(Z, "__esModule", { value: !0 });
-Z.Launcher = Z.Java = Z.ServerStatus = Z.Background = Z.News = Z.Maintenance = Z.Bootstraps = Z.CrackAuth = Z.AzAuth = Z.MicrosoftAuth = void 0;
-const Ip = D1(la);
-Z.MicrosoftAuth = Ip.default;
-const Fp = D1(ma);
-Z.AzAuth = Fp.default;
-const Pp = D1(sa);
-Z.CrackAuth = Pp.default;
-const Up = D1(na);
-Z.Bootstraps = Up.default;
-const jp = D1(fa);
-Z.Maintenance = jp.default;
-const Bp = D1(ca);
-Z.News = Bp.default;
-const Mp = D1(ha);
-Z.Background = Mp.default;
-const $p = D1(va);
-Z.ServerStatus = $p.default;
-const zp = D1(fe);
-Z.Java = zp.default;
-const Hp = D1(ga);
-Z.Launcher = Hp.default;
-var ip = Z.default = { MicrosoftAuth: Ip.default, AzAuth: Fp.default, CrackAuth: Pp.default, Bootstraps: Up.default, Maintenance: jp.default, News: Bp.default, Background: Mp.default, ServerStatus: $p.default, Java: zp.default, Launcher: Hp.default };
-async function $6(a) {
-  const e = new ip.Launcher({
-    account: new ip.CrackAuth().auth("GrknDev"),
+Object.defineProperty(emlLib, "__esModule", { value: true });
+emlLib.Launcher = emlLib.Java = emlLib.ServerStatus = emlLib.Background = emlLib.News = emlLib.Maintenance = emlLib.Bootstraps = emlLib.CrackAuth = emlLib.AzAuth = emlLib.MicrosoftAuth = void 0;
+const microsoft_1 = __importDefault(microsoft);
+emlLib.MicrosoftAuth = microsoft_1.default;
+const azuriom_1 = __importDefault(azuriom);
+emlLib.AzAuth = azuriom_1.default;
+const crack_1 = __importDefault(crack);
+emlLib.CrackAuth = crack_1.default;
+const bootstraps_1 = __importDefault(bootstraps);
+emlLib.Bootstraps = bootstraps_1.default;
+const maintenance_1 = __importDefault(maintenance);
+emlLib.Maintenance = maintenance_1.default;
+const news_1 = __importDefault(news);
+emlLib.News = news_1.default;
+const background_1 = __importDefault(background);
+emlLib.Background = background_1.default;
+const serverstatus_1 = __importDefault(serverstatus);
+emlLib.ServerStatus = serverstatus_1.default;
+const java_1 = __importDefault(java);
+emlLib.Java = java_1.default;
+const launcher_1 = __importDefault(launcher);
+emlLib.Launcher = launcher_1.default;
+var _default = emlLib.default = { MicrosoftAuth: microsoft_1.default, AzAuth: azuriom_1.default, CrackAuth: crack_1.default, Bootstraps: bootstraps_1.default, Maintenance: maintenance_1.default, News: news_1.default, Background: background_1.default, ServerStatus: serverstatus_1.default, Java: java_1.default, Launcher: launcher_1.default };
+async function launchMinecraft(mainWindow) {
+  const launcher2 = new _default.Launcher({
+    account: new _default.CrackAuth().auth("GrknDev"),
     serverId: "minecraft",
     minecraft: {
       version: "1.21.6"
     }
   });
   try {
-    e.launch().then(() => {
-      a && setTimeout(() => {
-        a.webContents.send("launch-success");
-      }, 5e3);
-    }).catch((p) => {
-      a && a.webContents.send("launch-error", p);
-    }), e.on("launch_download", (p) => {
-      a && a.webContents.send("launch-download", p);
-    }), e.on("download_progress", (p) => {
-      a && a.webContents.send("download-progress", p);
-    }), e.on("download_end", (p) => {
-      a && a.webContents.send("download-end", p);
+    launcher2.launch().then(() => {
+      if (mainWindow) {
+        setTimeout(() => {
+          mainWindow.webContents.send("launch-success");
+        }, 5e3);
+      }
+    }).catch((e) => {
+      if (mainWindow) {
+        mainWindow.webContents.send("launch-error", e);
+      }
     });
-  } catch (p) {
-    console.log(p), a && a.webContents.send("launch-error", p);
+    launcher2.on("launch_download", (e) => {
+      if (mainWindow) {
+        mainWindow.webContents.send("launch-download", e);
+      }
+    });
+    launcher2.on("download_progress", (e) => {
+      if (mainWindow) {
+        mainWindow.webContents.send("download-progress", e);
+      }
+    });
+    launcher2.on("download_end", (e) => {
+      if (mainWindow) {
+        mainWindow.webContents.send("download-end", e);
+      }
+    });
+  } catch (e) {
+    console.log(e);
+    if (mainWindow) {
+      mainWindow.webContents.send("launch-error", e);
+    }
   }
 }
-const kp = U1.dirname(l2(import.meta.url));
-process.env.APP_ROOT = U1.join(kp, "..");
-const ta = process.env.VITE_DEV_SERVER_URL, r0 = U1.join(process.env.APP_ROOT, "dist-electron"), Zp = U1.join(process.env.APP_ROOT, "dist");
-process.env.VITE_PUBLIC = ta ? U1.join(process.env.APP_ROOT, "public") : Zp;
-let o1;
-function Gp() {
-  o1 = new lp({
-    icon: U1.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+process.env.APP_ROOT = path.join(__dirname, "..");
+const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
+const MAIN_DIST = path.join(process.env.APP_ROOT, "dist-electron");
+const RENDERER_DIST = path.join(process.env.APP_ROOT, "dist");
+process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, "public") : RENDERER_DIST;
+let win;
+function createWindow() {
+  win = new BrowserWindow({
+    icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
     // frame: false, // Remove the window frame (title bar)
     webPreferences: {
-      preload: U1.join(kp, "preload.mjs")
+      preload: path.join(__dirname, "preload.mjs")
     },
     height: 768,
     width: 1366,
@@ -82860,33 +85493,48 @@ function Gp() {
     minHeight: 768,
     maxWidth: 1366,
     maxHeight: 768,
-    resizable: !1,
-    maximizable: !1,
-    movable: !0,
+    resizable: false,
+    maximizable: false,
+    movable: true,
     title: "GrknDev Minecraft Launcher",
     titleBarStyle: "hidden"
-  }), o1.webContents.on("did-finish-load", () => {
-    o1 == null || o1.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
-  }), ta ? o1.loadURL(ta) : o1.loadFile(U1.join(Zp, "index.html"));
+  });
+  win.webContents.on("did-finish-load", () => {
+    win == null ? void 0 : win.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
+  });
+  if (VITE_DEV_SERVER_URL) {
+    win.loadURL(VITE_DEV_SERVER_URL);
+  } else {
+    win.loadFile(path.join(RENDERER_DIST, "index.html"));
+  }
 }
-Ae.on("window-all-closed", () => {
-  process.platform !== "darwin" && (Ae.quit(), o1 = null);
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
+    app.quit();
+    win = null;
+  }
 });
-Ae.on("activate", () => {
-  lp.getAllWindows().length === 0 && Gp();
+app.on("activate", () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  }
 });
-Ae.whenReady().then(Gp);
-ia.handle("minimize-window", () => {
-  o1 && o1.minimize();
+app.whenReady().then(createWindow);
+ipcMain.handle("minimize-window", () => {
+  if (win) {
+    win.minimize();
+  }
 });
-ia.handle("close-window", () => {
-  o1 && o1.close();
+ipcMain.handle("close-window", () => {
+  if (win) {
+    win.close();
+  }
 });
-ia.handle("launch-minecraft", () => {
-  $6(o1);
+ipcMain.handle("launch-minecraft", () => {
+  launchMinecraft(win);
 });
 export {
-  r0 as MAIN_DIST,
-  Zp as RENDERER_DIST,
-  ta as VITE_DEV_SERVER_URL
+  MAIN_DIST,
+  RENDERER_DIST,
+  VITE_DEV_SERVER_URL
 };

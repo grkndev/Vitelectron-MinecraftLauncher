@@ -1,1 +1,27 @@
-"use strict";const e=require("electron");e.contextBridge.exposeInMainWorld("ipcRenderer",{on(...n){const[r,i]=n;return e.ipcRenderer.on(r,(o,...c)=>i(o,...c))},off(...n){const[r,...i]=n;return e.ipcRenderer.off(r,...i)},send(...n){const[r,...i]=n;return e.ipcRenderer.send(r,...i)},invoke(...n){const[r,...i]=n;return e.ipcRenderer.invoke(r,...i)}});e.contextBridge.exposeInMainWorld("electronAPI",{minimizeWindow:()=>e.ipcRenderer.invoke("minimize-window"),closeWindow:()=>e.ipcRenderer.invoke("close-window"),launchMinecraft:()=>e.ipcRenderer.invoke("launch-minecraft")});
+"use strict";
+const electron = require("electron");
+electron.contextBridge.exposeInMainWorld("ipcRenderer", {
+  on(...args) {
+    const [channel, listener] = args;
+    return electron.ipcRenderer.on(channel, (event, ...args2) => listener(event, ...args2));
+  },
+  off(...args) {
+    const [channel, ...omit] = args;
+    return electron.ipcRenderer.off(channel, ...omit);
+  },
+  send(...args) {
+    const [channel, ...omit] = args;
+    return electron.ipcRenderer.send(channel, ...omit);
+  },
+  invoke(...args) {
+    const [channel, ...omit] = args;
+    return electron.ipcRenderer.invoke(channel, ...omit);
+  }
+  // You can expose other APTs you need here.
+  // ...
+});
+electron.contextBridge.exposeInMainWorld("electronAPI", {
+  minimizeWindow: () => electron.ipcRenderer.invoke("minimize-window"),
+  closeWindow: () => electron.ipcRenderer.invoke("close-window"),
+  launchMinecraft: () => electron.ipcRenderer.invoke("launch-minecraft")
+});

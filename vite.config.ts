@@ -25,5 +25,14 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     }
+  },
+  server: {
+    hmr: {
+      overlay: false // Disable error overlay for faster dev
+    }
+  },
+  optimizeDeps: {
+    exclude: ['lucide-react'], // Exclude heavy icon library from optimization
+    include: ['react', 'react-dom', 'react-router-dom']
   }
 })

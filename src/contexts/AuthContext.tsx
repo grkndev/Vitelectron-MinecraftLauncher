@@ -57,9 +57,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       localStorage.setItem('minecraft-launcher-user', JSON.stringify(userData))
       setIsLoading(false)
       
-      // Clear the auth page history by replacing current state
-      window.history.replaceState(null, '', '/')
-      
       return true
     }
     
@@ -85,9 +82,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       localStorage.setItem('minecraft-launcher-user', JSON.stringify(userData))
       setIsLoading(false)
       
-      // Clear the auth page history by replacing current state
-      window.history.replaceState(null, '', '/')
-      
       return true
     }
     
@@ -98,8 +92,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = () => {
     setUser(null)
     localStorage.removeItem('minecraft-launcher-user')
-    // Clear any remaining history and go to login
-    window.history.replaceState(null, '', '/login')
   }
 
   const value: AuthContextType = {
